@@ -1,0 +1,6 @@
+{
+  "name": "MathQuest THCS - Đấu Trường & Quản Lý Toán Học",
+  "description": "Nền tảng trò chơi toán học cá nhân và tập thể, bài giảng tương tác, ngân hàng đề thi THCS, quản lý lớp học và xuất báo cáo định kỳ cho giáo viên và phụ huynh.",
+  "requestFramePermissions": ["CAMERA", "MICROPHONE"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
