@@ -2,15 +2,16 @@ import React from 'react';
 import { soundManager } from '../utils/sound';
 import { 
   Volume2, VolumeX, Maximize2, Minimize2, Globe, GraduationCap, Users, UserCheck, 
-  Wifi, WifiOff, Lock, Unlock, KeyRound
+  WifiOff, KeyRound, LogOut
 } from 'lucide-react';
 import { Language, translations } from '../i18n/translations';
 import { MainPortal, TeacherRole } from '../types/math';
+import { AuthUser, getDefaultTabForRole } from '../utils/auth';
 
 export type NavTab = 
   | 'solo' | 'body_games' | 'custom_game' | 'exams' | 'ai_exam_studio' | 'homework' | 'ai_duel' | 'labs' 
   | 'parent_portal' 
-  | 'classroom' | 'anti_cheat_monitor' | 'homework_tracker' | 'teacher_exams' | 'questions' | 'reports'
+  | 'classroom' | 'gradebook' | 'anti_cheat_monitor' | 'homework_tracker' | 'teacher_exams' | 'questions' | 'reports'
   | 'seating_chart' | 'vnedu_gradebook';
 
 interface NavbarProps {
@@ -27,6 +28,8 @@ interface NavbarProps {
   language: Language;
   onToggleLanguage: () => void;
   isOnline: boolean;
+  currentUser: AuthUser;
+  onLogout: () => void;
   isTeacherUnlocked?: boolean;
   isParentUnlocked?: boolean;
   onLockTeacher?: () => void;
@@ -49,10 +52,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   language,
   onToggleLanguage,
   isOnline,
+  currentUser,
+  onLogout,
   isTeacherUnlocked = false,
-  isParentUnlocked = false,
-  onLockTeacher,
-  onLockParent,
   onOpenPinSettings,
   ongoingTestType = null
 }) => {
@@ -62,13 +64,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const studentNavItems: { id: NavTab; label: string; badge?: string }[] = [
     { id: 'solo', label: 'Trò Chơi Toán Học', badge: '5 Game' },
     { id: 'body_games', label: 'Vận Động Cơ Thể Camera', badge: 'Mới ⭐' },
-    { id: 'custom_game', label: 'Tạo Trò Chơi Theo Yêu Cầu', badge: 'Studio 🎨' },
     { 
       id: 'exams', 
       label: 'Luyện Đề Giữa/Cuối Kỳ', 
       badge: ongoingTestType === 'exam' ? '🔴 ĐANG LÀM' : 'Khối 6-9' 
     },
-    { id: 'ai_exam_studio', label: 'Tạo Đề AI & Giải Chi Tiết', badge: 'AI Mới ✨' },
     { 
       id: 'homework', 
       label: 'Làm Bài Tập Về Nhà', 
@@ -81,7 +81,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   // GV Bộ Môn Toán (Cô Diễm Quỳnh)
   const subjectTeacherNavItems: { id: NavTab; label: string; badge?: string }[] = [
     { id: 'classroom', label: 'Sổ Điểm Môn Toán & Thứ Hạng', badge: 'Cô Quỳnh' },
+    { id: 'gradebook', label: 'Bảng Điểm (TX, GK, CK)', badge: 'ĐTB 📊' },
     { id: 'ai_exam_studio', label: 'Tạo Đề AI & Giải Chi Tiết', badge: 'AI Mới ✨' },
+    { id: 'custom_game', label: 'Tạo Trò Chơi Cho Lớp', badge: 'Studio 🎨' },
     { id: 'anti_cheat_monitor', label: 'Radar Chống Chuyển Tab (Live)', badge: '🔴 Live' },
     { id: 'homework_tracker', label: 'Giám Sát BTVN & SMS PH', badge: 'SMS PH' },
     { id: 'teacher_exams', label: 'Đề Thi Thử Học Kỳ & In Đề A4' },
@@ -92,6 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   // GV Chủ Nhiệm (Sơ Đồ Lớp & VnEdu)
   const homeroomTeacherNavItems: { id: NavTab; label: string; badge?: string }[] = [
     { id: 'seating_chart', label: 'Sơ Đồ Chỗ Ngồi Lớp Học', badge: '4 Dãy/Tổ 🪑' },
+    { id: 'gradebook', label: 'Bảng Điểm (TX, GK, CK)', badge: 'ĐTB 📊' },
     { id: 'vnedu_gradebook', label: 'Sổ Điểm Điện Tử VnEdu (Các Môn)', badge: 'VnEdu 📊' },
     { id: 'reports', label: 'Báo Cáo Toàn Diện Lớp & Xuất PDF' },
   ];
@@ -116,13 +119,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Brand Wordmark */}
           <button
             onClick={() => {
-              onPortalChange('student');
-              onTabChange('solo');
+              onPortalChange(currentUser.role);
+              onTabChange(getDefaultTabForRole(currentUser.role));
             }}
             className="flex items-center gap-2.5 text-left shrink-0 cursor-pointer text-slate-900 group"
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 text-white flex items-center justify-center font-black text-lg shadow-sm">
-              ∑
+              M
             </div>
             <div>
               <span className="text-lg font-extrabold tracking-tight text-slate-900 block leading-tight">
@@ -134,148 +137,63 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </button>
 
-          {/* 3 Main Space Portals (Center Segmented Pill) */}
+          {/* Authorized Portal Role Pill (RBAC) */}
           <div className="hidden md:flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200">
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                onPortalChange('student');
-                if (
-                  activeTab === 'classroom' ||
-                  activeTab === 'anti_cheat_monitor' ||
-                  activeTab === 'homework_tracker' ||
-                  activeTab === 'teacher_exams' ||
-                  activeTab === 'questions' ||
-                  activeTab === 'reports' ||
-                  activeTab === 'seating_chart' ||
-                  activeTab === 'vnedu_gradebook' ||
-                  activeTab === 'parent_portal'
-                ) {
-                  onTabChange('solo');
-                }
-              }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                mainPortal === 'student'
-                  ? 'bg-white text-indigo-700 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <GraduationCap className="w-4 h-4 text-indigo-600" />
-              <span>Góc Học Sinh</span>
-            </button>
-
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                onPortalChange('parent');
-                onTabChange('parent_portal');
-              }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                mainPortal === 'parent'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Users className="w-4 h-4 text-emerald-400" />
-              <span>Góc Phụ Huynh</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 ${
-                mainPortal === 'parent' 
-                  ? 'bg-emerald-700 text-white' 
-                  : isParentUnlocked
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-amber-100 text-amber-800'
-              }`}>
-                {isParentUnlocked ? <Unlock className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
-                {isParentUnlocked ? 'Đã mở' : 'Mã riêng'}
-              </span>
-            </button>
-
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                onPortalChange('teacher');
-                if (
-                  activeTab !== 'classroom' &&
-                  activeTab !== 'ai_exam_studio' &&
-                  activeTab !== 'anti_cheat_monitor' &&
-                  activeTab !== 'homework_tracker' &&
-                  activeTab !== 'teacher_exams' &&
-                  activeTab !== 'questions' &&
-                  activeTab !== 'reports' &&
-                  activeTab !== 'seating_chart' &&
-                  activeTab !== 'vnedu_gradebook'
-                ) {
-                  onTabChange('classroom');
-                }
-              }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                mainPortal === 'teacher'
-                  ? 'bg-indigo-700 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <UserCheck className="w-4 h-4 text-indigo-300" />
-              <span>Góc Giáo Viên (Cô Diễm Quỳnh)</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 ${
-                mainPortal === 'teacher' 
-                  ? 'bg-indigo-900 text-indigo-200' 
-                  : isTeacherUnlocked
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'bg-rose-100 text-rose-700'
-              }`}>
-                {isTeacherUnlocked ? <Unlock className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
-                {isTeacherUnlocked ? 'Đã mở' : 'Mã riêng'}
-              </span>
-            </button>
-          </div>
-
-          {/* Zone 3: Utilities & Portal Lock Controls */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Contextual Lock / PIN Buttons */}
-            {mainPortal === 'teacher' && isTeacherUnlocked && (
-              <>
-                {onOpenPinSettings && (
-                  <button
-                    onClick={() => {
-                      soundManager.playClick();
-                      onOpenPinSettings();
-                    }}
-                    className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                    title="Đổi mã bảo mật cho Giáo Viên & Phụ Huynh"
-                  >
-                    <KeyRound className="w-3.5 h-3.5" />
-                    <span>Cài Đặt PIN</span>
-                  </button>
-                )}
-                {onLockTeacher && (
-                  <button
-                    onClick={() => {
-                      soundManager.playClick();
-                      onLockTeacher();
-                    }}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                    title="Khóa góc giáo viên để bảo vệ dữ liệu"
-                  >
-                    <Lock className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Khóa Góc GV</span>
-                  </button>
-                )}
-              </>
+            {currentUser.role === 'student' && (
+              <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-white text-indigo-700 shadow-sm flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-indigo-600" />
+                <span>Góc Học Sinh</span>
+              </div>
             )}
 
-            {mainPortal === 'parent' && isParentUnlocked && onLockParent && (
+            {currentUser.role === 'parent' && (
+              <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-2">
+                <Users className="w-4 h-4 text-emerald-100" />
+                <span>Góc Phụ Huynh</span>
+              </div>
+            )}
+
+            {currentUser.role === 'teacher' && (
+              <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-700 text-white shadow-sm flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-indigo-200" />
+                <span>Góc Giáo Viên (Cô Diễm Quỳnh)</span>
+              </div>
+            )}
+          </div>
+
+          {/* Zone 3: Utilities, User Role & Logout */}
+          <div className="flex items-center gap-2 shrink-0">
+            {currentUser.role === 'teacher' && isTeacherUnlocked && onOpenPinSettings && (
               <button
                 onClick={() => {
                   soundManager.playClick();
-                  onLockParent();
+                  onOpenPinSettings();
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                title="Khóa góc phụ huynh"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                title="Đổi mã bảo mật cho Giáo Viên & Phụ Huynh"
               >
-                <Lock className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Khóa Góc PH</span>
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Cài Đặt PIN</span>
               </button>
             )}
+
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+              <span className="text-indigo-700">{currentUser.roleLabel}</span>
+              <span className="text-slate-400">·</span>
+              <span className="font-mono text-slate-600">{currentUser.phone}</span>
+            </div>
+
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                onLogout();
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              title="Đăng xuất tài khoản"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Đăng xuất</span>
+            </button>
 
             {/* Language Switcher */}
             <button
@@ -314,50 +232,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Mobile Corner Selector */}
-        <div className="md:hidden flex items-center justify-around py-2 border-b border-slate-100 text-xs font-bold">
-          <button
-            onClick={() => {
-              onPortalChange('student');
-              onTabChange('solo');
-            }}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${
-              mainPortal === 'student' ? 'bg-indigo-600 text-white' : 'text-slate-600'
-            }`}
-          >
-            <GraduationCap className="w-4 h-4" />
-            <span>Học Sinh</span>
-          </button>
-          <button
-            onClick={() => {
-              onPortalChange('parent');
-              onTabChange('parent_portal');
-            }}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${
-              mainPortal === 'parent' ? 'bg-emerald-600 text-white' : 'text-slate-600'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Phụ Huynh</span>
-            <span className="text-[10px]">
-              {isParentUnlocked ? '🔓' : '🔒'}
-            </span>
-          </button>
-          <button
-            onClick={() => {
-              onPortalChange('teacher');
-              onTabChange('classroom');
-            }}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${
-              mainPortal === 'teacher' ? 'bg-indigo-700 text-white' : 'text-slate-600'
-            }`}
-          >
-            <UserCheck className="w-4 h-4" />
-            <span>Giáo Viên</span>
-            <span className="text-[10px]">
-              {isTeacherUnlocked ? '🔓' : '🔒'}
-            </span>
-          </button>
+        {/* Mobile Role Indicator */}
+        <div className="md:hidden flex items-center justify-between py-2 border-b border-slate-100 text-xs font-bold">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700">
+            {currentUser.role === 'student' && <GraduationCap className="w-4 h-4" />}
+            {currentUser.role === 'parent' && <Users className="w-4 h-4 text-emerald-600" />}
+            {currentUser.role === 'teacher' && <UserCheck className="w-4 h-4" />}
+            <span>{currentUser.roleLabel}</span>
+          </div>
+          <span className="font-mono text-slate-500">{currentUser.phone}</span>
         </div>
 
         {/* Tier 2: Sub-navigation links based on current portal */}

@@ -13,11 +13,13 @@ import {
 interface BodyCameraGamesHubProps {
   activeStudentName?: string;
   activeClassName?: string;
+  userRole?: 'student' | 'parent' | 'teacher';
 }
 
 export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
   activeStudentName = 'Nguyễn Minh Quân',
-  activeClassName = 'Lớp 6A1'
+  activeClassName = 'Lớp 6A1',
+  userRole = 'student'
 }) => {
   const [activeGame, setActiveGame] = useState<'motion_quiz' | 'tilt_tf' | 'catch_math'>('motion_quiz');
   const [questions, setQuestions] = useState<BodyMotionQuestion[]>(initialBodyMotionQuestions);
@@ -130,16 +132,18 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                setShowAddModal(true);
-              }}
-              className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-900 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors shadow-md"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Cô Quỳnh Thêm Câu Hỏi Mới Cho Lớp</span>
-            </button>
+            {userRole === 'teacher' && (
+              <button
+                onClick={() => {
+                  soundManager.playClick();
+                  setShowAddModal(true);
+                }}
+                className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-900 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Cô Quỳnh Thêm Câu Hỏi Mới Cho Lớp</span>
+              </button>
+            )}
             <div className="text-xs text-indigo-200 flex items-center gap-1">
               <span>Mã Lớp:</span>
               <strong className="font-mono bg-white/10 px-2 py-0.5 rounded text-white">20112002</strong>

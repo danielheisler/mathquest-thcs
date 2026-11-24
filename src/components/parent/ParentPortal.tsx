@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { Student, Classroom, HomeworkSubmission, PeriodicReport } from '../../types/math';
 import { CertificateModal } from '../certificate/CertificateModal';
+import { MathGradebookBoard } from '../common/MathGradebookBoard';
+import { calculateStudentAverage, createEmptyScoreRecord, StudentScoreRecord } from '../../utils/gradebook';
 import { soundManager } from '../../utils/sound';
 import { 
   Search, Phone, MessageSquare, Award, AlertTriangle, CheckCircle2, Clock, 
   BookOpen, Star, Sparkles, User, Calendar, ExternalLink, Send, ShieldCheck, 
-  HelpCircle, ChevronRight, Share2, Copy, Check, HeartHandshake, Lock
+  HelpCircle, ChevronRight, Share2, Copy, Check, HeartHandshake, Lock, FileSpreadsheet
 } from 'lucide-react';
 
 interface ParentPortalProps {
   students: Student[];
   classrooms: Classroom[];
   submissions: HomeworkSubmission[];
+  gradebook: Record<string, StudentScoreRecord>;
   initialPhone?: string;
   onLockPortal?: () => void;
 }
@@ -20,6 +23,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   students,
   classrooms,
   submissions,
+  gradebook,
   initialPhone,
   onLockPortal
 }) => {
@@ -38,7 +42,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
     }
     return students[0]?.id || 's1';
   });
-  const [activeTab, setActiveTab] = useState<'homework' | 'exams' | 'certificates' | 'contact'>('homework');
+  const [activeTab, setActiveTab] = useState<'gradebook' | 'homework' | 'exams' | 'certificates' | 'contact'>('gradebook');
   const [showCertificate, setShowCertificate] = useState<boolean>(false);
   const [parentNote, setParentNote] = useState<string>('');
   const [noteSent, setNoteSent] = useState<boolean>(false);
@@ -202,9 +206,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           {/* Metric Badges */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center">
-              <span className="text-[11px] font-bold text-slate-400 uppercase block">Điểm Trung Bình</span>
+              <span className="text-[11px] font-bold text-slate-400 uppercase block">Tổng Điểm Trung Bình</span>
               <span className="text-2xl font-mono font-black text-indigo-600 mt-1 block">
-                {currentStudent.overallScore.toFixed(1)}/10
+                {(() => {
+                  const avg = calculateStudentAverage(
+                    gradebook[currentStudent.id] || createEmptyScoreRecord(currentStudent.id)
+                  ).average;
+                  return avg !== null ? `${avg.toFixed(2)}/10` : `${currentStudent.overallScore.toFixed(1)}/10`;
+                })()}
               </span>
             </div>
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center">
@@ -229,6 +238,21 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
           {/* Sub Tabs */}
           <div className="border-b border-slate-200 flex items-center gap-1 overflow-x-auto">
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                setActiveTab('gradebook');
+              }}
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
+                activeTab === 'gradebook'
+                  ? 'border-emerald-600 text-emerald-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>Bảng Điểm (TX, GK, CK)</span>
+            </button>
+
             <button
               onClick={() => {
                 soundManager.playClick();
@@ -292,6 +316,17 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               <span>Liên Hệ Cô Diễm Quỳnh</span>
             </button>
           </div>
+
+          {/* TAB 0: GRADEBOOK (5 TX, 1 GK, 1 CK, AVERAGE) */}
+          {activeTab === 'gradebook' && (
+            <MathGradebookBoard
+              mode="parent"
+              students={students}
+              classrooms={classrooms}
+              gradebook={gradebook}
+              focusStudentId={currentStudent.id}
+            />
+          )}
 
           {/* TAB 1: HOMEWORK SUBMISSIONS & MISSING HOMEWORK ALERT */}
           {activeTab === 'homework' && (

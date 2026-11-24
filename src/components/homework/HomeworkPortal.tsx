@@ -22,6 +22,7 @@ interface HomeworkPortalProps {
   onAddSubmission: (submission: HomeworkSubmission) => void;
   language: Language;
   initialTab?: 'student' | 'teacher';
+  userRole?: 'student' | 'parent' | 'teacher';
 }
 
 export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
@@ -31,7 +32,8 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
   submissions,
   onAddSubmission,
   language,
-  initialTab
+  initialTab,
+  userRole = 'student'
 }) => {
   const t = translations[language];
   const CORRECT_PIN = '20112002';
@@ -448,50 +450,54 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
             </p>
           </div>
 
-          {/* Mode Switcher */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setActiveTab('student')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                activeTab === 'student'
-                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              Phần Học Sinh Làm Bài
-            </button>
-            <button
-              onClick={() => setActiveTab('teacher')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
-                activeTab === 'teacher'
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5 text-amber-400" />
-              <span>Cô Diễm Quỳnh Theo Dõi ({submissions.length})</span>
-            </button>
-          </div>
+          {/* Mode Switcher (Teacher only sees Tracking tab) */}
+          {userRole === 'teacher' && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveTab('student')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  activeTab === 'student'
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                Phần Học Sinh Làm Bài
+              </button>
+              <button
+                onClick={() => setActiveTab('teacher')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                  activeTab === 'teacher'
+                    ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 text-amber-400" />
+                <span>Cô Diễm Quỳnh Theo Dõi ({submissions.length})</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Share Link Strip for Teacher */}
-        <div className="p-3 bg-gradient-to-r from-indigo-50 to-slate-50 rounded-xl border border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-indigo-900 font-medium">
-            <Share2 className="w-4 h-4 text-indigo-600 shrink-0" />
-            <span>Link bài tập về nhà gửi học sinh (đã tích hợp sẵn mã <b className="font-mono">{CORRECT_PIN}</b>):</span>
+        {userRole === 'teacher' && (
+          <div className="p-3 bg-gradient-to-r from-indigo-50 to-slate-50 rounded-xl border border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-indigo-900 font-medium">
+              <Share2 className="w-4 h-4 text-indigo-600 shrink-0" />
+              <span>Link bài tập về nhà gửi học sinh (đã tích hợp sẵn mã <b className="font-mono">{CORRECT_PIN}</b>):</span>
+            </div>
+            <button
+              onClick={handleCopyShareLink}
+              className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition-colors shadow-xs shrink-0"
+            >
+              {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedLink ? 'Đã Sao Chép Link Kèm Mã!' : 'Sao Chép Link Gửi Lớp'}</span>
+            </button>
           </div>
-          <button
-            onClick={handleCopyShareLink}
-            className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition-colors shadow-xs shrink-0"
-          >
-            {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copiedLink ? 'Đã Sao Chép Link Kèm Mã!' : 'Sao Chép Link Gửi Lớp'}</span>
-          </button>
-        </div>
+        )}
       </div>
 
       {/* TEACHER LIVE TRACKING VIEW */}
-      {activeTab === 'teacher' && (
+      {userRole === 'teacher' && activeTab === 'teacher' && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
             <div>

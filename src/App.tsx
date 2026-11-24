@@ -27,6 +27,20 @@ import { BodyCameraGamesHub } from './components/camera_games/BodyCameraGamesHub
 import { ParentPortal } from './components/parent/ParentPortal';
 import { PortalPasscodeGate } from './components/auth/PortalPasscodeGate';
 import { PinSettingsModal } from './components/auth/PinSettingsModal';
+import { LoginPage } from './components/auth/LoginPage';
+import { MathGradebookBoard } from './components/common/MathGradebookBoard';
+import {
+  GRADEBOOK_STORAGE_KEY,
+  loadSavedGradebook,
+  StudentScoreRecord,
+} from './utils/gradebook';
+import {
+  AuthUser,
+  getDefaultTabForRole,
+  getSavedAuthUser,
+  isTabAllowedForRole,
+  saveAuthUser,
+} from './utils/auth';
 import { soundManager } from './utils/sound';
 import { Language, translations } from './i18n/translations';
 
@@ -182,52 +196,34 @@ const initialHomeworkSubmissions: HomeworkSubmission[] = [
 ];
 
 export default function App() {
-  const [mainPortal, setMainPortal] = useState<MainPortal>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('portal') === 'parent') return 'parent';
-      if (params.get('portal') === 'teacher') return 'teacher';
-      
-      // If there is an active exam or homework session, ensure student portal is focused
-      try {
-        const examSession = localStorage.getItem('mathquest_ongoing_exam_session');
-        if (examSession && JSON.parse(examSession)?.isExamActive) return 'student';
-        const hwSession = localStorage.getItem('mathquest_ongoing_homework_session');
-        if (hwSession && JSON.parse(hwSession)?.isSessionActive) return 'student';
-      } catch {}
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => getSavedAuthUser());
 
-      const saved = localStorage.getItem('mathquest_active_portal');
-      if (saved === 'student' || saved === 'parent' || saved === 'teacher') return saved;
-    }
+  const [mainPortal, setMainPortal] = useState<MainPortal>(() => {
+    const savedUser = getSavedAuthUser();
+    if (savedUser) return savedUser.role;
     return 'student';
   });
 
   const [activeTab, setActiveTab] = useState<NavTab>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('code')) return 'homework';
-      if (params.get('portal') === 'parent') return 'parent_portal';
-
-      // If there is an active exam in progress, auto-focus onto exams tab
-      try {
-        const examSession = localStorage.getItem('mathquest_ongoing_exam_session');
-        if (examSession) {
-          const parsed = JSON.parse(examSession);
-          if (parsed?.isExamActive) return 'exams';
-        }
-      } catch {}
-
-      // If there is an active homework in progress, auto-focus onto homework tab
-      try {
-        const hwSession = localStorage.getItem('mathquest_ongoing_homework_session');
-        if (hwSession) {
-          const parsed = JSON.parse(hwSession);
-          if (parsed?.isSessionActive) return 'homework';
-        }
-      } catch {}
-
-      const saved = localStorage.getItem('mathquest_active_tab') as NavTab;
-      if (saved) return saved;
+    const savedUser = getSavedAuthUser();
+    if (savedUser) {
+      if (savedUser.role === 'student' && typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('code')) return 'homework';
+        try {
+          const examSession = localStorage.getItem('mathquest_ongoing_exam_session');
+          if (examSession && JSON.parse(examSession)?.isExamActive) return 'exams';
+          const hwSession = localStorage.getItem('mathquest_ongoing_homework_session');
+          if (hwSession && JSON.parse(hwSession)?.isSessionActive) return 'homework';
+        } catch {}
+      }
+      const saved = typeof window !== 'undefined'
+        ? (localStorage.getItem('mathquest_active_tab') as NavTab)
+        : null;
+      if (saved && isTabAllowedForRole(saved, savedUser.role)) {
+        return saved;
+      }
+      return getDefaultTabForRole(savedUser.role);
     }
     return 'solo';
   });
@@ -294,6 +290,8 @@ export default function App() {
   });
 
   const [isTeacherUnlocked, setIsTeacherUnlocked] = useState<boolean>(() => {
+    const savedUser = getSavedAuthUser();
+    if (savedUser?.role === 'teacher') return true;
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('mathquest_teacher_auth') === 'true';
     }
@@ -301,6 +299,8 @@ export default function App() {
   });
 
   const [isParentUnlocked, setIsParentUnlocked] = useState<boolean>(() => {
+    const savedUser = getSavedAuthUser();
+    if (savedUser?.role === 'parent') return true;
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('mathquest_parent_auth') === 'true';
     }
@@ -308,6 +308,8 @@ export default function App() {
   });
 
   const [authenticatedParentPhone, setAuthenticatedParentPhone] = useState<string | undefined>(() => {
+    const savedUser = getSavedAuthUser();
+    if (savedUser?.role === 'parent') return savedUser.phone;
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('mathquest_parent_phone') || undefined;
     }
@@ -389,6 +391,10 @@ export default function App() {
 
   const [preselectedExamId, setPreselectedExamId] = useState<string | null>(null);
 
+  const [gradebook, setGradebook] = useState<Record<string, StudentScoreRecord>>(() => {
+    return loadSavedGradebook(students);
+  });
+
   // Save changes to localStorage
   useEffect(() => {
     localStorage.setItem('mathquest_lang', language);
@@ -421,6 +427,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('mathquest_ai_exams', JSON.stringify(aiExams));
   }, [aiExams]);
+
+  useEffect(() => {
+    localStorage.setItem(GRADEBOOK_STORAGE_KEY, JSON.stringify(gradebook));
+  }, [gradebook]);
 
   useEffect(() => {
     localStorage.setItem('mathquest_teacher_pin', teacherPin);
@@ -482,6 +492,60 @@ export default function App() {
   }, []);
 
   // Auth Handlers
+  const handleLoginSuccess = (user: AuthUser) => {
+    saveAuthUser(user);
+    setAuthUser(user);
+    setMainPortal(user.role);
+    setActiveTab(getDefaultTabForRole(user.role));
+
+    if (user.role === 'teacher') {
+      setIsTeacherUnlocked(true);
+      setIsParentUnlocked(false);
+      setAuthenticatedParentPhone(undefined);
+      sessionStorage.setItem('mathquest_teacher_auth', 'true');
+      sessionStorage.removeItem('mathquest_parent_auth');
+      sessionStorage.removeItem('mathquest_parent_phone');
+    } else if (user.role === 'parent') {
+      setIsParentUnlocked(true);
+      setIsTeacherUnlocked(false);
+      setAuthenticatedParentPhone(user.phone);
+      sessionStorage.setItem('mathquest_parent_auth', 'true');
+      sessionStorage.setItem('mathquest_parent_phone', user.phone);
+      sessionStorage.removeItem('mathquest_teacher_auth');
+    } else {
+      setIsTeacherUnlocked(false);
+      setIsParentUnlocked(false);
+      setAuthenticatedParentPhone(undefined);
+      sessionStorage.removeItem('mathquest_teacher_auth');
+      sessionStorage.removeItem('mathquest_parent_auth');
+      sessionStorage.removeItem('mathquest_parent_phone');
+    }
+  };
+
+  const handleLogout = () => {
+    saveAuthUser(null);
+    setAuthUser(null);
+    setIsTeacherUnlocked(false);
+    setIsParentUnlocked(false);
+    setAuthenticatedParentPhone(undefined);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('mathquest_teacher_auth');
+      sessionStorage.removeItem('mathquest_parent_auth');
+      sessionStorage.removeItem('mathquest_parent_phone');
+    }
+    soundManager.playClick();
+  };
+
+  const handlePortalChange = (portal: MainPortal) => {
+    if (authUser && portal !== authUser.role) return;
+    setMainPortal(portal);
+  };
+
+  const handleTabChange = (tab: NavTab) => {
+    if (authUser && !isTabAllowedForRole(tab, authUser.role)) return;
+    setActiveTab(tab);
+  };
+
   const handleTeacherSuccess = () => {
     setIsTeacherUnlocked(true);
     if (typeof window !== 'undefined') {
@@ -608,6 +672,13 @@ export default function App() {
     setAiExams(prev => [exam, ...prev.filter(e => e.id !== exam.id)]);
   };
 
+  const handleUpdateStudentScores = (studentId: string, updated: StudentScoreRecord) => {
+    setGradebook(prev => ({
+      ...prev,
+      [studentId]: updated,
+    }));
+  };
+
   const handleDeleteAIExam = (examId: string) => {
     setAiExams(prev => prev.filter(e => e.id !== examId));
   };
@@ -625,14 +696,20 @@ export default function App() {
 
   const t = translations[language];
 
+  if (!authUser) {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  const effectivePortal: MainPortal = authUser.role;
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      {/* Top Navbar with 3 Main Portals */}
+      {/* Top Navbar with Role-Based Access */}
       <Navbar
-        mainPortal={mainPortal}
-        onPortalChange={setMainPortal}
+        mainPortal={effectivePortal}
+        onPortalChange={handlePortalChange}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         teacherRole={teacherRole}
         onTeacherRoleChange={setTeacherRole}
         isSoundEnabled={isSoundEnabled}
@@ -642,6 +719,8 @@ export default function App() {
         language={language}
         onToggleLanguage={handleToggleLanguage}
         isOnline={isOnline}
+        currentUser={authUser}
+        onLogout={handleLogout}
         isTeacherUnlocked={isTeacherUnlocked}
         isParentUnlocked={isParentUnlocked}
         onLockTeacher={handleLockTeacher}
@@ -652,8 +731,8 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Persistent In-Progress Exam / Homework Notification Banner */}
-        {ongoingExamInfo && (
+        {/* Persistent In-Progress Exam / Homework Notification Banner (Student only) */}
+        {effectivePortal === 'student' && ongoingExamInfo && (
           <div className="mb-6 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white p-4 sm:p-5 rounded-3xl shadow-xl border border-amber-300/60 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-3">
             <div className="flex items-center gap-3.5 w-full sm:w-auto">
               <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
@@ -691,7 +770,7 @@ export default function App() {
         {/* ========================================================
             1. GÓC PHỤ HUYNH (DEDICATED INDEPENDENT PARENT PORTAL)
             ======================================================== */}
-        {mainPortal === 'parent' && (
+        {effectivePortal === 'parent' && (
           !isParentUnlocked ? (
             <PortalPasscodeGate
               portalType="parent"
@@ -699,15 +778,16 @@ export default function App() {
               parentPin={parentPin}
               students={students}
               onSuccess={handleParentSuccess}
-              onBackToStudent={handleBackToStudent}
+              onBackToStudent={handleLogout}
             />
           ) : (
             <ParentPortal
               students={students}
               classrooms={classrooms}
               submissions={homeworkSubmissions}
+              gradebook={gradebook}
               initialPhone={authenticatedParentPhone}
-              onLockPortal={handleLockParent}
+              onLockPortal={handleLogout}
             />
           )
         )}
@@ -715,7 +795,7 @@ export default function App() {
         {/* ========================================================
             2. GÓC HỌC SINH (STUDENT SPACE)
             ======================================================== */}
-        {mainPortal === 'student' && (
+        {effectivePortal === 'student' && (
           <div className="space-y-6">
             {/* Tab: Trò chơi Toán học (Speed, Oxy Battleship, Prime Defense, Escape, Memory) */}
             {activeTab === 'solo' && (
@@ -732,14 +812,7 @@ export default function App() {
               <BodyCameraGamesHub
                 activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
                 activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
-              />
-            )}
-
-            {/* Tab: Tự Tạo Trò Chơi Theo Yêu Cầu (Game Studio) */}
-            {activeTab === 'custom_game' && (
-              <CustomGameStudio
-                activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
-                activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
+                userRole={authUser.role}
               />
             )}
 
@@ -751,17 +824,6 @@ export default function App() {
                 activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
                 customExams={aiExams}
                 preselectedExamId={preselectedExamId}
-                onOpenAIGenerator={() => setActiveTab('ai_exam_studio')}
-              />
-            )}
-
-            {/* Tab: Tạo Đề Thi AI Không Cần Kho Tài Liệu & Giải Chi Tiết */}
-            {activeTab === 'ai_exam_studio' && (
-              <AIExamGenerator
-                aiExams={aiExams}
-                onSaveAIExam={handleSaveAIExam}
-                onDeleteAIExam={handleDeleteAIExam}
-                onTakeExam={handleTakeAIExam}
               />
             )}
 
@@ -774,6 +836,7 @@ export default function App() {
                 submissions={homeworkSubmissions}
                 onAddSubmission={handleAddHomeworkSubmission}
                 language={language}
+                userRole={authUser.role}
               />
             )}
 
@@ -795,7 +858,7 @@ export default function App() {
         {/* ========================================================
             3. GÓC GIÁO VIÊN (TEACHER SPACE - CÔ DIỄM QUỲNH)
             ======================================================== */}
-        {mainPortal === 'teacher' && (
+        {effectivePortal === 'teacher' && (
           !isTeacherUnlocked ? (
             <PortalPasscodeGate
               portalType="teacher"
@@ -803,7 +866,7 @@ export default function App() {
               parentPin={parentPin}
               students={students}
               onSuccess={handleTeacherSuccess}
-              onBackToStudent={handleBackToStudent}
+              onBackToStudent={handleLogout}
             />
           ) : (
             <div className="space-y-6">
@@ -818,7 +881,7 @@ export default function App() {
                       Không Gian Quản Trị: Cô Diễm Quỳnh
                     </span>
                     <span className="text-[11px] text-indigo-200">
-                      Đã xác thực quyền giáo viên · Mật mã GV: <b className="text-white font-mono tracking-widest">••••••••</b> · Mật mã PH: <b className="text-emerald-300 font-mono tracking-widest">••••••••</b> <span className="text-indigo-300">(Đang ẩn bảo mật)</span>
+                      Đã xác thực quyền giáo viên · SĐT: <b className="text-white font-mono">{authUser.phone}</b>
                     </span>
                   </div>
                 </div>
@@ -831,10 +894,10 @@ export default function App() {
                     <span>🔐 Quản Lý & Gửi Riêng Mã PH</span>
                   </button>
                   <button
-                    onClick={handleLockTeacher}
+                    onClick={handleLogout}
                     className="px-3 py-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <span>🔒 Khóa Góc GV</span>
+                    <span>🚪 Đăng Xuất</span>
                   </button>
                 </div>
               </div>
@@ -851,6 +914,17 @@ export default function App() {
                 onDeleteStudent={handleDeleteStudent}
                 onSelectStudentForReport={handleNavigateToReport}
                 onUpdateClassroom={handleUpdateClassroom}
+              />
+            )}
+
+            {/* Tab: Bảng Điểm Môn Toán (5 TX, 1 GK, 1 CK & Tính ĐTB) */}
+            {activeTab === 'gradebook' && (
+              <MathGradebookBoard
+                mode="teacher"
+                students={students}
+                classrooms={classrooms}
+                gradebook={gradebook}
+                onUpdateStudentScores={handleUpdateStudentScores}
               />
             )}
 
@@ -873,6 +947,7 @@ export default function App() {
                 onAddSubmission={handleAddHomeworkSubmission}
                 language={language}
                 initialTab="teacher"
+                userRole={authUser.role}
               />
             )}
 
@@ -883,6 +958,14 @@ export default function App() {
                 onSaveAIExam={handleSaveAIExam}
                 onDeleteAIExam={handleDeleteAIExam}
                 onTakeExam={handleTakeAIExam}
+              />
+            )}
+
+            {/* Tab: Tự Tạo Trò Chơi Theo Yêu Cầu (Game Studio - Góc GV) */}
+            {activeTab === 'custom_game' && (
+              <CustomGameStudio
+                activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
+                activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
               />
             )}
 
