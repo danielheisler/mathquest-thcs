@@ -276,6 +276,14 @@ export default function App() {
     return (saved === 'en' || saved === 'vi') ? saved : 'vi';
   });
 
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mathquest_theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+    }
+    return 'light';
+  });
+
   const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [selectedStudentForReport, setSelectedStudentForReport] = useState<Student | null>(null);
@@ -399,7 +407,17 @@ export default function App() {
   // Save changes to localStorage
   useEffect(() => {
     localStorage.setItem('mathquest_lang', language);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language;
+    }
   }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem('mathquest_theme', theme);
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+    }
+  }, [theme]);
 
   useEffect(() => {
     localStorage.setItem('mathquest_classrooms', JSON.stringify(classrooms));
@@ -599,6 +617,10 @@ export default function App() {
     setLanguage(prev => (prev === 'vi' ? 'en' : 'vi'));
   };
 
+  const handleToggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   const handleToggleSound = () => {
     const next = !isSoundEnabled;
     setIsSoundEnabled(next);
@@ -698,13 +720,21 @@ export default function App() {
   const t = translations[language];
 
   if (!authUser) {
-    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <LoginPage
+        onLoginSuccess={handleLoginSuccess}
+        language={language}
+        onToggleLanguage={handleToggleLanguage}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
+    );
   }
 
   const effectivePortal: MainPortal = authUser.role;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900 transition-colors">
       {/* Top Navbar with Role-Based Access */}
       <Navbar
         mainPortal={effectivePortal}
@@ -719,6 +749,8 @@ export default function App() {
         onToggleFullscreen={handleToggleFullscreen}
         language={language}
         onToggleLanguage={handleToggleLanguage}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
         isOnline={isOnline}
         currentUser={authUser}
         onLogout={handleLogout}
@@ -742,13 +774,13 @@ export default function App() {
               <div>
                 <div className="text-[11px] font-black uppercase tracking-wider text-amber-100 flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-                  <span>PHÁT HIỆN BÀI THI / BÀI TẬP ĐANG LÀM DỞ DANG</span>
+                  <span>{t.ongoingBannerTitle}</span>
                 </div>
                 <div className="text-sm font-extrabold text-white mt-0.5">
-                  {ongoingExamInfo.title} · Thí sinh: <span className="underline decoration-amber-200">{ongoingExamInfo.studentName}</span>
+                  {ongoingExamInfo.title} · {ongoingExamInfo.studentName}
                 </div>
                 <div className="text-xs text-amber-100 mt-0.5">
-                  Đã trả lời {ongoingExamInfo.answeredCount}/{ongoingExamInfo.totalQuestions} câu hỏi · Thời gian còn lại: <b>{Math.floor(ongoingExamInfo.timeLeft / 60)} phút {('0' + (ongoingExamInfo.timeLeft % 60)).slice(-2)} giây</b>
+                  {ongoingExamInfo.answeredCount}/{ongoingExamInfo.totalQuestions} · {t.timeLeft}: <b>{Math.floor(ongoingExamInfo.timeLeft / 60)}:{('0' + (ongoingExamInfo.timeLeft % 60)).slice(-2)}</b>
                 </div>
               </div>
             </div>
@@ -762,7 +794,7 @@ export default function App() {
                 }}
                 className="w-full sm:w-auto px-5 py-2.5 bg-white text-orange-700 hover:bg-amber-50 font-black text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
               >
-                <span>👉 Nhấn Vào Đây Để Quay Lại Bài Đang Làm</span>
+                <span>{t.ongoingBannerResume}</span>
               </button>
             </div>
           </div>
@@ -789,6 +821,7 @@ export default function App() {
               gradebook={gradebook}
               initialPhone={authenticatedParentPhone}
               onLockPortal={handleLogout}
+              language={language}
             />
           )
         )}
@@ -805,6 +838,7 @@ export default function App() {
                 onSaveScore={handleSaveLeaderboardEntry}
                 activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
                 activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
+                language={language}
               />
             )}
 
@@ -851,7 +885,7 @@ export default function App() {
 
             {/* Tab: Phòng Thực Hành Trực Quan */}
             {activeTab === 'labs' && (
-              <InteractiveLabsHub />
+              <InteractiveLabsHub language={language} />
             )}
           </div>
         )}
@@ -879,10 +913,10 @@ export default function App() {
                   </div>
                   <div>
                     <span className="text-xs font-bold block leading-tight">
-                      Không Gian Quản Trị: Cô Diễm Quỳnh
+                      {t.teacherWorkspaceTitle}
                     </span>
                     <span className="text-[11px] text-indigo-200">
-                      Đã xác thực quyền giáo viên · SĐT: <b className="text-white font-mono">{authUser.phone}</b>
+                      {t.teacherVerifiedSub} · <b className="text-white font-mono">{authUser.phone}</b>
                     </span>
                   </div>
                 </div>
@@ -892,13 +926,13 @@ export default function App() {
                     onClick={() => setIsPinSettingsOpen(true)}
                     className="px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-white/20 cursor-pointer"
                   >
-                    <span>🔐 Quản Lý & Gửi Riêng Mã PH</span>
+                    <span>{t.manageSendParentPin}</span>
                   </button>
                   <button
                     onClick={handleLogout}
                     className="px-3 py-1.5 bg-rose-500/80 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <span>🚪 Đăng Xuất</span>
+                    <span>🚪 {t.logout}</span>
                   </button>
                 </div>
               </div>
@@ -926,12 +960,13 @@ export default function App() {
                 classrooms={classrooms}
                 gradebook={gradebook}
                 onUpdateStudentScores={handleUpdateStudentScores}
+                language={language}
               />
             )}
 
             {/* Tab: Giáo Án / Kế Hoạch Bài Dạy (Chuẩn 5512) */}
             {activeTab === 'lesson_plans' && (
-              <LessonPlanManager />
+              <LessonPlanManager language={language} />
             )}
 
             {/* Tab: Radar Giám Sát Chống Chuyển Tab (Live Anti-Cheat) */}
@@ -1035,19 +1070,19 @@ export default function App() {
       </main>
 
       {/* Educational Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 mt-12 no-print">
+      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 mt-12 no-print transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">MathQuest THCS</span>
+            <span className="font-bold text-slate-800">{t.appTitle}</span>
             <span>·</span>
-            <span>Cô Diễm Quỳnh (Giáo viên bộ môn Toán)</span>
+            <span>{t.footerTeacher}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-[11px]">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Sẵn sàng Ngoại tuyến (Offline 100%)
+              {t.footerOfflineReady}
             </span>
-            <span>Tối ưu mượt mà iOS & Android</span>
+            <span>{t.footerMobileReady}</span>
           </div>
         </div>
       </footer>

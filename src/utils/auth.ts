@@ -1,3 +1,4 @@
+import { Language, translations } from '../i18n/translations';
 import { MainPortal } from '../types/math';
 
 export type UserRole = MainPortal; // 'student' | 'parent' | 'teacher'
@@ -50,30 +51,41 @@ export function normalizePhone(phone: string): string {
 export function authenticateWithPhone(
   phoneInput: string,
   passwordInput: string,
-  expectedRole?: UserRole
+  expectedRole?: UserRole,
+  language: Language = 'vi'
 ): { ok: true; user: AuthUser } | { ok: false; error: string } {
+  const t = translations[language];
   const cleanPhone = normalizePhone(phoneInput);
   const cleanPassword = passwordInput.trim();
 
   if (!cleanPhone) {
-    return { ok: false, error: 'Vui lòng nhập số điện thoại đăng nhập.' };
+    return { ok: false, error: t.errPhoneRequired };
   }
   if (!cleanPassword) {
-    return { ok: false, error: 'Vui lòng nhập mật khẩu.' };
+    return { ok: false, error: t.errPassRequired };
   }
 
   const matched = ACCOUNTS.find((acc) => acc.phone === cleanPhone);
   if (!matched || matched.password !== cleanPassword) {
     return {
       ok: false,
-      error: 'Số điện thoại hoặc mật khẩu không chính xác.',
+      error: t.errInvalidCredentials,
     };
   }
 
   if (expectedRole && matched.role !== expectedRole) {
+    const roleLabel =
+      matched.role === 'teacher'
+        ? t.roleTeacher
+        : matched.role === 'parent'
+          ? t.roleParent
+          : t.roleStudent;
     return {
       ok: false,
-      error: `Tài khoản này thuộc phần ${matched.roleLabel}. Vui lòng chọn đúng mục ${matched.roleLabel} để đăng nhập.`,
+      error:
+        language === 'en'
+          ? `This account belongs to ${roleLabel}. Please select the ${roleLabel} tab to sign in.`
+          : `Tài khoản này thuộc phần ${roleLabel}. Vui lòng chọn đúng mục ${roleLabel} để đăng nhập.`,
     };
   }
 

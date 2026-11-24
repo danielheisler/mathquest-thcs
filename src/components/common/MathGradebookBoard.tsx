@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Classroom, Student } from '../../types/math';
+import { Language } from '../../i18n/translations';
 import {
   calculateStudentAverage,
   createEmptyScoreRecord,
@@ -24,6 +25,7 @@ interface MathGradebookBoardProps {
   gradebook: Record<string, StudentScoreRecord>;
   onUpdateStudentScores?: (studentId: string, updated: StudentScoreRecord) => void;
   focusStudentId?: string;
+  language?: Language;
 }
 
 function getAverageBadgeClass(avg: number | null): string {
@@ -41,12 +43,14 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
   gradebook,
   onUpdateStudentScores,
   focusStudentId,
+  language = 'vi',
 }) => {
   const [selectedClassId, setSelectedClassId] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [savedNoticeId, setSavedNoticeId] = useState<string | null>(null);
 
   const isTeacher = mode === 'teacher';
+  const isEn = language === 'en';
 
   const visibleStudents = isTeacher
     ? students.filter((s) => {
@@ -127,12 +131,22 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
             </div>
             <div>
               <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
-                {isTeacher ? 'Bảng Điểm Môn Toán (Nhập & Tính ĐTB)' : 'Bảng Điểm Chi Tiết Của Con'}
+                {isTeacher
+                  ? isEn
+                    ? 'Math Gradebook (Input & GPA Calculator)'
+                    : 'Bảng Điểm Môn Toán (Nhập & Tính ĐTB)'
+                  : isEn
+                    ? "Student's Detailed Gradebook"
+                    : 'Bảng Điểm Chi Tiết Của Con'}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
                 {isTeacher
-                  ? 'Nhập điểm Kiểm tra thường xuyên (tối đa 5 lần), Giữa kì (1 lần) và Cuối kì (1 lần). Điểm trung bình tự động cập nhật và đồng bộ sang Góc Phụ Huynh.'
-                  : 'Theo dõi đầy đủ 5 cột Kiểm tra thường xuyên, 1 cột Giữa kì, 1 cột Cuối kì và Tổng điểm trung bình do Cô Diễm Quỳnh cập nhật.'}
+                  ? isEn
+                    ? 'Enter Regular assessments (up to 5), Midterm (1), and Final (1). GPA updates automatically and syncs to the Parent Portal.'
+                    : 'Nhập điểm Kiểm tra thường xuyên (tối đa 5 lần), Giữa kì (1 lần) và Cuối kì (1 lần). Điểm trung bình tự động cập nhật và đồng bộ sang Góc Phụ Huynh.'
+                  : isEn
+                    ? 'View 5 Regular test scores, 1 Midterm score, 1 Final score, and Total GPA updated by Ms. Diễm Quỳnh.'
+                    : 'Theo dõi đầy đủ 5 cột Kiểm tra thường xuyên, 1 cột Giữa kì, 1 cột Cuối kì và Tổng điểm trung bình do Cô Diễm Quỳnh cập nhật.'}
               </p>
             </div>
           </div>
@@ -140,7 +154,7 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
           {isTeacher && (
             <div className="flex items-center gap-2 shrink-0 no-print">
               <div className="px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-800">
-                ĐTB Lớp: <span className="font-mono">{classMean}</span>
+                {isEn ? 'Class GPA:' : 'ĐTB Lớp:'} <span className="font-mono">{classMean}</span>
               </div>
               <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
                 ≥ 8.0: <span className="font-mono">{goodCount}/{visibleStudents.length}</span>
@@ -154,7 +168,7 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
                 className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5" />
-                <span>In bảng điểm</span>
+                <span>{isEn ? 'Print Gradebook' : 'In bảng điểm'}</span>
               </button>
             </div>
           )}
@@ -165,13 +179,19 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
           <Calculator className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <div>
-              <span className="font-bold text-slate-900">Công thức tính Tổng điểm trung bình: </span>
+              <span className="font-bold text-slate-900">
+                {isEn ? 'GPA Formula: ' : 'Công thức tính Tổng điểm trung bình: '}
+              </span>
               <span className="font-mono text-indigo-700 font-bold">
-                (Tổng điểm thường xuyên + Giữa kì × 2 + Cuối kì × 3) / (Số cột điểm thường xuyên có + 5)
+                {isEn
+                  ? '(Sum of Regular + Midterm × 2 + Final × 3) / (Regular Count + 5)'
+                  : '(Tổng điểm thường xuyên + Giữa kì × 2 + Cuối kì × 3) / (Số cột điểm thường xuyên có + 5)'}
               </span>
             </div>
             <div className="text-[11px] text-slate-500">
-              Ví dụ: 4 lần thường xuyên (6, 8, 9, 1), Giữa kì 7, Cuối kì 8 →{' '}
+              {isEn
+                ? 'Example: 4 regular scores (6, 8, 9, 1), Midterm 7, Final 8 → '
+                : 'Ví dụ: 4 lần thường xuyên (6, 8, 9, 1), Giữa kì 7, Cuối kì 8 → '}
               <span className="font-mono text-slate-700 font-semibold">
                 (6 + 8 + 9 + 1 + 7×2 + 8×3) / (4 + 5) = 62 / 9 = 6.89
               </span>
@@ -195,7 +215,7 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
                     : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                Tất cả ({students.length})
+                {isEn ? `All (${students.length})` : `Tất cả (${students.length})`}
               </button>
               {classrooms.map((cls) => (
                 <button
@@ -222,7 +242,7 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Tìm tên học sinh..."
+                placeholder={isEn ? 'Search student name...' : 'Tìm tên học sinh...'}
                 className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -237,35 +257,35 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
             <thead>
               <tr className="bg-slate-100/90 border-b border-slate-200 text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">
                 {isTeacher && (
-                  <th className="py-3.5 px-4 w-52">Học sinh</th>
+                  <th className="py-3.5 px-4 w-52">{isEn ? 'Student' : 'Học sinh'}</th>
                 )}
                 <th className="py-3.5 px-4 text-center border-l border-slate-200/80">
-                  <div>1. Kiểm tra thường xuyên (5 lần)</div>
+                  <div>{isEn ? '1. Regular Tests (5 slots)' : '1. Kiểm tra thường xuyên (5 lần)'}</div>
                   <div className="text-[10px] font-semibold text-slate-500 normal-case mt-0.5">
-                    Hệ số 1 · Nhập tối đa 5 cột điểm
+                    {isEn ? 'Weight 1 · Up to 5 scores' : 'Hệ số 1 · Nhập tối đa 5 cột điểm'}
                   </div>
                 </th>
                 <th className="py-3.5 px-4 text-center border-l border-slate-200/80 w-36">
-                  <div>2. Kiểm tra giữa kì</div>
+                  <div>{isEn ? '2. Midterm Exam' : '2. Kiểm tra giữa kì'}</div>
                   <div className="text-[10px] font-semibold text-indigo-600 normal-case mt-0.5">
-                    1 lần · Hệ số 2
+                    {isEn ? '1 slot · Weight 2' : '1 lần · Hệ số 2'}
                   </div>
                 </th>
                 <th className="py-3.5 px-4 text-center border-l border-slate-200/80 w-36">
-                  <div>3. Kiểm tra cuối kì</div>
+                  <div>{isEn ? '3. Final Exam' : '3. Kiểm tra cuối kì'}</div>
                   <div className="text-[10px] font-semibold text-rose-600 normal-case mt-0.5">
-                    1 lần · Hệ số 3
+                    {isEn ? '1 slot · Weight 3' : '1 lần · Hệ số 3'}
                   </div>
                 </th>
                 <th className="py-3.5 px-4 text-center border-l border-slate-200/80 w-44">
-                  <div>4. Tổng điểm trung bình</div>
+                  <div>{isEn ? '4. Total Average (GPA)' : '4. Tổng điểm trung bình'}</div>
                   <div className="text-[10px] font-semibold text-emerald-700 normal-case mt-0.5">
-                    (Tổng TX + GK×2 + CK×3) / (Số TX + 5)
+                    {isEn ? '(Reg + Mid×2 + Fin×3) / (N + 5)' : '(Tổng TX + GK×2 + CK×3) / (Số TX + 5)'}
                   </div>
                 </th>
                 {isTeacher && (
                   <th className="py-3.5 px-3 text-center border-l border-slate-200/80 w-16 no-print">
-                    Xóa
+                    {isEn ? 'Clear' : 'Xóa'}
                   </th>
                 )}
               </tr>
@@ -302,7 +322,7 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
                           return (
                             <div key={slotIdx} className="flex flex-col items-center gap-1">
                               <span className="text-[10px] font-semibold text-slate-400">
-                                Lần {slotIdx + 1}
+                                {isEn ? `#${slotIdx + 1}` : `Lần ${slotIdx + 1}`}
                               </span>
                               {isTeacher ? (
                                 <input
@@ -337,7 +357,7 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
                     <td className="py-3 px-3 border-l border-slate-100 text-center align-middle">
                       <div className="flex flex-col items-center gap-1">
                         <span className="text-[10px] font-semibold text-indigo-500">
-                          Giữa kì (×2)
+                          {isEn ? 'Midterm (×2)' : 'Giữa kì (×2)'}
                         </span>
                         {isTeacher ? (
                           <input
@@ -364,7 +384,7 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
                     <td className="py-3 px-3 border-l border-slate-100 text-center align-middle">
                       <div className="flex flex-col items-center gap-1">
                         <span className="text-[10px] font-semibold text-rose-500">
-                          Cuối kì (×3)
+                          {isEn ? 'Final (×3)' : 'Cuối kì (×3)'}
                         </span>
                         {isTeacher ? (
                           <input
@@ -399,7 +419,9 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
                           {stats.average !== null ? stats.average.toFixed(2) : '—'}
                         </span>
                         <span className="text-[10px] text-slate-500 font-mono">
-                          {stats.regularCount} TX{stats.isComplete ? ' · Đủ GK/CK' : ' · Tạm tính'}
+                          {isEn
+                            ? `${stats.regularCount} Reg · ${stats.isComplete ? 'Complete' : 'Provisional'}`
+                            : `${stats.regularCount} TX${stats.isComplete ? ' · Đủ GK/CK' : ' · Tạm tính'}`}
                         </span>
                       </div>
                     </td>
@@ -444,7 +466,9 @@ export const MathGradebookBoard: React.FC<MathGradebookBoardProps> = ({
             <Info className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <div className="font-bold">
-                Chi tiết cách tính Tổng điểm trung bình của em {st.name}:
+                {isEn
+                  ? `GPA Calculation Breakdown for ${st.name}:`
+                  : `Chi tiết cách tính Tổng điểm trung bình của em ${st.name}:`}
               </div>
               <div className="font-mono text-emerald-800 font-semibold">
                 {stats.formulaText}

@@ -3,6 +3,7 @@ import { Student, Classroom, HomeworkSubmission, PeriodicReport } from '../../ty
 import { CertificateModal } from '../certificate/CertificateModal';
 import { MathGradebookBoard } from '../common/MathGradebookBoard';
 import { calculateStudentAverage, createEmptyScoreRecord, StudentScoreRecord } from '../../utils/gradebook';
+import { Language } from '../../i18n/translations';
 import { soundManager } from '../../utils/sound';
 import { 
   Search, Phone, MessageSquare, Award, AlertTriangle, CheckCircle2, Clock, 
@@ -17,6 +18,7 @@ interface ParentPortalProps {
   gradebook: Record<string, StudentScoreRecord>;
   initialPhone?: string;
   onLockPortal?: () => void;
+  language?: Language;
 }
 
 export const ParentPortal: React.FC<ParentPortalProps> = ({
@@ -25,8 +27,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   submissions,
   gradebook,
   initialPhone,
-  onLockPortal
+  onLockPortal,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const TEACHER_NAME = 'Cô Diễm Quỳnh';
   const TEACHER_PHONE = '0911 200 202';
   const CLASS_CODE = '20112002';
@@ -101,13 +105,15 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         <div className="relative z-10 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider mb-3">
             <HeartHandshake className="w-4 h-4 text-emerald-200" />
-            <span>Góc Dành Riêng Cho Phụ Huynh Học Sinh</span>
+            <span>{isEn ? 'Dedicated Parent Portal' : 'Góc Dành Riêng Cho Phụ Huynh Học Sinh'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-            Sổ Theo Dõi Tình Hình Học Tập Môn Toán
+            {isEn ? 'Mathematics Learning & Gradebook Tracker' : 'Sổ Theo Dõi Tình Hình Học Tập Môn Toán'}
           </h2>
           <p className="text-sm text-emerald-100 mt-2 leading-relaxed">
-            Kính chào Quý Phụ huynh! Đây là cổng thông tin trực tuyến do <b>{TEACHER_NAME}</b> thiết lập giúp Phụ huynh nắm bắt kịp thời tiến độ làm bài tập về nhà, bảng điểm, bài thi thử và nhận xét định kỳ của con em mình.
+            {isEn
+              ? `Welcome Parents! Track your child's homework progress, detailed gradebook (Regular, Midterm, Final), mock exam scores, and teacher feedback from ${TEACHER_NAME}.`
+              : `Kính chào Quý Phụ huynh! Đây là cổng thông tin trực tuyến do ${TEACHER_NAME} thiết lập giúp Phụ huynh nắm bắt kịp thời tiến độ làm bài tập về nhà, bảng điểm, bài thi thử và nhận xét định kỳ của con em mình.`}
           </p>
         </div>
 
@@ -119,10 +125,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 onLockPortal();
               }}
               className="px-4 py-2.5 bg-white/15 hover:bg-white/25 active:scale-98 backdrop-blur-md rounded-2xl text-xs font-bold flex items-center gap-2 transition-all text-white border border-white/20 shadow-sm cursor-pointer"
-              title="Khóa cổng Phụ huynh để bảo vệ thông tin"
+              title={isEn ? 'Sign out of Parent Portal' : 'Đăng xuất khỏi Góc Phụ Huynh'}
             >
               <Lock className="w-4 h-4 text-emerald-200" />
-              <span>Khóa Góc Phụ Huynh</span>
+              <span>{isEn ? 'Log out' : 'Đăng xuất'}</span>
             </button>
           </div>
         )}
@@ -243,14 +249,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 soundManager.playClick();
                 setActiveTab('gradebook');
               }}
-              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
                 activeTab === 'gradebook'
                   ? 'border-emerald-600 text-emerald-700'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               <FileSpreadsheet className="w-4 h-4" />
-              <span>Bảng Điểm (TX, GK, CK)</span>
+              <span>{isEn ? 'Gradebook (Reg, Mid, Final)' : 'Bảng Điểm (TX, GK, CK)'}</span>
             </button>
 
             <button
@@ -258,14 +264,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 soundManager.playClick();
                 setActiveTab('homework');
               }}
-              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
                 activeTab === 'homework'
                   ? 'border-emerald-600 text-emerald-700'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span>Theo Dõi Bài Tập Về Nhà</span>
+              <span>{isEn ? 'Homework Progress' : 'Theo Dõi Bài Tập Về Nhà'}</span>
               {!isHomeworkDone && (
                 <span className="w-2 h-2 rounded-full bg-rose-500" />
               )}
@@ -276,14 +282,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 soundManager.playClick();
                 setActiveTab('exams');
               }}
-              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
                 activeTab === 'exams'
                   ? 'border-emerald-600 text-emerald-700'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               <Sparkles className="w-4 h-4" />
-              <span>Điểm Thi Thử & Đánh Giá</span>
+              <span>{isEn ? 'Mock Exams & Evaluation' : 'Điểm Thi Thử & Đánh Giá'}</span>
             </button>
 
             <button
@@ -291,14 +297,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 soundManager.playClick();
                 setActiveTab('certificates');
               }}
-              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
                 activeTab === 'certificates'
                   ? 'border-emerald-600 text-emerald-700'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               <Award className="w-4 h-4" />
-              <span>Kho Giấy Khen Danh Dự</span>
+              <span>{isEn ? 'Honor Certificates' : 'Kho Giấy Khen Danh Dự'}</span>
             </button>
 
             <button
@@ -306,14 +312,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 soundManager.playClick();
                 setActiveTab('contact');
               }}
-              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
                 activeTab === 'contact'
                   ? 'border-emerald-600 text-emerald-700'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               <Phone className="w-4 h-4" />
-              <span>Liên Hệ Cô Diễm Quỳnh</span>
+              <span>{isEn ? 'Contact Ms. Diễm Quỳnh' : 'Liên Hệ Cô Diễm Quỳnh'}</span>
             </button>
           </div>
 
@@ -325,6 +331,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               classrooms={classrooms}
               gradebook={gradebook}
               focusStudentId={currentStudent.id}
+              language={language}
             />
           )}
 

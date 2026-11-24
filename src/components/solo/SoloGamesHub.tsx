@@ -6,6 +6,7 @@ import { FormulaMemoryGame } from './FormulaMemoryGame';
 import { BattleshipOxy } from '../games/BattleshipOxy';
 import { PrimeDefense } from '../games/PrimeDefense';
 import { BodyCameraGamesHub } from '../camera_games/BodyCameraGamesHub';
+import { Language } from '../../i18n/translations';
 import { soundManager } from '../../utils/sound';
 import { Zap, KeyRound, Brain, Compass, Flame, Camera } from 'lucide-react';
 
@@ -14,63 +15,66 @@ interface SoloGamesHubProps {
   onSaveScore?: (entry: Omit<LeaderboardEntry, 'id' | 'rank'>) => void;
   activeStudentName?: string;
   activeClassName?: string;
+  language?: Language;
 }
 
 export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
   questions,
   onSaveScore,
   activeStudentName = 'Nguyễn Minh Quân',
-  activeClassName = 'Lớp 6A1'
+  activeClassName = 'Lớp 6A1',
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [activeGame, setActiveGame] = useState<'camera_motion' | 'speed' | 'escape' | 'memory' | 'battleship' | 'prime'>('camera_motion');
 
   const games = [
     {
       id: 'camera_motion',
-      title: 'Vận Động Cơ Thể Camera',
-      subtitle: 'Tạo dáng cơ thể chọn đáp án chuẩn lớp học',
+      title: isEn ? 'Body Camera Motion' : 'Vận Động Cơ Thể Camera',
+      subtitle: isEn ? 'Pose in front of camera to pick answers' : 'Tạo dáng cơ thể chọn đáp án chuẩn lớp học',
       icon: Camera,
-      badge: 'Camera Lớp Học ⭐',
+      badge: isEn ? 'Class Cam ⭐' : 'Camera Lớp Học ⭐',
       color: 'bg-indigo-600 text-white'
     },
     {
       id: 'speed',
-      title: 'Thử Thách Tốc Độ (Speed Math)',
-      subtitle: 'Đua tính nhẩm 60s, chuỗi combo x2 x3',
+      title: isEn ? 'Speed Math Challenge' : 'Thử Thách Tốc Độ (Speed Math)',
+      subtitle: isEn ? '60s mental math race with x2 x3 combos' : 'Đua tính nhẩm 60s, chuỗi combo x2 x3',
       icon: Zap,
-      badge: 'Khởi động nhanh',
+      badge: isEn ? 'Quick Warm-up' : 'Khởi động nhanh',
       color: 'bg-amber-500 text-white'
     },
     {
       id: 'battleship',
-      title: 'Hải Chiến Tọa Độ Oxy',
-      subtitle: 'Trò chơi lạ: Dò radar, bắn hạm đội tọa độ Oxy',
+      title: isEn ? 'Oxy Coordinate Battleship' : 'Hải Chiến Tọa Độ Oxy',
+      subtitle: isEn ? 'Radar scan & coordinate plane fleet battle' : 'Trò chơi lạ: Dò radar, bắn hạm đội tọa độ Oxy',
       icon: Compass,
-      badge: 'Trò chơi mới & Độc đáo ⭐',
+      badge: isEn ? 'Unique Game ⭐' : 'Trò chơi mới & Độc đáo ⭐',
       color: 'bg-cyan-600 text-white'
     },
     {
       id: 'prime',
-      title: 'Pháo Đài Thừa Số Nguyên Tố',
-      subtitle: 'Bắn hạ quái vật số học bằng thừa số nguyên tố',
+      title: isEn ? 'Prime Factor Fortress' : 'Pháo Đài Thừa Số Nguyên Tố',
+      subtitle: isEn ? 'Defeat monsters with prime factorization' : 'Bắn hạ quái vật số học bằng thừa số nguyên tố',
       icon: Flame,
-      badge: 'Trò chơi mới & Kịch tính 🔥',
+      badge: isEn ? 'Action Math 🔥' : 'Trò chơi mới & Kịch tính 🔥',
       color: 'bg-rose-600 text-white'
     },
     {
       id: 'escape',
-      title: 'Mật Mã Số Học (Math Quest)',
-      subtitle: 'Giải 4 ổ khóa toán học mở hòm kho báu',
+      title: isEn ? 'Math Escape Room' : 'Mật Mã Số Học (Math Quest)',
+      subtitle: isEn ? 'Unlock 4 math locks to open the chest' : 'Giải 4 ổ khóa toán học mở hòm kho báu',
       icon: KeyRound,
-      badge: 'Tư duy logic',
+      badge: isEn ? 'Logic Puzzle' : 'Tư duy logic',
       color: 'bg-purple-600 text-white'
     },
     {
       id: 'memory',
-      title: 'Lật Thẻ Ghép Đôi Công Thức',
-      subtitle: 'Ghi nhớ định lý Pythagoras & Hằng đẳng thức',
+      title: isEn ? 'Formula Memory Match' : 'Lật Thẻ Ghép Đôi Công Thức',
+      subtitle: isEn ? 'Master Pythagoras & Algebraic Identities' : 'Ghi nhớ định lý Pythagoras & Hằng đẳng thức',
       icon: Brain,
-      badge: 'Khắc sâu lý thuyết',
+      badge: isEn ? 'Theory Recall' : 'Khắc sâu lý thuyết',
       color: 'bg-emerald-600 text-white'
     }
   ];

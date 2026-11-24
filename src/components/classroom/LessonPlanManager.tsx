@@ -7,6 +7,7 @@ import {
   LessonPlanStatus,
 } from '../../data/lessonPlansData';
 import { GradeLevel } from '../../types/math';
+import { Language } from '../../i18n/translations';
 import { soundManager } from '../../utils/sound';
 import {
   BookOpen,
@@ -59,7 +60,12 @@ function loadLessonPlans(): LessonPlan[] {
   }
 }
 
-export const LessonPlanManager: React.FC = () => {
+interface LessonPlanManagerProps {
+  language?: Language;
+}
+
+export const LessonPlanManager: React.FC<LessonPlanManagerProps> = ({ language = 'vi' }) => {
+  const isEn = language === 'en';
   const [plans, setPlans] = useState<LessonPlan[]>(() => loadLessonPlans());
   const [selectedGrade, setSelectedGrade] = useState<GradeLevel | 'all'>('all');
   const [selectedSemester, setSelectedSemester] = useState<'all' | 'HK1' | 'HK2'>('all');
@@ -360,27 +366,41 @@ export const LessonPlanManager: React.FC = () => {
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-xs font-bold text-indigo-100">
               <BookOpen className="w-3.5 h-3.5 text-amber-300" />
-              <span>Kế Hoạch Bài Dạy Chuẩn Công Văn 5512 · GDPT 2018</span>
+              <span>
+                {isEn
+                  ? 'Standard 5512 Lesson Plans · GDPT 2018 Curriculum'
+                  : 'Kế Hoạch Bài Dạy Chuẩn Công Văn 5512 · GDPT 2018'}
+              </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Giáo Án & Lộ Trình Giảng Dạy Toán THCS
+              {isEn
+                ? 'Lesson Plans & Teaching Roadmap (Grades 6–9)'
+                : 'Giáo Án & Lộ Trình Giảng Dạy Toán THCS'}
             </h2>
             <p className="text-xs sm:text-sm text-indigo-100/90 leading-relaxed">
-              Quản lý giáo án chi tiết theo từng tuần PPCT (Khối 6 – 9), đầy đủ mục tiêu phẩm chất – năng lực, thiết bị dạy học và 4 hoạt động lên lớp thực tế kèm phân bổ thời gian từng phút.
+              {isEn
+                ? 'Manage weekly curriculum lesson plans with objectives, teaching aids, and 4 structured classroom activities with minute-by-minute timing.'
+                : 'Quản lý giáo án chi tiết theo từng tuần PPCT (Khối 6 – 9), đầy đủ mục tiêu phẩm chất – năng lực, thiết bị dạy học và 4 hoạt động lên lớp thực tế kèm phân bổ thời gian từng phút.'}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <div className="px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15 text-center">
-              <span className="text-[10px] uppercase font-bold text-indigo-200 block">Tổng Giáo Án</span>
+              <span className="text-[10px] uppercase font-bold text-indigo-200 block">
+                {isEn ? 'Total Plans' : 'Tổng Giáo Án'}
+              </span>
               <span className="text-xl font-black font-mono text-white">{plans.length}</span>
             </div>
             <div className="px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15 text-center">
-              <span className="text-[10px] uppercase font-bold text-indigo-200 block">Đã Giảng Dạy</span>
+              <span className="text-[10px] uppercase font-bold text-indigo-200 block">
+                {isEn ? 'Taught' : 'Đã Giảng Dạy'}
+              </span>
               <span className="text-xl font-black font-mono text-emerald-300">{taughtCount}</span>
             </div>
             <div className="px-4 py-2.5 rounded-2xl bg-white/10 border border-white/15 text-center">
-              <span className="text-[10px] uppercase font-bold text-indigo-200 block">Đã Duyệt</span>
+              <span className="text-[10px] uppercase font-bold text-indigo-200 block">
+                {isEn ? 'Approved' : 'Đã Duyệt'}
+              </span>
               <span className="text-xl font-black font-mono text-amber-300">{approvedCount}</span>
             </div>
             <button
@@ -389,7 +409,7 @@ export const LessonPlanManager: React.FC = () => {
               className="px-4 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-2xl shadow-lg flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Soạn Giáo Án Mới</span>
+              <span>{isEn ? 'New Lesson Plan' : 'Soạn Giáo Án Mới'}</span>
             </button>
           </div>
         </div>
@@ -412,7 +432,7 @@ export const LessonPlanManager: React.FC = () => {
                   : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
             >
-              {g === 'all' ? 'Tất cả khối' : `Toán ${g}`}
+              {g === 'all' ? (isEn ? 'All Grades' : 'Tất cả khối') : (isEn ? `Grade ${g}` : `Toán ${g}`)}
             </button>
           ))}
 
@@ -432,7 +452,7 @@ export const LessonPlanManager: React.FC = () => {
                   : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
             >
-              {sem === 'all' ? 'Cả năm' : sem}
+              {sem === 'all' ? (isEn ? 'Full Year' : 'Cả năm') : sem}
             </button>
           ))}
         </div>
@@ -443,7 +463,7 @@ export const LessonPlanManager: React.FC = () => {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Tìm tên bài, chương, tuần..."
+            placeholder={isEn ? 'Search lesson, chapter, week...' : 'Tìm tên bài, chương, tuần...'}
             className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
@@ -456,7 +476,11 @@ export const LessonPlanManager: React.FC = () => {
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Lộ trình giảng dạy ({filteredPlans.length} bài)</span>
+              <span>
+                {isEn
+                  ? `Teaching Roadmap (${filteredPlans.length} plans)`
+                  : `Lộ trình giảng dạy (${filteredPlans.length} bài)`}
+              </span>
             </h3>
           </div>
 
@@ -552,7 +576,7 @@ export const LessonPlanManager: React.FC = () => {
                   className="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
-                  <span>Chỉnh sửa</span>
+                  <span>{isEn ? 'Edit' : 'Chỉnh sửa'}</span>
                 </button>
                 <button
                   type="button"
@@ -560,7 +584,7 @@ export const LessonPlanManager: React.FC = () => {
                   className="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   {copiedSuccess ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedSuccess ? 'Đã chép' : 'Sao chép'}</span>
+                  <span>{copiedSuccess ? (isEn ? 'Copied' : 'Đã chép') : (isEn ? 'Copy' : 'Sao chép')}</span>
                 </button>
                 <button
                   type="button"
@@ -571,7 +595,7 @@ export const LessonPlanManager: React.FC = () => {
                   className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>In giáo án</span>
+                  <span>{isEn ? 'Print Plan' : 'In giáo án'}</span>
                 </button>
                 {plans.length > 1 && (
                   <button

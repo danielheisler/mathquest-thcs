@@ -1,18 +1,44 @@
 import React from 'react';
 import { soundManager } from '../utils/sound';
-import { 
-  Volume2, VolumeX, Maximize2, Minimize2, Globe, GraduationCap, Users, UserCheck, 
-  WifiOff, KeyRound, LogOut
+import {
+  Volume2,
+  VolumeX,
+  Maximize2,
+  Minimize2,
+  Globe,
+  GraduationCap,
+  Users,
+  UserCheck,
+  WifiOff,
+  KeyRound,
+  LogOut,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { Language, translations } from '../i18n/translations';
 import { MainPortal, TeacherRole } from '../types/math';
 import { AuthUser, getDefaultTabForRole } from '../utils/auth';
 
-export type NavTab = 
-  | 'solo' | 'body_games' | 'custom_game' | 'exams' | 'ai_exam_studio' | 'homework' | 'ai_duel' | 'labs' 
-  | 'parent_portal' 
-  | 'classroom' | 'gradebook' | 'lesson_plans' | 'anti_cheat_monitor' | 'homework_tracker' | 'teacher_exams' | 'questions' | 'reports'
-  | 'seating_chart' | 'vnedu_gradebook';
+export type NavTab =
+  | 'solo'
+  | 'body_games'
+  | 'custom_game'
+  | 'exams'
+  | 'ai_exam_studio'
+  | 'homework'
+  | 'ai_duel'
+  | 'labs'
+  | 'parent_portal'
+  | 'classroom'
+  | 'gradebook'
+  | 'lesson_plans'
+  | 'anti_cheat_monitor'
+  | 'homework_tracker'
+  | 'teacher_exams'
+  | 'questions'
+  | 'reports'
+  | 'seating_chart'
+  | 'vnedu_gradebook';
 
 interface NavbarProps {
   mainPortal: MainPortal;
@@ -27,6 +53,8 @@ interface NavbarProps {
   onToggleFullscreen: () => void;
   language: Language;
   onToggleLanguage: () => void;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
   isOnline: boolean;
   currentUser: AuthUser;
   onLogout: () => void;
@@ -51,73 +79,81 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleFullscreen,
   language,
   onToggleLanguage,
+  theme,
+  onToggleTheme,
   isOnline,
   currentUser,
   onLogout,
   isTeacherUnlocked = false,
   onOpenPinSettings,
-  ongoingTestType = null
+  ongoingTestType = null,
 }) => {
   const t = translations[language];
 
+  const roleDisplayName =
+    currentUser.role === 'teacher'
+      ? t.roleTeacher
+      : currentUser.role === 'parent'
+        ? t.roleParent
+        : t.roleStudent;
+
   // Secondary nav items depending on active main portal
   const studentNavItems: { id: NavTab; label: string; badge?: string }[] = [
-    { id: 'solo', label: 'Trò Chơi Toán Học', badge: '5 Game' },
-    { id: 'body_games', label: 'Vận Động Cơ Thể Camera', badge: 'Mới ⭐' },
-    { 
-      id: 'exams', 
-      label: 'Luyện Đề Giữa/Cuối Kỳ', 
-      badge: ongoingTestType === 'exam' ? '🔴 ĐANG LÀM' : 'Khối 6-9' 
+    { id: 'solo', label: t.navSolo, badge: t.navSoloBadge },
+    { id: 'body_games', label: t.navBodyGames, badge: t.navBodyGamesBadge },
+    {
+      id: 'exams',
+      label: t.navExams,
+      badge: ongoingTestType === 'exam' ? t.navOngoingBadge : t.navExamsBadge,
     },
-    { 
-      id: 'homework', 
-      label: 'Làm Bài Tập Về Nhà', 
-      badge: ongoingTestType === 'homework' ? '🔴 ĐANG LÀM' : 'BTVN' 
+    {
+      id: 'homework',
+      label: t.navHomework,
+      badge: ongoingTestType === 'homework' ? t.navOngoingBadge : t.navHomeworkBadge,
     },
-    { id: 'ai_duel', label: 'Đấu Trí AI MathBot', badge: 'AI' },
-    { id: 'labs', label: 'Bài Giảng Trực Quan', badge: 'Lớp 6-9' },
+    { id: 'ai_duel', label: t.navAiDuel, badge: 'AI' },
+    { id: 'labs', label: t.navLabs, badge: t.navLabsBadge },
   ];
 
   // GV Bộ Môn Toán (Cô Diễm Quỳnh)
   const subjectTeacherNavItems: { id: NavTab; label: string; badge?: string }[] = [
-    { id: 'classroom', label: 'Sổ Điểm Môn Toán & Thứ Hạng', badge: 'Cô Quỳnh' },
-    { id: 'gradebook', label: 'Bảng Điểm (TX, GK, CK)', badge: 'ĐTB 📊' },
-    { id: 'lesson_plans', label: 'Giáo Án (KHBD 5512)', badge: 'Lộ trình 📚' },
-    { id: 'ai_exam_studio', label: 'Tạo Đề AI & Giải Chi Tiết', badge: 'AI Mới ✨' },
-    { id: 'custom_game', label: 'Tạo Trò Chơi Cho Lớp', badge: 'Studio 🎨' },
-    { id: 'anti_cheat_monitor', label: 'Radar Chống Chuyển Tab (Live)', badge: '🔴 Live' },
-    { id: 'homework_tracker', label: 'Giám Sát BTVN & SMS PH', badge: 'SMS PH' },
-    { id: 'teacher_exams', label: 'Đề Thi Thử Học Kỳ & In Đề A4' },
-    { id: 'questions', label: 'Ngân Hàng Câu Hỏi MathType' },
-    { id: 'reports', label: 'Báo Cáo Tiến Độ Môn Toán & PDF' },
+    { id: 'classroom', label: t.navClassroom, badge: t.navClassroomBadge },
+    { id: 'gradebook', label: t.navGradebook, badge: t.navGradebookBadge },
+    { id: 'lesson_plans', label: t.navLessonPlans, badge: t.navLessonPlansBadge },
+    { id: 'ai_exam_studio', label: t.navAiExamStudio, badge: t.navAiExamStudioBadge },
+    { id: 'custom_game', label: t.navCustomGame, badge: t.navCustomGameBadge },
+    { id: 'anti_cheat_monitor', label: t.navAntiCheat, badge: t.navAntiCheatBadge },
+    { id: 'homework_tracker', label: t.navHomeworkTracker, badge: t.navHomeworkTrackerBadge },
+    { id: 'teacher_exams', label: t.navTeacherExams },
+    { id: 'questions', label: t.navQuestions },
+    { id: 'reports', label: t.navReports },
   ];
 
   // GV Chủ Nhiệm (Sơ Đồ Lớp & VnEdu)
   const homeroomTeacherNavItems: { id: NavTab; label: string; badge?: string }[] = [
-    { id: 'seating_chart', label: 'Sơ Đồ Chỗ Ngồi Lớp Học', badge: '4 Dãy/Tổ 🪑' },
-    { id: 'gradebook', label: 'Bảng Điểm (TX, GK, CK)', badge: 'ĐTB 📊' },
-    { id: 'lesson_plans', label: 'Giáo Án (KHBD 5512)', badge: 'Lộ trình 📚' },
-    { id: 'vnedu_gradebook', label: 'Sổ Điểm Điện Tử VnEdu (Các Môn)', badge: 'VnEdu 📊' },
-    { id: 'reports', label: 'Báo Cáo Toàn Diện Lớp & Xuất PDF' },
+    { id: 'seating_chart', label: t.navSeatingChart, badge: t.navSeatingChartBadge },
+    { id: 'gradebook', label: t.navGradebook, badge: t.navGradebookBadge },
+    { id: 'lesson_plans', label: t.navLessonPlans, badge: t.navLessonPlansBadge },
+    { id: 'vnedu_gradebook', label: t.navVnEdu, badge: t.navVnEduBadge },
+    { id: 'reports', label: t.navHomeroomReports },
   ];
 
-  const teacherNavItems = teacherRole === 'subject_teacher' 
-    ? subjectTeacherNavItems 
-    : homeroomTeacherNavItems;
+  const teacherNavItems =
+    teacherRole === 'subject_teacher' ? subjectTeacherNavItems : homeroomTeacherNavItems;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 no-print shadow-xs">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 no-print shadow-xs transition-colors">
       {/* Offline Alert Strip if no internet */}
       {!isOnline && (
         <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-xs font-bold flex items-center justify-center gap-2 text-center">
           <WifiOff className="w-4 h-4 shrink-0" />
-          <span>Chế độ Ngoại tuyến (Offline): Ứng dụng hoạt động 100% mượt mà từ bộ nhớ máy, không cần kết nối mạng.</span>
+          <span>{t.offlineNotice}</span>
         </div>
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Tier 1: Brand & 3 Primary Corner Portals */}
-        <div className="flex items-center justify-between gap-4 h-16 border-b border-slate-100">
+        {/* Tier 1: Brand & Role Portal */}
+        <div className="flex items-center justify-between gap-4 h-16 border-b border-slate-100 dark:border-slate-800">
           {/* Brand Wordmark */}
           <button
             onClick={() => {
@@ -131,10 +167,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div>
               <span className="text-lg font-extrabold tracking-tight text-slate-900 block leading-tight">
-                MathQuest THCS
+                {t.appTitle}
               </span>
               <span className="text-[10px] font-bold text-indigo-600 tracking-wider uppercase block">
-                Cô Diễm Quỳnh · GV Toán THCS
+                {t.teacherSubtitle}
               </span>
             </div>
           </button>
@@ -144,26 +180,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             {currentUser.role === 'student' && (
               <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-white text-indigo-700 shadow-sm flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-indigo-600" />
-                <span>Góc Học Sinh</span>
+                <span>{t.portalStudent}</span>
               </div>
             )}
 
             {currentUser.role === 'parent' && (
               <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-2">
                 <Users className="w-4 h-4 text-emerald-100" />
-                <span>Góc Phụ Huynh</span>
+                <span>{t.portalParent}</span>
               </div>
             )}
 
             {currentUser.role === 'teacher' && (
               <div className="px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-700 text-white shadow-sm flex items-center gap-2">
                 <UserCheck className="w-4 h-4 text-indigo-200" />
-                <span>Góc Giáo Viên (Cô Diễm Quỳnh)</span>
+                <span>{t.portalTeacher}</span>
               </div>
             )}
           </div>
 
-          {/* Zone 3: Utilities, User Role & Logout */}
+          {/* Zone 3: Utilities, User Role, Theme, Bilingual & Logout */}
           <div className="flex items-center gap-2 shrink-0">
             {currentUser.role === 'teacher' && isTeacherUnlocked && onOpenPinSettings && (
               <button
@@ -172,15 +208,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onOpenPinSettings();
                 }}
                 className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                title="Đổi mã bảo mật cho Giáo Viên & Phụ Huynh"
+                title={t.pinSettings}
               >
                 <KeyRound className="w-3.5 h-3.5" />
-                <span>Cài Đặt PIN</span>
+                <span>{t.pinSettings}</span>
               </button>
             )}
 
             <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
-              <span className="text-indigo-700">{currentUser.roleLabel}</span>
+              <span className="text-indigo-700">{roleDisplayName}</span>
               <span className="text-slate-400">·</span>
               <span className="font-mono text-slate-600">{currentUser.phone}</span>
             </div>
@@ -191,22 +227,43 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onLogout();
               }}
               className="flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              title="Đăng xuất tài khoản"
+              title={t.logout}
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Đăng xuất</span>
+              <span className="hidden sm:inline">{t.logout}</span>
             </button>
 
-            {/* Language Switcher */}
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                onToggleTheme();
+              }}
+              className={`p-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
+                theme === 'dark'
+                  ? 'bg-indigo-600 border-indigo-500 text-amber-300 hover:bg-indigo-500'
+                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+              }`}
+              title={theme === 'dark' ? t.lightMode : t.darkMode}
+              aria-label={theme === 'dark' ? t.lightMode : t.darkMode}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Bilingual Switcher (VI / EN) */}
             <button
               onClick={() => {
                 soundManager.playClick();
                 onToggleLanguage();
               }}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
-              title="Chuyển đổi ngôn ngữ / Switch language"
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
+                language === 'en'
+                  ? 'bg-indigo-600 border-indigo-500 text-white hover:bg-indigo-500'
+                  : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
+              }`}
+              title={`${t.language}: ${language === 'vi' ? t.vietnamese : t.english}`}
             >
-              <Globe className="w-3.5 h-3.5 text-indigo-600" />
+              <Globe className={`w-3.5 h-3.5 ${language === 'en' ? 'text-cyan-200' : 'text-indigo-600'}`} />
               <span>{language === 'vi' ? 'VI' : 'EN'}</span>
             </button>
 
@@ -240,7 +297,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {currentUser.role === 'student' && <GraduationCap className="w-4 h-4" />}
             {currentUser.role === 'parent' && <Users className="w-4 h-4 text-emerald-600" />}
             {currentUser.role === 'teacher' && <UserCheck className="w-4 h-4" />}
-            <span>{currentUser.roleLabel}</span>
+            <span>{roleDisplayName}</span>
           </div>
           <span className="font-mono text-slate-500">{currentUser.phone}</span>
         </div>
@@ -257,7 +314,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     soundManager.playClick();
                     onTabChange(item.id);
                   }}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
                     isActive
                       ? 'bg-indigo-50 text-indigo-700 font-bold'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -265,9 +322,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   <span>{item.label}</span>
                   {item.badge && (
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
-                      isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
-                    }`}>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
+                        isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+                      }`}
+                    >
                       {item.badge}
                     </span>
                   )}
@@ -288,13 +347,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onTeacherRoleChange?.('subject_teacher');
                   onTabChange('classroom');
                 }}
-                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
+                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
                   teacherRole === 'subject_teacher'
                     ? 'bg-indigo-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <span>🧑‍🏫 GV Bộ Môn Toán (Cô Diễm Quỳnh)</span>
+                <span>{t.subjectTeacherBtn}</span>
               </button>
 
               <button
@@ -304,13 +363,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onTeacherRoleChange?.('homeroom_teacher');
                   onTabChange('seating_chart');
                 }}
-                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
+                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
                   teacherRole === 'homeroom_teacher'
                     ? 'bg-blue-700 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <span>🏫 GV Chủ Nhiệm (Sơ Đồ Lớp & VnEdu)</span>
+                <span>{t.homeroomTeacherBtn}</span>
               </button>
             </div>
 
@@ -325,7 +384,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       soundManager.playClick();
                       onTabChange(item.id);
                     }}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
                       isActive
                         ? 'bg-indigo-50 text-indigo-700 font-bold'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -333,9 +392,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <span>{item.label}</span>
                     {item.badge && (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
-                        isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
-                      }`}>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
+                          isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
                         {item.badge}
                       </span>
                     )}
