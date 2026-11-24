@@ -13,6 +13,7 @@ import { InteractiveLabsHub } from './components/labs/InteractiveLabsHub';
 import { ClassroomManager } from './components/classroom/ClassroomManager';
 import { ClassroomSeatingChart } from './components/classroom/ClassroomSeatingChart';
 import { VnEduGradebook } from './components/classroom/VnEduGradebook';
+import { LessonPlanManager } from './components/classroom/LessonPlanManager';
 import { CustomGameStudio } from './components/games/CustomGameStudio';
 import { initialVnEduRecords } from './data/vneduData';
 import { QuestionBank } from './components/questions/QuestionBank';
@@ -926,6 +927,11 @@ export default function App() {
                 gradebook={gradebook}
                 onUpdateStudentScores={handleUpdateStudentScores}
               />
+            )}
+
+            {/* Tab: Giáo Án / Kế Hoạch Bài Dạy (Chuẩn 5512) */}
+            {activeTab === 'lesson_plans' && (
+              <LessonPlanManager />
             )}
 
             {/* Tab: Radar Giám Sát Chống Chuyển Tab (Live Anti-Cheat) */}

@@ -11,7 +11,7 @@ import { AuthUser, getDefaultTabForRole } from '../utils/auth';
 export type NavTab = 
   | 'solo' | 'body_games' | 'custom_game' | 'exams' | 'ai_exam_studio' | 'homework' | 'ai_duel' | 'labs' 
   | 'parent_portal' 
-  | 'classroom' | 'gradebook' | 'anti_cheat_monitor' | 'homework_tracker' | 'teacher_exams' | 'questions' | 'reports'
+  | 'classroom' | 'gradebook' | 'lesson_plans' | 'anti_cheat_monitor' | 'homework_tracker' | 'teacher_exams' | 'questions' | 'reports'
   | 'seating_chart' | 'vnedu_gradebook';
 
 interface NavbarProps {
@@ -82,6 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const subjectTeacherNavItems: { id: NavTab; label: string; badge?: string }[] = [
     { id: 'classroom', label: 'Sổ Điểm Môn Toán & Thứ Hạng', badge: 'Cô Quỳnh' },
     { id: 'gradebook', label: 'Bảng Điểm (TX, GK, CK)', badge: 'ĐTB 📊' },
+    { id: 'lesson_plans', label: 'Giáo Án (KHBD 5512)', badge: 'Lộ trình 📚' },
     { id: 'ai_exam_studio', label: 'Tạo Đề AI & Giải Chi Tiết', badge: 'AI Mới ✨' },
     { id: 'custom_game', label: 'Tạo Trò Chơi Cho Lớp', badge: 'Studio 🎨' },
     { id: 'anti_cheat_monitor', label: 'Radar Chống Chuyển Tab (Live)', badge: '🔴 Live' },
@@ -95,6 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const homeroomTeacherNavItems: { id: NavTab; label: string; badge?: string }[] = [
     { id: 'seating_chart', label: 'Sơ Đồ Chỗ Ngồi Lớp Học', badge: '4 Dãy/Tổ 🪑' },
     { id: 'gradebook', label: 'Bảng Điểm (TX, GK, CK)', badge: 'ĐTB 📊' },
+    { id: 'lesson_plans', label: 'Giáo Án (KHBD 5512)', badge: 'Lộ trình 📚' },
     { id: 'vnedu_gradebook', label: 'Sổ Điểm Điện Tử VnEdu (Các Môn)', badge: 'VnEdu 📊' },
     { id: 'reports', label: 'Báo Cáo Toàn Diện Lớp & Xuất PDF' },
   ];

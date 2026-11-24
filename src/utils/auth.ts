@@ -133,6 +133,7 @@ const STUDENT_TABS = new Set([
 const TEACHER_TABS = new Set([
   'classroom',
   'gradebook',
+  'lesson_plans',
   'ai_exam_studio',
   'custom_game',
   'anti_cheat_monitor',
