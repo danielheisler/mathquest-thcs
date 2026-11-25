@@ -2,19 +2,23 @@ import React, { useState } from 'react';
 import { Student, Classroom, PeriodicReport } from '../../types/math';
 import { initialReports } from '../../data/defaultData';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { Printer, Copy, Check, Award, Edit3, Sparkles, Send, GraduationCap } from 'lucide-react';
 
 interface ReportCardGeneratorProps {
   students: Student[];
   classrooms: Classroom[];
   selectedStudent?: Student | null;
+  language?: Language;
 }
 
 export const ReportCardGenerator: React.FC<ReportCardGeneratorProps> = ({
   students,
   classrooms,
-  selectedStudent: externalSelected
+  selectedStudent: externalSelected,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
     externalSelected?.id || students[0]?.id || ''
   );
@@ -70,14 +74,20 @@ export const ReportCardGenerator: React.FC<ReportCardGeneratorProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Sổ Báo Cáo Định Kỳ Phụ Huynh</span>
+              <span className="text-xs font-semibold text-indigo-600 tracking-wider uppercase">
+                {isEn ? 'Periodic Parent Report Card' : 'Sổ Báo Cáo Định Kỳ Phụ Huynh'}
+              </span>
               <span className="px-2 py-0.5 bg-indigo-50 border border-indigo-200 rounded text-xs font-bold text-indigo-700">
-                Giáo viên: Cô Diễm Quỳnh
+                {isEn ? 'Teacher: Ms. Diem Quynh' : 'Giáo viên: Cô Diễm Quỳnh'}
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mt-0.5">Xuất Phiếu Báo Cáo & Nhắn Tin Phụ Huynh</h3>
+            <h3 className="text-2xl font-bold text-slate-900 mt-0.5">
+              {isEn ? 'Print Report Cards & Message Parents' : 'Xuất Phiếu Báo Cáo & Nhắn Tin Phụ Huynh'}
+            </h3>
             <p className="text-sm text-slate-600">
-              Mẫu phiếu thiết kế chuẩn sư phạm in A4/PDF và tính năng gửi SMS / Zalo trực tiếp đến SĐT phụ huynh: <b className="font-mono text-indigo-700">{student?.parentPhone}</b>.
+              {isEn
+                ? <>Pedagogical A4/PDF report template with SMS/Zalo dispatch to parent phone: <b className="font-mono text-indigo-700">{student?.parentPhone}</b>.</>
+                : <>Mẫu phiếu thiết kế chuẩn sư phạm in A4/PDF và tính năng gửi SMS / Zalo trực tiếp đến SĐT phụ huynh: <b className="font-mono text-indigo-700">{student?.parentPhone}</b>.</>}
             </p>
           </div>
 

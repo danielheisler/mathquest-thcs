@@ -8,6 +8,8 @@ import { soundManager } from '../../utils/sound';
 import { CameraPermissionGuideModal } from '../common/CameraPermissionGuideModal';
 import { useCameraStream } from '../../hooks/useCameraStream';
 import { drawVideoFrame } from '../../utils/camera';
+import { Language } from '../../i18n/translations';
+import { getLocalizedBodyMotionQuestion } from '../../utils/localize';
 import { 
   Camera, CameraOff, Video, Volume2, VolumeX, Maximize2, Minimize2, 
   RotateCcw, Sparkles, Award, CheckCircle2, XCircle, Clock, Zap, 
@@ -19,14 +21,17 @@ interface BodyMotionQuizGameProps {
   activeStudentName?: string;
   activeClassName?: string;
   onExit?: () => void;
+  language?: Language;
 }
 
 export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
   customQuestions,
   activeStudentName = 'Nguyễn Minh Quân',
   activeClassName = 'Lớp 6A1',
-  onExit
+  onExit,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [selectedGrade, setSelectedGrade] = useState<GradeLevel | 'all'>('all');
   const [questionsList, setQuestionsList] = useState<BodyMotionQuestion[]>(() => {
     return customQuestions && customQuestions.length > 0 ? customQuestions : initialBodyMotionQuestions;
@@ -34,7 +39,8 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
 
   const filteredQuestions = questionsList.filter(q => selectedGrade === 'all' || q.grade === selectedGrade);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const currentQ = filteredQuestions[currentIndex] || filteredQuestions[0];
+  const rawQ = filteredQuestions[currentIndex] || filteredQuestions[0];
+  const currentQ = rawQ ? getLocalizedBodyMotionQuestion(rawQ, language) : undefined;
 
   // Game state
   const [score, setScore] = useState<number>(0);
@@ -310,14 +316,14 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight flex items-center gap-2">
-                Đố Vui Vận Động Cơ Thể
+                {isEn ? 'Body Motion Math Quiz' : 'Đố Vui Vận Động Cơ Thể'}
                 <span className="px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 text-[11px] font-semibold border border-indigo-400/30">
                   Camera AI 📸
                 </span>
               </h2>
             </div>
             <p className="text-xs text-slate-400 font-sans">
-              Đứng trước Camera và thực hiện động tác tương ứng với đáp án đúng để ghi điểm!
+              {isEn ? 'Stand before the camera and hold the pose matching the correct answer to score!' : 'Đứng trước Camera và thực hiện động tác tương ứng với đáp án đúng để ghi điểm!'}
             </p>
           </div>
         </div>
@@ -343,7 +349,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                {g === 'all' ? 'Tất Cả' : `Lớp ${g}`}
+                {g === 'all' ? (isEn ? 'All' : 'Tất Cả') : (isEn ? `Gr ${g}` : `Lớp ${g}`)}
               </button>
             ))}
           </div>
@@ -363,17 +369,17 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                 ? 'bg-emerald-600/30 border-emerald-500/50 text-emerald-300 hover:bg-emerald-600/40' 
                 : 'bg-rose-600/30 border-rose-500/50 text-rose-300 hover:bg-rose-600/40'
             }`}
-            title={cameraActive ? 'Tắt Camera' : 'Bật Camera'}
+            title={cameraActive ? (isEn ? 'Turn Off Camera' : 'Tắt Camera') : (isEn ? 'Turn On Camera' : 'Bật Camera')}
           >
             {cameraActive ? <Video className="w-4 h-4" /> : <CameraOff className="w-4 h-4" />}
-            <span className="hidden sm:inline">{cameraActive ? 'Camera Bật' : 'Bật Camera'}</span>
+            <span className="hidden sm:inline">{cameraActive ? (isEn ? 'Camera On' : 'Camera Bật') : (isEn ? 'Start Camera' : 'Bật Camera')}</span>
           </button>
 
           {/* Fullscreen Projector button */}
           <button
             onClick={toggleFullscreen}
             className="p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 transition-colors"
-            title="Chế độ Trình chiếu Máy chiếu lớp học"
+            title={isEn ? 'Classroom Projector Fullscreen' : 'Chế độ Trình chiếu Máy chiếu lớp học'}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
@@ -395,10 +401,10 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
               <div className="flex items-center justify-between gap-4 mb-3">
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 font-extrabold text-xs border border-indigo-400/20">
-                    Câu {currentIndex + 1} / {filteredQuestions.length}
+                    {isEn ? `Question ${currentIndex + 1} / ${filteredQuestions.length}` : `Câu ${currentIndex + 1} / ${filteredQuestions.length}`}
                   </span>
                   <span className="px-2.5 py-0.5 rounded-lg bg-slate-700/60 text-slate-300 text-xs font-semibold">
-                    Lớp {currentQ.grade} · {currentQ.topicName}
+                    {isEn ? `Grade ${currentQ.grade}` : `Lớp ${currentQ.grade}`} · {currentQ.topicName}
                   </span>
                 </div>
 
@@ -485,7 +491,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                       </div>
                       <div className="hidden sm:block">
                         <span className="text-[10px] uppercase font-mono tracking-wider font-extrabold text-white/80 block">
-                          Động tác #{idx + 1}
+                          {isEn ? `Pose #${idx + 1}` : `Động tác #${idx + 1}`}
                         </span>
                         <span className="text-xs font-bold text-white drop-shadow-xs">
                           {option.poseLabel}
@@ -529,8 +535,8 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                   <div>
                     <h4 className="text-sm font-bold text-white">
                       {selectedAnswerIndex === currentQ.correctIndex 
-                        ? '🎉 Chính xác! Động tác chuẩn tuyệt đối!' 
-                        : '💡 Chưa chính xác rồi!'}
+                        ? (isEn ? '🎉 Correct! Awesome Pose!' : '🎉 Chính xác! Động tác chuẩn tuyệt đối!') 
+                        : (isEn ? '💡 Not quite right!' : '💡 Chưa chính xác rồi!')}
                     </h4>
                     <p className="text-xs text-slate-300 font-sans mt-0.5">
                       {currentQ.explanation}
@@ -543,7 +549,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                   onClick={handleNextQuestion}
                   className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95 shrink-0"
                 >
-                  <span>{currentIndex + 1 < filteredQuestions.length ? 'Câu Tiếp Theo' : 'Xem Kết Quả'}</span>
+                  <span>{currentIndex + 1 < filteredQuestions.length ? (isEn ? 'Next Question' : 'Câu Tiếp Theo') : (isEn ? 'View Results' : 'Xem Kết Quả')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -581,10 +587,12 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                   </div>
                   <div>
                     <h4 className="text-sm sm:text-base font-extrabold text-white">
-                      {isCameraLoading ? 'Đang Kết Nối Camera...' : 'Chưa Bật Được Camera Lớp Học'}
+                      {isCameraLoading
+                        ? (isEn ? 'Connecting Camera...' : 'Đang Kết Nối Camera...')
+                        : (isEn ? 'Classroom Camera Not Active' : 'Chưa Bật Được Camera Lớp Học')}
                     </h4>
                     <p className="text-xs text-slate-300 max-w-sm mt-1 leading-relaxed">
-                      {cameraError || 'Trình duyệt cần quyền truy cập Camera để nhận diện cử chỉ của học sinh đứng trước lớp.'}
+                      {cameraError || (isEn ? 'The browser needs webcam permission to detect students’ body gestures.' : 'Trình duyệt cần quyền truy cập Camera để nhận diện cử chỉ của học sinh đứng trước lớp.')}
                     </p>
                   </div>
 
@@ -595,7 +603,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                       className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 disabled:opacity-60 text-white rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
                     >
                       <Video className="w-4 h-4" />
-                      <span>{isCameraLoading ? 'Đang bật...' : 'Cấp Quyền & Bật Camera Ngay'}</span>
+                      <span>{isCameraLoading ? (isEn ? 'Starting...' : 'Đang bật...') : (isEn ? 'Allow & Start Camera' : 'Cấp Quyền & Bật Camera Ngay')}</span>
                     </button>
 
                     <button
@@ -603,7 +611,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                       className="w-full sm:w-auto px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
                     >
                       <Lock className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Hướng Dẫn Mở Quyền</span>
+                      <span>{isEn ? 'Permission Guide' : 'Hướng Dẫn Mở Quyền'}</span>
                     </button>
                   </div>
 
@@ -615,7 +623,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                     }}
                     className="text-[11px] text-indigo-300 hover:text-indigo-200 underline font-semibold transition-colors"
                   >
-                    Bật chế độ Camera Mô Phỏng nếu thiết bị không có webcam vật lý →
+                    {isEn ? 'Use Simulated Camera Mode if no webcam available →' : 'Bật chế độ Camera Mô Phỏng nếu thiết bị không có webcam vật lý →'}
                   </button>
                 </div>
               )}
@@ -628,13 +636,13 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                   </div>
                   <div>
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold uppercase tracking-wider">
-                      Camera Mô Phỏng AI
+                      {isEn ? 'Simulated AI Camera' : 'Camera Mô Phỏng AI'}
                     </span>
                     <h4 className="text-sm font-extrabold text-white mt-2">
-                      Đang Chơi Không Cần Webcam Vật Lý
+                      {isEn ? 'Playing Without Physical Webcam' : 'Đang Chơi Không Cần Webcam Vật Lý'}
                     </h4>
                     <p className="text-xs text-slate-300 max-w-xs mt-1">
-                      Bấm trực tiếp vào các thanh đáp án bên trái, nút Mô phỏng bên dưới hoặc nhấn phím [1], [2], [3].
+                      {isEn ? 'Click answer bars on the left, simulation buttons below, or press keys [1], [2], [3].' : 'Bấm trực tiếp vào các thanh đáp án bên trái, nút Mô phỏng bên dưới hoặc nhấn phím [1], [2], [3].'}
                     </p>
                   </div>
                   <button
@@ -642,7 +650,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                     className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                   >
                     <Video className="w-3.5 h-3.5" />
-                    <span>Thử Bật Camera Thật</span>
+                    <span>{isEn ? 'Try Real Camera' : 'Thử Bật Camera Thật'}</span>
                   </button>
                 </div>
               )}
@@ -657,11 +665,11 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                       : 'border-blue-400/50 bg-blue-500/10'
                   }`}>
                     <span className="text-[10px] font-extrabold uppercase tracking-wide bg-blue-600/80 px-2 py-0.5 rounded text-white">
-                      🙆‍♂️ Vùng 1: Hai tay giơ cao
+                      🙆‍♂️ {isEn ? 'Zone 1: Both Hands' : 'Vùng 1: Hai tay giơ cao'}
                     </span>
                     {detectedZone === 0 && (
                       <span className="text-xs font-bold text-yellow-300 mt-1 animate-bounce">
-                        Đang nhận diện: {holdProgress}%
+                        {isEn ? `Detecting: ${holdProgress}%` : `Đang nhận diện: ${holdProgress}%`}
                       </span>
                     )}
                   </div>
@@ -673,7 +681,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                       : 'border-rose-400/50 bg-rose-500/10'
                   }`}>
                     <span className="text-[9px] font-extrabold uppercase tracking-tight bg-rose-600/80 px-1.5 py-0.5 rounded text-white text-center">
-                      🙋‍♀️ Vùng 2: Tay phải
+                      🙋‍♀️ {isEn ? 'Zone 2: Right' : 'Vùng 2: Tay phải'}
                     </span>
                     {detectedZone === 1 && (
                       <span className="text-[11px] font-bold text-yellow-300 mt-1 animate-bounce">
@@ -689,7 +697,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                       : 'border-emerald-400/50 bg-emerald-500/10'
                   }`}>
                     <span className="text-[9px] font-extrabold uppercase tracking-tight bg-emerald-600/80 px-1.5 py-0.5 rounded text-white text-center">
-                      🙋‍♂️ Vùng 3: Tay trái
+                      🙋‍♂️ {isEn ? 'Zone 3: Left' : 'Vùng 3: Tay trái'}
                     </span>
                     {detectedZone === 2 && (
                       <span className="text-[11px] font-bold text-yellow-300 mt-1 animate-bounce">
@@ -701,17 +709,17 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                   {/* Live Status Tag */}
                   <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-xs text-[11px] font-mono text-emerald-400 flex items-center gap-1.5 border border-white/10">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                    <span>Live Cam THCS ({isMirror ? 'Gương soi' : 'Chuẩn'})</span>
+                    <span>Live Cam ({isMirror ? (isEn ? 'Mirrored' : 'Gương soi') : (isEn ? 'Standard' : 'Chuẩn')})</span>
                   </div>
 
                   {/* Camera flip toggle */}
                   <button
                     onClick={() => setIsMirror(prev => !prev)}
                     className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-white text-[11px] font-bold flex items-center gap-1 border border-white/10"
-                    title="Lật gương camera"
+                    title={isEn ? 'Flip camera mirror' : 'Lật gương camera'}
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Lật</span>
+                    <span>{isEn ? 'Flip' : 'Lật'}</span>
                   </button>
                 </>
               )}
@@ -722,10 +730,10 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-slate-300 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                  Mô phỏng động tác (Click trực tiếp):
+                  {isEn ? 'Simulate Pose (Click directly):' : 'Mô phỏng động tác (Click trực tiếp):'}
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono">
-                  Phím [1], [2], [3]
+                  {isEn ? 'Keys [1], [2], [3]' : 'Phím [1], [2], [3]'}
                 </span>
               </div>
 
@@ -740,7 +748,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
                   >
                     <BodyPoseIllustration pose={opt.pose} size={32} />
                     <span className="text-[10px] text-slate-300 truncate w-full text-center">
-                      Động tác #{i + 1}
+                      {isEn ? `Pose #${i + 1}` : `Động tác #${i + 1}`}
                     </span>
                   </button>
                 ))}
@@ -751,7 +759,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3.5 text-center shadow-md">
                 <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block mb-1">
-                  Điểm Tích Lũy
+                  {isEn ? 'Total Score' : 'Điểm Tích Lũy'}
                 </span>
                 <span className="text-2xl font-black text-amber-400 font-mono">
                   {score}
@@ -759,7 +767,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
               </div>
               <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3.5 text-center shadow-md">
                 <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block mb-1">
-                  Chuỗi Đúng Liên Tiếp
+                  {isEn ? 'Win Streak' : 'Chuỗi Đúng Liên Tiếp'}
                 </span>
                 <div className="flex items-center justify-center gap-1">
                   <Zap className={`w-5 h-5 ${streak >= 2 ? 'text-amber-400 animate-bounce' : 'text-slate-500'}`} />
@@ -781,30 +789,30 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
 
           <div>
             <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/30">
-              Hoàn Thành Phần Thi Vận Động
+              {isEn ? 'Body Motion Challenge Complete' : 'Hoàn Thành Phần Thi Vận Động'}
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
-              Xuất Sắc, {activeStudentName}!
+              {isEn ? `Awesome Job, ${activeStudentName}!` : `Xuất Sắc, ${activeStudentName}!`}
             </h3>
             <p className="text-sm text-slate-400 mt-1">
-              Học sinh lớp <span className="text-indigo-400 font-bold">{activeClassName}</span> · Giáo viên bộ môn: Cô Diễm Quỳnh
+              {isEn ? 'Class' : 'Học sinh lớp'} <span className="text-indigo-400 font-bold">{activeClassName}</span> · {isEn ? 'Math Teacher: Ms. Diem Quynh' : 'Giáo viên bộ môn: Cô Diễm Quỳnh'}
             </p>
           </div>
 
           {/* Stats breakdown */}
           <div className="grid grid-cols-3 gap-3 w-full bg-slate-800/80 p-4 rounded-2xl border border-slate-700">
             <div>
-              <span className="text-xs text-slate-400 block">Tổng Điểm</span>
+              <span className="text-xs text-slate-400 block">{isEn ? 'Score' : 'Tổng Điểm'}</span>
               <span className="text-xl sm:text-2xl font-black text-amber-400 font-mono">{score}</span>
             </div>
             <div>
-              <span className="text-xs text-slate-400 block">Độ Chính Xác</span>
+              <span className="text-xs text-slate-400 block">{isEn ? 'Accuracy' : 'Độ Chính Xác'}</span>
               <span className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">
                 {Math.round((score / (filteredQuestions.length * 10)) * 100)}%
               </span>
             </div>
             <div>
-              <span className="text-xs text-slate-400 block">Câu Hỏi</span>
+              <span className="text-xs text-slate-400 block">{isEn ? 'Questions' : 'Câu Hỏi'}</span>
               <span className="text-xl sm:text-2xl font-black text-white font-mono">{filteredQuestions.length}</span>
             </div>
           </div>
@@ -816,7 +824,7 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
               className="w-full py-3 px-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-900 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95"
             >
               <Award className="w-5 h-5" />
-              <span>Xem & In Giấy Khen Danh Dự Cô Diễm Quỳnh</span>
+              <span>{isEn ? 'View & Print Honor Certificate' : 'Xem & In Giấy Khen Danh Dự Cô Diễm Quỳnh'}</span>
             </button>
           )}
 
@@ -826,14 +834,14 @@ export const BodyMotionQuizGame: React.FC<BodyMotionQuizGameProps> = ({
               className="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Chơi Lại Vòng Này</span>
+              <span>{isEn ? 'Play Again' : 'Chơi Lại Vòng Này'}</span>
             </button>
             {onExit && (
               <button
                 onClick={onExit}
                 className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-colors border border-slate-700"
               >
-                Trở Về
+                {isEn ? 'Back' : 'Trở Về'}
               </button>
             )}
           </div>

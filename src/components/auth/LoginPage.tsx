@@ -13,13 +13,17 @@ import {
   Globe,
   Moon,
   Sun,
+  User,
 } from 'lucide-react';
 import { authenticateWithPhone, AuthUser, UserRole } from '../../utils/auth';
 import { soundManager } from '../../utils/sound';
 import { Language, translations } from '../../i18n/translations';
+import { Classroom, Student } from '../../types/math';
 
 interface LoginPageProps {
   onLoginSuccess: (user: AuthUser) => void;
+  students?: Student[];
+  classrooms?: Classroom[];
   language?: Language;
   onToggleLanguage?: () => void;
   theme?: 'light' | 'dark';
@@ -94,6 +98,8 @@ const FLOATING_CARDS = [
 
 export const LoginPage: React.FC<LoginPageProps> = ({
   onLoginSuccess,
+  students = [],
+  classrooms = [],
   language = 'vi',
   onToggleLanguage,
   theme = 'light',
@@ -102,6 +108,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [selectedRole, setSelectedRole] = useState<UserRole>('student');
   const [phone, setPhone] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || 'custom');
+  const [customStudentName, setCustomStudentName] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -126,9 +134,35 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       return;
     }
 
+    let finalUser = result.user;
+    if (finalUser.role === 'student') {
+      if (selectedStudentId === 'custom') {
+        const trimmed = customStudentName.trim();
+        if (trimmed) {
+          finalUser = {
+            ...finalUser,
+            name: trimmed,
+            studentId: undefined,
+            className: classrooms[0]?.name || finalUser.className,
+          };
+        }
+      } else {
+        const matchedStudent = students.find((s) => s.id === selectedStudentId);
+        if (matchedStudent) {
+          const matchedClass = classrooms.find((c) => c.id === matchedStudent.classId)?.name;
+          finalUser = {
+            ...finalUser,
+            name: matchedStudent.name,
+            studentId: matchedStudent.id,
+            className: matchedClass || finalUser.className,
+          };
+        }
+      }
+    }
+
     soundManager.playCorrect();
     setError(null);
-    onLoginSuccess(result.user);
+    onLoginSuccess(finalUser);
   };
 
   return (
@@ -314,6 +348,48 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {selectedRole === 'student' && (
+              <div className="space-y-2 p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-800/70 border border-indigo-100 dark:border-slate-700">
+                <label
+                  htmlFor="login-student-identity"
+                  className="flex items-center gap-1.5 text-xs font-bold text-indigo-900 dark:text-indigo-200"
+                >
+                  <User className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <span>{t.studentIdentityLabel}</span>
+                </label>
+                {students.length > 0 && (
+                  <select
+                    id="login-student-identity"
+                    value={selectedStudentId}
+                    onChange={(e) => setSelectedStudentId(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  >
+                    {students.map((s) => {
+                      const cls = classrooms.find((c) => c.id === s.classId)?.name;
+                      return (
+                        <option key={s.id} value={s.id}>
+                          {s.name}{cls ? ` (${cls})` : ''}
+                        </option>
+                      );
+                    })}
+                    <option value="custom">{t.studentIdentityCustomOption}</option>
+                  </select>
+                )}
+                {(selectedStudentId === 'custom' || students.length === 0) && (
+                  <input
+                    type="text"
+                    value={customStudentName}
+                    onChange={(e) => setCustomStudentName(e.target.value)}
+                    placeholder={t.studentIdentityPlaceholder}
+                    className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  />
+                )}
+                <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80">
+                  {t.studentIdentityHint}
+                </p>
+              </div>
+            )}
+
             <div>
               <label
                 htmlFor="login-phone"

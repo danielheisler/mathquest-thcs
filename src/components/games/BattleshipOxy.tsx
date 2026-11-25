@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { MathView } from '../common/MathView';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { Target, Compass, Award, RotateCcw, Crosshair, Sparkles, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
 
 interface ShipTarget {
   id: string;
   name: string;
+  nameEn: string;
   x: number;
   y: number;
   clue: string;
+  clueEn: string;
   formulaClue?: string;
   explanation: string;
+  explanationEn: string;
   isHit: boolean;
   type: 'submarine' | 'destroyer' | 'carrier' | 'cruiser';
 }
@@ -19,61 +23,77 @@ const INITIAL_SHIPS: ShipTarget[] = [
   {
     id: 'ship-1',
     name: 'Tàu Khu Trục Alpha',
+    nameEn: 'Destroyer Alpha',
     x: 2,
     y: 3,
     clue: 'Nằm trên đường thẳng $y = x + 1$ với hoành độ $x = 2$.',
+    clueEn: 'Lies on line $y = x + 1$ with x-coordinate $x = 2$.',
     formulaClue: 'y = 2 + 1 = 3 \\Rightarrow A(2; 3)',
     explanation: 'Thay $x = 2$ vào $y = x + 1$ ta được tung độ $y = 3$. Tọa độ hạm đội là $(2; 3)$.',
+    explanationEn: 'Substitute $x = 2$ into $y = x + 1$ to get $y = 3$. Coordinates: $(2, 3)$.',
     isHit: false,
     type: 'destroyer'
   },
   {
     id: 'ship-2',
     name: 'Tàu Ngầm Kilo',
+    nameEn: 'Submarine Kilo',
     x: 3,
     y: 2,
     clue: 'Điểm đối xứng của $M(-3; 2)$ qua trục tung $Oy$.',
-    formulaClue: 'M\'(x; y) \\text{ đối xứng } M(-3; 2) \\text{ qua } Oy \\Rightarrow M\'(3; 2)',
+    clueEn: 'Reflection of point $M(-3, 2)$ across the vertical y-axis ($Oy$).',
+    formulaClue: 'M\'(x; y) \\text{ symmetric } M(-3; 2) / Oy \\Rightarrow M\'(3; 2)',
     explanation: 'Đối xứng qua trục tung $Oy$ giữ nguyên tung độ $y = 2$ và đổi dấu hoành độ: $-(-3) = 3$. Tọa độ $(3; 2)$.',
+    explanationEn: 'Reflection across $Oy$ keeps $y = 2$ and flips $x$ sign to $3$. Coordinates: $(3, 2)$.',
     isHit: false,
     type: 'submarine'
   },
   {
     id: 'ship-3',
     name: 'Tuần Dương Hạm Beta',
+    nameEn: 'Cruiser Beta',
     x: 2,
     y: 0,
     clue: 'Giao điểm của đường thẳng $y = 2x - 4$ với trục hoành $Ox$.',
+    clueEn: 'x-intercept of the line $y = 2x - 4$ (intersection with $Ox$).',
     formulaClue: 'y = 0 \\Rightarrow 2x - 4 = 0 \\Rightarrow x = 2 \\Rightarrow B(2; 0)',
     explanation: 'Điểm thuộc trục hoành có tung độ $y = 0$. Giải $2x - 4 = 0 \\Rightarrow x = 2$. Tọa độ $(2; 0)$.',
+    explanationEn: 'On the x-axis, $y = 0$. Solving $2x - 4 = 0$ gives $x = 2$. Coordinates: $(2, 0)$.',
     isHit: false,
     type: 'cruiser'
   },
   {
     id: 'ship-4',
     name: 'Hàng Không Mẫu Hạm Titan',
+    nameEn: 'Carrier Titan',
     x: -1,
     y: -1,
     clue: 'Trung điểm của đoạn thẳng nối $P(-4; 2)$ và $Q(2; -4)$.',
+    clueEn: 'Midpoint of segment connecting $P(-4, 2)$ and $Q(2, -4)$.',
     formulaClue: 'x_I = \\frac{-4 + 2}{2} = -1, \\; y_I = \\frac{2 + (-4)}{2} = -1',
     explanation: 'Tọa độ trung điểm: $x = \\frac{x_P + x_Q}{2} = -1$ và $y = \\frac{y_P + y_Q}{2} = -1$. Tọa độ $(-1; -1)$.',
+    explanationEn: 'Midpoint formula: $x = (-4+2)/2 = -1$ and $y = (2-4)/2 = -1$. Coordinates: $(-1, -1)$.',
     isHit: false,
     type: 'carrier'
   },
   {
     id: 'ship-5',
     name: 'Tàu Hộ Vệ Gamma',
+    nameEn: 'Frigate Gamma',
     x: -3,
     y: -4,
     clue: 'Thuộc Góc phần tư thứ III có hoành độ $-3$ và tung độ $-4$.',
-    formulaClue: 'C(-3; -4) \\in \\text{Góc phần tư III}',
+    clueEn: 'Located in Quadrant III with $x = -3$ and $y = -4$.',
+    formulaClue: 'C(-3; -4) \\in \\text{Quadrant III}',
     explanation: 'Góc phần tư thứ III có $x < 0, y < 0$. Điểm cần ngắm bắn chính là $(-3; -4)$.',
+    explanationEn: 'Quadrant III has $x < 0, y < 0$. Target coordinates: $(-3, -4)$.',
     isHit: false,
     type: 'destroyer'
   }
 ];
 
-export const BattleshipOxy: React.FC = () => {
+export const BattleshipOxy: React.FC<{ language?: Language }> = ({ language = 'vi' }) => {
+  const isEn = language === 'en';
   const [ships, setShips] = useState<ShipTarget[]>(INITIAL_SHIPS);
   const [currentShipIndex, setCurrentShipIndex] = useState<number>(0);
   const [selectedX, setSelectedX] = useState<number>(0);
@@ -156,24 +176,24 @@ export const BattleshipOxy: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                Trò Chơi Toán Học Độc Đáo · Mới
+                {isEn ? 'Unique Math Game · New' : 'Trò Chơi Toán Học Độc Đáo · Mới'}
               </span>
-              <span className="text-xs text-slate-400">Hệ Trục Oxy & Hàm Số</span>
+              <span className="text-xs text-slate-400">{isEn ? 'Cartesian Plane Oxy & Functions' : 'Hệ Trục Oxy & Hàm Số'}</span>
             </div>
             <h3 className="text-2xl font-black text-white tracking-tight mt-0.5">
-              Hải Chiến Tọa Độ Oxy (Naval Battleship)
+              {isEn ? 'Coordinate Battleship (Oxy Plane)' : 'Hải Chiến Tọa Độ Oxy (Naval Battleship)'}
             </h3>
           </div>
         </div>
 
         <div className="flex items-center gap-4 bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-slate-700/60">
           <div className="text-right">
-            <span className="text-[10px] text-slate-400 uppercase font-bold block">Điểm Hải Trình</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold block">{isEn ? 'Voyage Score' : 'Điểm Hải Trình'}</span>
             <span className="text-lg font-mono font-black text-cyan-400">{score}</span>
           </div>
           <div className="w-px h-7 bg-slate-700" />
           <div className="text-right">
-            <span className="text-[10px] text-slate-400 uppercase font-bold block">Đã Tiêu Diệt</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold block">{isEn ? 'Ships Sunk' : 'Đã Tiêu Diệt'}</span>
             <span className="text-lg font-mono font-black text-emerald-400">
               {ships.filter(s => s.isHit).length}/{ships.length}
             </span>
@@ -181,7 +201,7 @@ export const BattleshipOxy: React.FC = () => {
           <button
             onClick={handleResetGame}
             className="p-2 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors text-slate-300 hover:text-white"
-            title="Chơi lại từ đầu"
+            title={isEn ? 'Restart game' : 'Chơi lại từ đầu'}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -196,7 +216,7 @@ export const BattleshipOxy: React.FC = () => {
             <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
               <Crosshair className="w-4 h-4" /> Radar Sonar Oxy [-5, +5]
             </span>
-            <span>Click tọa độ trên lưới hoặc dùng bảng điều khiển</span>
+            <span>{isEn ? 'Click grid point or use dials' : 'Click tọa độ trên lưới hoặc dùng bảng điều khiển'}</span>
           </div>
 
           {/* SVG Coordinate Grid */}
@@ -287,7 +307,7 @@ export const BattleshipOxy: React.FC = () => {
           {/* Quick coordinate picker controls */}
           <div className="w-full mt-4 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <span className="text-slate-400 font-bold">Tọa độ ngắm bắn:</span>
+              <span className="text-slate-400 font-bold">{isEn ? 'Target Coordinates:' : 'Tọa độ ngắm bắn:'}</span>
               <div className="flex items-center gap-1 font-mono font-bold bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700">
                 <span className="text-cyan-400">x = {selectedX}</span>
                 <span className="text-slate-500">,</span>
@@ -300,7 +320,7 @@ export const BattleshipOxy: React.FC = () => {
                 onClick={() => handleFireAt(selectedX, selectedY)}
                 className="px-4 py-2 bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-lg shadow-rose-900/40 transition-transform active:scale-95"
               >
-                <Crosshair className="w-3.5 h-3.5" /> Khai Hỏa ({selectedX}; {selectedY})
+                <Crosshair className="w-3.5 h-3.5" /> {isEn ? 'Fire' : 'Khai Hỏa'} ({selectedX}; {selectedY})
               </button>
             </div>
           </div>
@@ -312,7 +332,7 @@ export const BattleshipOxy: React.FC = () => {
             <div className="bg-slate-800/90 rounded-2xl p-5 border border-slate-700/80 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Shield className="w-4 h-4" /> Mục Tiêu {currentShipIndex + 1}/{ships.length}
+                  <Shield className="w-4 h-4" /> {isEn ? 'Target' : 'Mục Tiêu'} {currentShipIndex + 1}/{ships.length}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
                   {currentShip.type.toUpperCase()}
@@ -320,11 +340,11 @@ export const BattleshipOxy: React.FC = () => {
               </div>
 
               <div>
-                <h4 className="text-lg font-bold text-white mb-2">{currentShip.name}</h4>
+                <h4 className="text-lg font-bold text-white mb-2">{isEn ? currentShip.nameEn : currentShip.name}</h4>
                 <div className="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 text-sm text-slate-200">
-                  <p className="font-medium text-slate-300 mb-2">Tín hiệu trinh sát Toán học:</p>
+                  <p className="font-medium text-slate-300 mb-2">{isEn ? 'Math Radar Clue:' : 'Tín hiệu trinh sát Toán học:'}</p>
                   <div className="text-cyan-300 font-semibold text-base py-1">
-                    <MathView math={currentShip.clue} />
+                    <MathView math={isEn ? currentShip.clueEn : currentShip.clue} />
                   </div>
                 </div>
               </div>
@@ -333,7 +353,7 @@ export const BattleshipOxy: React.FC = () => {
               <div className="space-y-3 pt-2">
                 <div>
                   <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                    <span>Chọn hoành độ (x):</span>
+                    <span>{isEn ? 'Select x-coordinate:' : 'Chọn hoành độ (x):'}</span>
                     <span className="font-mono font-bold text-cyan-400">{selectedX}</span>
                   </div>
                   <div className="grid grid-cols-11 gap-1">
@@ -355,7 +375,7 @@ export const BattleshipOxy: React.FC = () => {
 
                 <div>
                   <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                    <span>Chọn tung độ (y):</span>
+                    <span>{isEn ? 'Select y-coordinate:' : 'Chọn tung độ (y):'}</span>
                     <span className="font-mono font-bold text-indigo-400">{selectedY}</span>
                   </div>
                   <div className="grid grid-cols-11 gap-1">
@@ -380,7 +400,11 @@ export const BattleshipOxy: React.FC = () => {
               {lastShot && !lastShot.hit && (
                 <div className="p-3 bg-rose-500/20 border border-rose-500/40 rounded-xl text-xs text-rose-200 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                  <span>Bắn trượt tại ({lastShot.x}; {lastShot.y})! Hãy suy luận lại công thức và tọa độ.</span>
+                  <span>
+                    {isEn
+                      ? `Missed at (${lastShot.x}, ${lastShot.y})! Re-check the formula and coordinates.`
+                      : `Bắn trượt tại (${lastShot.x}; ${lastShot.y})! Hãy suy luận lại công thức và tọa độ.`}
+                  </span>
                 </div>
               )}
 
@@ -389,16 +413,16 @@ export const BattleshipOxy: React.FC = () => {
                 <div className="p-4 bg-emerald-500/20 border border-emerald-500/40 rounded-xl space-y-3">
                   <div className="flex items-center gap-2 text-emerald-300 font-bold text-sm">
                     <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                    <span>MỤC TIÊU BỊ TIÊU DIỆT CHÍNH XÁC! (+100 ĐIỂM)</span>
+                    <span>{isEn ? 'DIRECT HIT! (+100 PTS)' : 'MỤC TIÊU BỊ TIÊU DIỆT CHÍNH XÁC! (+100 ĐIỂM)'}</span>
                   </div>
                   <div className="text-xs text-emerald-100 bg-slate-950/60 p-3 rounded-lg border border-emerald-500/30">
-                    <MathView math={currentShip.explanation} />
+                    <MathView math={isEn ? currentShip.explanationEn : currentShip.explanation} />
                   </div>
                   <button
                     onClick={handleNextTarget}
                     className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-md"
                   >
-                    <span>Tiếp tục mục tiêu tiếp theo</span>
+                    <span>{isEn ? 'Next Target' : 'Tiếp tục mục tiêu tiếp theo'}</span>
                     <Sparkles className="w-4 h-4" />
                   </button>
                 </div>
@@ -413,23 +437,27 @@ export const BattleshipOxy: React.FC = () => {
                 <Award className="w-9 h-9" />
               </div>
               <div>
-                <h4 className="text-xl font-black text-white">XUẤT SẮC! HẠM ĐỘI TOÁN HỌC TOÀN THẮNG</h4>
+                <h4 className="text-xl font-black text-white">
+                  {isEn ? 'EXCELLENT! MATH FLEET VICTORY' : 'XUẤT SẮC! HẠM ĐỘI TOÁN HỌC TOÀN THẮNG'}
+                </h4>
                 <p className="text-xs text-slate-300 mt-1">
-                  Em đã nắm vững toàn bộ kiến thức hệ trục tọa độ Oxy, tính chất đối xứng và phương trình đường thẳng.
+                  {isEn
+                    ? 'You mastered Oxy coordinates, axis reflections, midpoints, and linear intercepts!'
+                    : 'Em đã nắm vững toàn bộ kiến thức hệ trục tọa độ Oxy, tính chất đối xứng và phương trình đường thẳng.'}
                 </p>
               </div>
 
               <div className="p-4 bg-slate-950/60 rounded-xl border border-slate-800 text-xs flex justify-around">
                 <div>
-                  <span className="text-slate-400 block">Tổng điểm:</span>
+                  <span className="text-slate-400 block">{isEn ? 'Total Score:' : 'Tổng điểm:'}</span>
                   <span className="text-lg font-mono font-bold text-amber-400">{score}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block">Số lần bắn trượt:</span>
+                  <span className="text-slate-400 block">{isEn ? 'Misses:' : 'Số lần bắn trượt:'}</span>
                   <span className="text-lg font-mono font-bold text-slate-300">{misses}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block">Độ chuẩn xác:</span>
+                  <span className="text-slate-400 block">{isEn ? 'Accuracy:' : 'Độ chuẩn xác:'}</span>
                   <span className="text-lg font-mono font-bold text-emerald-400">
                     {Math.round((5 / (5 + misses)) * 100)}%
                   </span>
@@ -440,7 +468,7 @@ export const BattleshipOxy: React.FC = () => {
                 onClick={handleResetGame}
                 className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-lg"
               >
-                <RotateCcw className="w-4 h-4" /> Chơi Lại Trận Mới
+                <RotateCcw className="w-4 h-4" /> {isEn ? 'Play New Battle' : 'Chơi Lại Trận Mới'}
               </button>
             </div>
           )}
@@ -448,7 +476,7 @@ export const BattleshipOxy: React.FC = () => {
           {/* Fleet status table */}
           <div className="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/60 text-xs">
             <h5 className="font-bold text-slate-300 mb-2.5 flex items-center gap-1.5">
-              <Target className="w-3.5 h-3.5 text-cyan-400" /> Danh Sách Hạm Đội Cần Truy Tìm:
+              <Target className="w-3.5 h-3.5 text-cyan-400" /> {isEn ? 'Enemy Fleet Checklist:' : 'Danh Sách Hạm Đội Cần Truy Tìm:'}
             </h5>
             <div className="space-y-1.5">
               {ships.map((s, idx) => (
@@ -462,7 +490,7 @@ export const BattleshipOxy: React.FC = () => {
                       : 'bg-slate-900/40 text-slate-400'
                   }`}
                 >
-                  <span className="font-medium truncate">{s.name}</span>
+                  <span className="font-medium truncate">{isEn ? s.nameEn : s.name}</span>
                   {s.isHit ? (
                     <span className="font-mono text-[11px] font-bold text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" /> ({s.x}; {s.y})

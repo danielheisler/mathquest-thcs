@@ -3,6 +3,7 @@ import { Question, Classroom, Student, LeaderboardEntry } from '../../types/math
 import { TeamVersusGame } from './TeamVersusGame';
 import { LiveLeaderboard } from './LiveLeaderboard';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { Users, Trophy, Flag, Sparkles } from 'lucide-react';
 
 interface TeamArenaHubProps {
@@ -11,6 +12,7 @@ interface TeamArenaHubProps {
   students: Student[];
   leaderboardEntries: LeaderboardEntry[];
   onSaveLeaderboard: (entry: Omit<LeaderboardEntry, 'id' | 'rank'>) => void;
+  language?: Language;
 }
 
 export const TeamArenaHub: React.FC<TeamArenaHubProps> = ({
@@ -18,8 +20,10 @@ export const TeamArenaHub: React.FC<TeamArenaHubProps> = ({
   classrooms,
   students,
   leaderboardEntries,
-  onSaveLeaderboard
+  onSaveLeaderboard,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [activeTab, setActiveTab] = useState<'battle' | 'leaderboard'>('battle');
 
   return (
@@ -38,7 +42,7 @@ export const TeamArenaHub: React.FC<TeamArenaHubProps> = ({
           }`}
         >
           <Flag className="w-4 h-4 text-indigo-600" />
-          <span>Đấu Trường Thi Đấu Đội Nhóm</span>
+          <span>{isEn ? 'Team Math Battle Arena' : 'Đấu Trường Thi Đấu Đội Nhóm'}</span>
         </button>
 
         <button
@@ -53,7 +57,7 @@ export const TeamArenaHub: React.FC<TeamArenaHubProps> = ({
           }`}
         >
           <Trophy className="w-4 h-4 text-amber-600" />
-          <span>Bảng Xếp Hạng Thời Gian & Kết Quả</span>
+          <span>{isEn ? 'Speed & Score Leaderboard' : 'Bảng Xếp Hạng Thời Gian & Kết Quả'}</span>
         </button>
       </div>
 
@@ -64,11 +68,12 @@ export const TeamArenaHub: React.FC<TeamArenaHubProps> = ({
           classrooms={classrooms}
           students={students}
           onSaveLeaderboard={onSaveLeaderboard}
+          language={language}
         />
       )}
 
       {activeTab === 'leaderboard' && (
-        <LiveLeaderboard entries={leaderboardEntries} />
+        <LiveLeaderboard entries={leaderboardEntries} language={language} />
       )}
     </div>
   );

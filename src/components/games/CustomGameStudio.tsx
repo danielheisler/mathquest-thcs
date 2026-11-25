@@ -3,6 +3,7 @@ import { Question, GradeLevel, CustomGameType, CustomGameItem } from '../../type
 import { MathView } from '../common/MathView';
 import { CertificateModal } from '../certificate/CertificateModal';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { 
   Sparkles, Plus, Play, Trash2, Edit3, CheckCircle2, Clock, 
   Award, RotateCcw, ArrowRight, Zap, Target, KeyRound, Camera, Download
@@ -123,12 +124,15 @@ const defaultCustomGames: CustomGameItem[] = [
 interface CustomGameStudioProps {
   activeStudentName?: string;
   activeClassName?: string;
+  language?: Language;
 }
 
 export const CustomGameStudio: React.FC<CustomGameStudioProps> = ({
   activeStudentName = 'Nguyễn Minh Quân',
-  activeClassName = 'Lớp 6A1'
+  activeClassName = 'Lớp 6A1',
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [customGames, setCustomGames] = useState<CustomGameItem[]>(() => {
     const saved = localStorage.getItem('mathquest_custom_games');
     return saved ? JSON.parse(saved) : defaultCustomGames;
@@ -294,14 +298,15 @@ export const CustomGameStudio: React.FC<CustomGameStudioProps> = ({
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/30 text-purple-200 text-xs font-bold border border-purple-400/30">
               <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>Studio Sáng Tạo Trò Chơi Toán Học Theo Yêu Cầu</span>
+              <span>{isEn ? 'Custom Math Game Studio' : 'Studio Sáng Tạo Trò Chơi Toán Học Theo Yêu Cầu'}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Tự Thiết Kế & Chơi Trò Chơi Toán Học Theo Ý Muốn
+              {isEn ? 'Design & Play Custom Math Games' : 'Tự Thiết Kế & Chơi Trò Chơi Toán Học Theo Ý Muốn'}
             </h1>
             <p className="text-xs sm:text-sm text-purple-200/90 leading-relaxed">
-              Giáo viên và học sinh có thể tự đặt câu hỏi, chèn công thức MathType KaTeX, quy định thời gian, 
-              chọn thể loại trò chơi (Camera vận động, Đua tốc độ, Mật mã vượt ngục) và lưu chơi trực tiếp!
+              {isEn
+                ? 'Teachers and students can author custom questions with MathType KaTeX formulas, pick timers and game modes, and play live!'
+                : 'Giáo viên và học sinh có thể tự đặt câu hỏi, chèn công thức MathType KaTeX, quy định thời gian, chọn thể loại trò chơi (Camera vận động, Đua tốc độ, Mật mã vượt ngục) và lưu chơi trực tiếp!'}
             </p>
           </div>
 
@@ -313,7 +318,7 @@ export const CustomGameStudio: React.FC<CustomGameStudioProps> = ({
             className="px-5 py-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95 shrink-0"
           >
             <Plus className="w-4 h-4" />
-            <span>Tạo Trò Chơi Mới Ngay</span>
+            <span>{isEn ? 'Create New Game Now' : 'Tạo Trò Chơi Mới Ngay'}</span>
           </button>
         </div>
       </div>

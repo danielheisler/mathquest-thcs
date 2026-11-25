@@ -93,11 +93,10 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
                 soundManager.playClick();
                 setActiveGame(g.id as any);
               }}
-              className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
-                isSelected
+              className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between ${isSelected
                   ? 'bg-white border-indigo-600 ring-2 ring-indigo-500/10 shadow-sm'
                   : 'bg-white/70 hover:bg-white border-slate-200'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2 mb-2">
                 <div className={`p-2 rounded-xl shrink-0 ${g.color}`}>
@@ -120,6 +119,7 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
           <BodyCameraGamesHub
             activeStudentName={activeStudentName}
             activeClassName={activeClassName}
+            language={language}
           />
         )}
         {activeGame === 'speed' && (
@@ -128,12 +128,13 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
             onSaveScore={onSaveScore}
             studentName={activeStudentName}
             className={activeClassName}
+            language={language}
           />
         )}
-        {activeGame === 'battleship' && <BattleshipOxy />}
-        {activeGame === 'prime' && <PrimeDefense />}
-        {activeGame === 'escape' && <MathEscapeRoom />}
-        {activeGame === 'memory' && <FormulaMemoryGame />}
+        {activeGame === 'battleship' && <BattleshipOxy language={language} />}
+        {activeGame === 'prime' && <PrimeDefense language={language} />}
+        {activeGame === 'escape' && <MathEscapeRoom language={language} />}
+        {activeGame === 'memory' && <FormulaMemoryGame language={language} />}
       </div>
     </div>
   );

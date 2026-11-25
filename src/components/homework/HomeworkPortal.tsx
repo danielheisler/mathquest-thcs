@@ -5,6 +5,7 @@ import { CertificateModal } from '../certificate/CertificateModal';
 import { MathView } from '../common/MathView';
 import { soundManager } from '../../utils/sound';
 import { Language, translations } from '../../i18n/translations';
+import { getLocalizedQuestion } from '../../utils/localize';
 import { antiCheatProctor, ANTI_CHEAT_REMOTE_WARNING_KEY, ANTI_CHEAT_CHANNEL_NAME } from '../../utils/antiCheatProctor';
 import { AntiCheatMonitorPanel } from '../classroom/AntiCheatMonitorPanel';
 import { 
@@ -23,6 +24,7 @@ interface HomeworkPortalProps {
   language: Language;
   initialTab?: 'student' | 'teacher';
   userRole?: 'student' | 'parent' | 'teacher';
+  activeStudentName?: string;
 }
 
 export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
@@ -33,9 +35,11 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
   onAddSubmission,
   language,
   initialTab,
-  userRole = 'student'
+  userRole = 'student',
+  activeStudentName
 }) => {
   const t = translations[language];
+  const isEn = language === 'en';
   const CORRECT_PIN = '20112002';
 
   // Check for ongoing saved homework session
@@ -78,7 +82,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
 
   // Student Session - restored automatically if session was active
   const [selectedStudentName, setSelectedStudentName] = useState<string>(() => {
-    return savedHwSession?.studentName || students[0]?.name || 'Nguyễn Minh Quân';
+    return savedHwSession?.studentName || activeStudentName || students[0]?.name || 'Nguyễn Minh Quân';
   });
   const [selectedBranch, setSelectedBranch] = useState<SubjectBranch>(() => {
     return savedHwSession?.branch || 'algebra';
@@ -86,6 +90,12 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
   const [isSessionActive, setIsSessionActive] = useState<boolean>(() => {
     return Boolean(savedHwSession?.isSessionActive);
   });
+
+  useEffect(() => {
+    if (!savedHwSession && !isSessionActive && activeStudentName) {
+      setSelectedStudentName(activeStudentName);
+    }
+  }, [activeStudentName, isSessionActive]);
   
   // Fixed timer: 10 minutes (600 seconds)
   const FIXED_DURATION = 600;
@@ -472,7 +482,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                 }`}
               >
                 <Users className="w-3.5 h-3.5 text-amber-400" />
-                <span>Cô Diễm Quỳnh Theo Dõi ({submissions.length})</span>
+                <span>{isEn ? `Teacher Monitor (${submissions.length})` : `Cô Diễm Quỳnh Theo Dõi (${submissions.length})`}</span>
               </button>
             </div>
           )}
@@ -483,14 +493,18 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
           <div className="p-3 bg-gradient-to-r from-indigo-50 to-slate-50 rounded-xl border border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2 text-indigo-900 font-medium">
               <Share2 className="w-4 h-4 text-indigo-600 shrink-0" />
-              <span>Link bài tập về nhà gửi học sinh (đã tích hợp sẵn mã <b className="font-mono">{CORRECT_PIN}</b>):</span>
+              <span>
+                {isEn
+                  ? <>Homework share link for students (includes class PIN <b className="font-mono">{CORRECT_PIN}</b>):</>
+                  : <>Link bài tập về nhà gửi học sinh (đã tích hợp sẵn mã <b className="font-mono">{CORRECT_PIN}</b>):</>}
+              </span>
             </div>
             <button
               onClick={handleCopyShareLink}
               className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition-colors shadow-xs shrink-0"
             >
               {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedLink ? 'Đã Sao Chép Link Kèm Mã!' : 'Sao Chép Link Gửi Lớp'}</span>
+              <span>{copiedLink ? (isEn ? 'Link & PIN Copied!' : 'Đã Sao Chép Link Kèm Mã!') : (isEn ? 'Copy Class Link' : 'Sao Chép Link Gửi Lớp')}</span>
             </button>
           </div>
         )}
@@ -502,13 +516,15 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
             <div>
               <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
-                Theo Dõi Thời Gian Thực · Cô Diễm Quỳnh
+                {isEn ? 'Live Tracking · Ms. Diem Quynh' : 'Theo Dõi Thời Gian Thực · Cô Diễm Quỳnh'}
               </span>
               <h4 className="text-xl font-bold text-slate-900 mt-0.5">
-                Giám Sát Nộp Bài & Nhắn Tin Phụ Huynh
+                {isEn ? 'Homework Submissions & Parent Alerts' : 'Giám Sát Nộp Bài & Nhắn Tin Phụ Huynh'}
               </h4>
               <p className="text-xs text-slate-500">
-                Theo dõi học sinh đã tham gia nộp bài và học sinh CHƯA NỘP để kịp thời nhắc nhở phụ huynh.
+                {isEn
+                  ? 'Monitor submitted vs. pending students and notify parents promptly.'
+                  : 'Theo dõi học sinh đã tham gia nộp bài và học sinh CHƯA NỘP để kịp thời nhắc nhở phụ huynh.'}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -521,7 +537,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                   className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
                 >
                   <Send className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Báo Cáo Điểm Tất Cả PH</span>
+                  <span>{isEn ? 'Report All Scores' : 'Báo Cáo Điểm Tất Cả PH'}</span>
                 </button>
               ) : (
                 <button
@@ -532,13 +548,13 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                   className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
                 >
                   <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Gửi SMS Nhắc Tất Cả ({unsubmittedStudents.length})</span>
+                  <span>{isEn ? `Remind All (${unsubmittedStudents.length})` : `Gửi SMS Nhắc Tất Cả (${unsubmittedStudents.length})`}</span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* Sub Navigation: Đã nộp vs Chưa nộp vs Radar Chống Chuyển Tab */}
+          {/* Sub Navigation */}
           <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2">
             <button
               onClick={() => {
@@ -552,7 +568,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
               }`}
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Đã Tham Gia Nộp Bài ({submissions.length})</span>
+              <span>{isEn ? `Submitted (${submissions.length})` : `Đã Tham Gia Nộp Bài (${submissions.length})`}</span>
             </button>
 
             <button
@@ -567,7 +583,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
               }`}
             >
               <AlertTriangle className="w-4 h-4" />
-              <span>CHƯA THAM GIA NỘP BÀI ({unsubmittedStudents.length})</span>
+              <span>{isEn ? `NOT SUBMITTED (${unsubmittedStudents.length})` : `CHƯA THAM GIA NỘP BÀI (${unsubmittedStudents.length})`}</span>
             </button>
 
             <button
@@ -583,7 +599,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
             >
               <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
               <ShieldAlert className="w-4 h-4 text-rose-500" />
-              <span>Radar Chống Chuyển Tab (Live)</span>
+              <span>{isEn ? 'Anti-Cheat Tab Radar (Live)' : 'Radar Chống Chuyển Tab (Live)'}</span>
             </button>
           </div>
 
@@ -593,21 +609,21 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200">
                   <tr>
-                    <th className="py-3 px-4">Học Sinh</th>
-                    <th className="py-3 px-4">Phụ Huynh & SĐT</th>
+                    <th className="py-3 px-4">{isEn ? 'Student' : 'Học Sinh'}</th>
+                    <th className="py-3 px-4">{isEn ? 'Parent & Phone' : 'Phụ Huynh & SĐT'}</th>
                     <th className="py-3 px-3 text-center bg-emerald-50/60 text-emerald-900 border-x border-emerald-100 min-w-[100px]">
-                      🕒 Giờ Vào Làm
+                      {isEn ? '🕒 Start Time' : '🕒 Giờ Vào Làm'}
                     </th>
                     <th className="py-3 px-3 text-center bg-blue-50/60 text-blue-900 border-r border-blue-100 min-w-[100px]">
-                      🏁 Giờ Ra / Nộp
+                      {isEn ? '🏁 Submit Time' : '🏁 Giờ Ra / Nộp'}
                     </th>
-                    <th className="py-3 px-3 text-center min-w-[90px]">Thời Lượng</th>
-                    <th className="py-3 px-3">Phân Môn</th>
-                    <th className="py-3 px-3 text-right">Điểm Số</th>
-                    <th className="py-3 px-3 text-right">Độ Đúng</th>
-                    <th className="py-3 px-3 text-center">Giấy Khen</th>
-                    <th className="py-3 px-3 text-center">Chống Chuyển Tab</th>
-                    <th className="py-3 px-4 text-center">Báo Phụ Huynh</th>
+                    <th className="py-3 px-3 text-center min-w-[90px]">{isEn ? 'Duration' : 'Thời Lượng'}</th>
+                    <th className="py-3 px-3">{isEn ? 'Branch' : 'Phân Môn'}</th>
+                    <th className="py-3 px-3 text-right">{isEn ? 'Score' : 'Điểm Số'}</th>
+                    <th className="py-3 px-3 text-right">{isEn ? 'Accuracy' : 'Độ Đúng'}</th>
+                    <th className="py-3 px-3 text-center">{isEn ? 'Certificate' : 'Giấy Khen'}</th>
+                    <th className="py-3 px-3 text-center">{isEn ? 'Anti-Cheat' : 'Chống Chuyển Tab'}</th>
+                    <th className="py-3 px-4 text-center">{isEn ? 'Parent Alert' : 'Báo Phụ Huynh'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -737,14 +753,15 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
               students={students}
               classroom={classrooms[0] || {
                 id: 'c1',
-                name: 'Lớp 6A - Toán Học',
-                grade: 'Lớp 6',
+                name: isEn ? 'Grade 6A - Math' : 'Lớp 6A - Toán Học',
+                grade: isEn ? 'Grade 6' : 'Lớp 6',
                 studentCount: students.length,
                 classCode: CORRECT_PIN,
                 subjectTeacher: 'Cô Diễm Quỳnh',
                 homeroomTeacher: 'Thầy Nguyễn Văn An'
               }}
               submissions={submissions}
+              language={language}
             />
           )}
 
@@ -839,10 +856,10 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                 <KeyRound className="w-8 h-8" />
               </div>
               <h4 className="text-xl font-bold text-slate-900 mb-1">
-                Nhập Mã Vào Lớp Của Cô Diễm Quỳnh
+                {isEn ? 'Enter Class Code (Ms. Diem Quynh)' : 'Nhập Mã Vào Lớp Của Cô Diễm Quỳnh'}
               </h4>
               <p className="text-xs text-slate-500 mb-6">
-                Nhập mã 8 số do Cô Diễm Quỳnh cung cấp để mở khóa đề bài tập về nhà.
+                {isEn ? 'Enter the 8-digit class PIN provided by Ms. Diem Quynh to unlock homework.' : 'Nhập mã 8 số do Cô Diễm Quỳnh cung cấp để mở khóa đề bài tập về nhà.'}
               </p>
 
               <form onSubmit={handleVerifyCode} className="space-y-4">
@@ -866,7 +883,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                   type="submit"
                   className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
                 >
-                  <ShieldCheck className="w-4 h-4" /> Xác Thực & Vào Làm Bài
+                  <ShieldCheck className="w-4 h-4" /> {isEn ? 'Verify & Enter Homework' : 'Xác Thực & Vào Làm Bài'}
                 </button>
               </form>
             </div>
@@ -878,10 +895,12 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                   <div>
                     <div className="text-[11px] font-black uppercase tracking-wider text-amber-100 flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-                      <span>BÀI TẬP VỀ NHÀ ĐANG LÀM DỞ DANG</span>
+                      <span>{isEn ? 'HOMEWORK IN PROGRESS' : 'BÀI TẬP VỀ NHÀ ĐANG LÀM DỞ DANG'}</span>
                     </div>
                     <div className="text-xs font-bold text-white mt-0.5">
-                      Thí sinh: {savedHwSession.studentName} · Đã làm {savedHwSession.answeredCount}/{savedHwSession.totalQuestions} câu · Còn lại {Math.floor(savedHwSession.timeLeft / 60)} phút
+                      {isEn
+                        ? `Student: ${savedHwSession.studentName} · Answered ${savedHwSession.answeredCount}/${savedHwSession.totalQuestions} · ${Math.floor(savedHwSession.timeLeft / 60)}m left`
+                        : `Thí sinh: ${savedHwSession.studentName} · Đã làm ${savedHwSession.answeredCount}/${savedHwSession.totalQuestions} câu · Còn lại ${Math.floor(savedHwSession.timeLeft / 60)} phút`}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -893,14 +912,14 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                       }}
                       className="px-4 py-2 bg-white text-orange-700 hover:bg-amber-50 font-black text-xs rounded-xl shadow-xs cursor-pointer"
                     >
-                      Tiếp Tục Làm
+                      {isEn ? 'Resume' : 'Tiếp Tục Làm'}
                     </button>
                     <button
                       type="button"
                       onClick={handleCancelHomework}
                       className="px-3 py-2 bg-black/20 hover:bg-black/30 text-white font-semibold text-xs rounded-xl border border-white/20 cursor-pointer"
                     >
-                      Hủy Bài Này
+                      {isEn ? 'Discard' : 'Hủy Bài Này'}
                     </button>
                   </div>
                 </div>
@@ -908,20 +927,20 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
 
               <div className="text-center pb-4 border-b border-slate-100">
                 <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">
-                  Lớp Học Toán THCS · Cô Diễm Quỳnh
+                  {isEn ? 'Middle School Math Class · Ms. Diem Quynh' : 'Lớp Học Toán THCS · Cô Diễm Quỳnh'}
                 </span>
                 <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                  Thiết Lập Bài Kiểm Tra Về Nhà
+                  {isEn ? 'Homework Assessment Setup' : 'Thiết Lập Bài Kiểm Tra Về Nhà'}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Mã lớp hợp lệ: <b className="font-mono text-indigo-700">{CORRECT_PIN}</b>. Thời gian cố định: <b>10 phút</b>.
+                  {isEn ? <>Valid Class PIN: <b className="font-mono text-indigo-700">{CORRECT_PIN}</b>. Fixed duration: <b>10 mins</b>.</> : <>Mã lớp hợp lệ: <b className="font-mono text-indigo-700">{CORRECT_PIN}</b>. Thời gian cố định: <b>10 phút</b>.</>}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Chọn học sinh tham gia:
+                    {isEn ? 'Select Student:' : 'Chọn học sinh tham gia:'}
                   </label>
                   <select
                     value={selectedStudentName}
@@ -930,7 +949,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                   >
                     {students.map((s) => (
                       <option key={s.id} value={s.name}>
-                        {s.name} ({s.parentName || 'Phụ huynh'} - SĐT: {s.parentPhone})
+                        {s.name} ({s.parentName || (isEn ? 'Parent' : 'Phụ huynh')} - {isEn ? 'Phone' : 'SĐT'}: {s.parentPhone})
                       </option>
                     ))}
                   </select>
@@ -938,7 +957,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
 
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Chọn phân môn kiểm tra:
+                    {isEn ? 'Select Math Branch:' : 'Chọn phân môn kiểm tra:'}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
@@ -980,14 +999,18 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                 <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
                   <Award className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <span>
-                    <b>Mục tiêu Giấy Khen:</b> Đúng từ 5/6 câu (≥ 83%) trở lên để nhận Giấy Khen Danh Dự chính thức từ Cô Diễm Quỳnh.
+                    {isEn
+                      ? <><b>Certificate Goal:</b> Score 5/6 (≥ 83%) or higher to earn the Official Honor Certificate from Ms. Diem Quynh.</>
+                      : <><b>Mục tiêu Giấy Khen:</b> Đúng từ 5/6 câu (≥ 83%) trở lên để nhận Giấy Khen Danh Dự chính thức từ Cô Diễm Quỳnh.</>}
                   </span>
                 </div>
 
                 <div className="p-3 bg-indigo-50/80 rounded-xl border border-indigo-200 text-xs text-indigo-900 flex items-start gap-2">
                   <ShieldCheck className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
                   <span>
-                    <b>Không có Camera hoặc chưa cấp quyền?</b> Bạn hoàn toàn yên tâm làm bài bình thường! Hệ thống tự động kích hoạt Chế độ Giám Sát AI & Radar Chống Chuyển Tab để ghi nhận kết quả và cấp Giấy Khen đầy đủ.
+                    {isEn
+                      ? <><b>No camera or permission not granted?</b> You can still take the quiz normally! AI Focus & Anti-Cheat Tab Radar run automatically.</>
+                      : <><b>Không có Camera hoặc chưa cấp quyền?</b> Bạn hoàn toàn yên tâm làm bài bình thường! Hệ thống tự động kích hoạt Chế độ Giám Sát AI & Radar Chống Chuyển Tab để ghi nhận kết quả và cấp Giấy Khen đầy đủ.</>}
                   </span>
                 </div>
 
@@ -995,7 +1018,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                   onClick={handleStartHomework}
                   className="w-full py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
                 >
-                  <ArrowRight className="w-4 h-4" /> Bắt Đầu Làm Bài Về Nhà Ngay
+                  <ArrowRight className="w-4 h-4" /> {isEn ? 'Start Homework Now' : 'Bắt Đầu Làm Bài Về Nhà Ngay'}
                 </button>
               </div>
             </div>
@@ -1079,7 +1102,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
               {/* Top Bar with Fixed Timer & Anti-Cheat Radar Status */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
                 <div className="text-xs space-y-0.5">
-                  <span className="font-semibold text-slate-500 block">Thí sinh làm bài:</span>
+                  <span className="font-semibold text-slate-500 block">{isEn ? 'Student:' : 'Thí sinh làm bài:'}</span>
                   <span className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                     {selectedStudentName}
                     <span className="font-mono text-indigo-600 font-normal">({CORRECT_PIN})</span>
@@ -1090,14 +1113,14 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                   {/* Auto-save indicator */}
                   <div className="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-semibold">
                     <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                    <span>Đã lưu tự động</span>
+                    <span>{isEn ? 'Auto-saved' : 'Đã lưu tự động'}</span>
                   </div>
 
                   {/* Anti-cheat Live Badge */}
                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Giám sát tab: Bật</span>
+                    <span>{isEn ? 'Tab Monitor: On' : 'Giám sát tab: Bật'}</span>
                   </div>
 
                   {/* Fixed Timer Display */}
@@ -1108,7 +1131,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                     <span>
                       {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                     </span>
-                    <span className="text-[10px] font-sans text-slate-500 font-normal">còn</span>
+                    <span className="text-[10px] font-sans text-slate-500 font-normal">{isEn ? 'left' : 'còn'}</span>
                   </div>
 
                   {/* Cancel Button */}
@@ -1116,9 +1139,9 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                     type="button"
                     onClick={handleCancelHomework}
                     className="px-2.5 py-1.5 bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 rounded-xl text-xs font-medium border border-slate-200 transition-colors cursor-pointer"
-                    title="Hủy bài làm dở dang này"
+                    title={isEn ? 'Discard current session' : 'Hủy bài làm dở dang này'}
                   >
-                    Hủy bài
+                    {isEn ? 'Discard' : 'Hủy bài'}
                   </button>
                 </div>
               </div>
@@ -1129,54 +1152,63 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
               </div>
 
               {/* Current Question Progress */}
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <span className="font-semibold text-indigo-600">
-                  Câu hỏi {currentQIndex + 1}/{activeQuestions.length} ({currentQ.grade} · {currentQ.topicName})
-                </span>
-                <span className="text-[11px] font-mono">
-                  Đã trả lời: {Object.keys(userAnswers).length}/{activeQuestions.length}
-                </span>
-              </div>
+              {(() => {
+                const localizedQ = getLocalizedQuestion(currentQ, language);
+                return (
+                  <>
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span className="font-semibold text-indigo-600">
+                        {isEn
+                          ? `Question ${currentQIndex + 1}/${activeQuestions.length} (Grade ${currentQ.grade} · ${localizedQ.topicName})`
+                          : `Câu hỏi ${currentQIndex + 1}/${activeQuestions.length} (Khối ${currentQ.grade} · ${localizedQ.topicName})`}
+                      </span>
+                      <span className="text-[11px] font-mono">
+                        {isEn ? 'Answered:' : 'Đã trả lời:'} {Object.keys(userAnswers).length}/{activeQuestions.length}
+                      </span>
+                    </div>
 
-              {/* Question Content */}
-              <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200">
-                <h3 className="text-base md:text-lg font-bold text-slate-900 mb-2 leading-relaxed">
-                  <MathView math={currentQ.questionText} />
-                </h3>
-                {currentQ.formula && (
-                  <div className="p-3 bg-white border border-slate-200 rounded-xl text-center text-lg font-bold text-indigo-700 my-3 shadow-xs">
-                    <MathView math={currentQ.formula} displayMode={true} />
-                  </div>
-                )}
+                    {/* Question Content */}
+                    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+                      <h3 className="text-base md:text-lg font-bold text-slate-900 mb-2 leading-relaxed">
+                        <MathView math={localizedQ.questionText} />
+                      </h3>
+                      {currentQ.formula && (
+                        <div className="p-3 bg-white border border-slate-200 rounded-xl text-center text-lg font-bold text-indigo-700 my-3 shadow-xs">
+                          <MathView math={currentQ.formula} displayMode={true} />
+                        </div>
+                      )}
 
-                {/* 4 Options Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                  {currentQ.options.map((opt, idx) => {
-                    const isSelected = userAnswers[currentQIndex] === idx;
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleSelectAnswer(idx)}
-                        className={`p-3.5 rounded-xl border text-left text-xs font-semibold transition-all flex items-center gap-3 ${
-                          isSelected
-                            ? 'bg-indigo-50 border-indigo-600 text-indigo-900 ring-2 ring-indigo-200 shadow-xs'
-                            : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'
-                        }`}
-                      >
-                        <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
-                          isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
-                        }`}>
-                          {String.fromCharCode(65 + idx)}
-                        </span>
-                        <span>
-                          <MathView math={opt} />
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                      {/* 4 Options Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                        {localizedQ.options.map((opt, idx) => {
+                          const isSelected = userAnswers[currentQIndex] === idx;
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => handleSelectAnswer(idx)}
+                              className={`p-3.5 rounded-xl border text-left text-xs font-semibold transition-all flex items-center gap-3 ${
+                                isSelected
+                                  ? 'bg-indigo-50 border-indigo-600 text-indigo-900 ring-2 ring-indigo-200 shadow-xs'
+                                  : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'
+                              }`}
+                            >
+                              <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                                isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+                              }`}>
+                                {String.fromCharCode(65 + idx)}
+                              </span>
+                              <span>
+                                <MathView math={opt} />
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
 
               {/* Navigation & Submit */}
               <div className="flex items-center justify-between pt-2">
@@ -1186,7 +1218,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                   disabled={currentQIndex === 0}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 rounded-xl text-xs font-semibold transition-colors"
                 >
-                  Câu Trước
+                  {isEn ? 'Previous' : 'Câu Trước'}
                 </button>
 
                 {currentQIndex < activeQuestions.length - 1 ? (
@@ -1195,7 +1227,7 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
                     onClick={handleNextQuestion}
                     className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors"
                   >
-                    <span>Câu Tiếp</span>
+                    <span>{isEn ? 'Next Question' : 'Câu Tiếp'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 ) : (
@@ -1221,10 +1253,10 @@ export const HomeworkPortal: React.FC<HomeworkPortalProps> = ({
 
               <div>
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block">
-                  Đã Hoàn Thành Bài Kiểm Tra Về Nhà
+                  {isEn ? 'Homework Assessment Submitted' : 'Đã Hoàn Thành Bài Kiểm Tra Về Nhà'}
                 </span>
                 <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
-                  Kết Quả Của {selectedStudentName}
+                  {isEn ? `Results for ${selectedStudentName}` : `Kết Quả Của ${selectedStudentName}`}
                 </h3>
               </div>
 

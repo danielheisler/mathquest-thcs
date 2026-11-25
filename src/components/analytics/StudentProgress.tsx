@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Student, Classroom, HomeworkSubmission } from '../../types/math';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { ComprehensiveClassReportModal } from '../reports/ComprehensiveClassReportModal';
 import { WeeklyParticipationReport } from './WeeklyParticipationReport';
 import { 
@@ -13,14 +14,17 @@ interface StudentProgressProps {
   classrooms: Classroom[];
   submissions?: HomeworkSubmission[];
   onSelectStudentForReport: (student: Student) => void;
+  language?: Language;
 }
 
 export const StudentProgress: React.FC<StudentProgressProps> = ({
   students,
   classrooms,
   submissions = [],
-  onSelectStudentForReport
+  onSelectStudentForReport,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || '');
   const [selectedClassFilter, setSelectedClassFilter] = useState<string>('all');
   const [showPdfReportModal, setShowPdfReportModal] = useState<boolean>(false);
@@ -88,17 +92,19 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-semibold text-indigo-600 tracking-wider uppercase">
-                Phân Tích Dữ Liệu Giáo Viên · Cô Diễm Quỳnh
+                {isEn ? 'Teacher Analytics · Ms. Diem Quynh' : 'Phân Tích Dữ Liệu Giáo Viên · Cô Diễm Quỳnh'}
               </span>
               <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded font-mono font-bold text-[10px]">
-                Mã lớp: 20112002
+                {isEn ? 'Class Code: 20112002' : 'Mã lớp: 20112002'}
               </span>
             </div>
             <h3 className="text-2xl font-black text-slate-900">
-              Bảng Thống Kê Điểm Số & Theo Dõi Thời Gian Thực
+              {isEn ? 'Score Statistics & Real-Time Class Tracking' : 'Bảng Thống Kê Điểm Số & Theo Dõi Thời Gian Thực'}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Tự động đồng bộ mỗi 5 giây không cần tải lại trang. Phân bố phổ điểm 5 mức và hỗ trợ xuất báo cáo PDF chuẩn A4.
+              {isEn
+                ? 'Auto-syncs every 5 seconds with 5-tier score distribution and A4 PDF class reports.'
+                : 'Tự động đồng bộ mỗi 5 giây không cần tải lại trang. Phân bố phổ điểm 5 mức và hỗ trợ xuất báo cáo PDF chuẩn A4.'}
             </p>
           </div>
 
@@ -108,7 +114,7 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
               pulseEffect ? 'bg-emerald-100 border-emerald-400 text-emerald-800 scale-105' : 'bg-slate-50 border-slate-200 text-slate-700'
             }`}>
               <span className={`w-2 h-2 rounded-full ${isLiveSyncActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-              <span>Tự cập nhật sau: <b className="text-emerald-600">{autoRefreshSec}s</b></span>
+              <span>{isEn ? 'Sync in:' : 'Tự cập nhật sau:'} <b className="text-emerald-600">{autoRefreshSec}s</b></span>
               <span className="text-[10px] text-slate-400 font-sans font-normal">({lastUpdatedTime})</span>
             </div>
 
@@ -121,7 +127,7 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-indigo-600/30 transition-all"
             >
               <Printer className="w-4 h-4" />
-              <span>Xuất Báo Cáo PDF (A4)</span>
+              <span>{isEn ? 'Export PDF Report (A4)' : 'Xuất Báo Cáo PDF (A4)'}</span>
             </button>
           </div>
         </div>
@@ -129,37 +135,37 @@ export const StudentProgress: React.FC<StudentProgressProps> = ({
         {/* 4 Big KPI Metric Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-            <span className="text-[10px] text-slate-500 font-bold uppercase block">Số Học Sinh Tham Gia</span>
+            <span className="text-[10px] text-slate-500 font-bold uppercase block">{isEn ? 'Total Students' : 'Số Học Sinh Tham Gia'}</span>
             <span className="text-2xl font-mono font-black text-slate-900 mt-1 block">
-              {filteredStudents.length} em
+              {filteredStudents.length} {isEn ? 'students' : 'em'}
             </span>
-            <span className="text-[11px] text-slate-400 mt-0.5 block">100% tài khoản lớp</span>
+            <span className="text-[11px] text-slate-400 mt-0.5 block">{isEn ? '100% class roster' : '100% tài khoản lớp'}</span>
           </div>
 
           <div className="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-100 text-center">
-            <span className="text-[10px] text-emerald-700 font-bold uppercase block">Số Đã Nộp Bài</span>
+            <span className="text-[10px] text-emerald-700 font-bold uppercase block">{isEn ? 'Submitted' : 'Số Đã Nộp Bài'}</span>
             <span className="text-2xl font-mono font-black text-emerald-700 mt-1 block">
               {submissions.length} / {filteredStudents.length}
             </span>
             <span className="text-[11px] text-emerald-600 font-semibold mt-0.5 block">
-              {Math.round((submissions.length / (filteredStudents.length || 1)) * 100)}% hoàn thành
+              {Math.round((submissions.length / (filteredStudents.length || 1)) * 100)}% {isEn ? 'completed' : 'hoàn thành'}
             </span>
           </div>
 
           <div className="p-4 bg-indigo-50/70 rounded-2xl border border-indigo-100 text-center">
-            <span className="text-[10px] text-indigo-700 font-bold uppercase block">Điểm Trung Bình Cả Lớp</span>
+            <span className="text-[10px] text-indigo-700 font-bold uppercase block">{isEn ? 'Class Average Score' : 'Điểm Trung Bình Cả Lớp'}</span>
             <span className="text-2xl font-mono font-black text-indigo-700 mt-1 block">
               {avgScore} / 10
             </span>
-            <span className="text-[11px] text-indigo-600 font-semibold mt-0.5 block">Thang điểm 10</span>
+            <span className="text-[11px] text-indigo-600 font-semibold mt-0.5 block">{isEn ? '10-point scale' : 'Thang điểm 10'}</span>
           </div>
 
           <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-100 text-center">
-            <span className="text-[10px] text-amber-700 font-bold uppercase block">Số Giấy Khen Đạt Chuẩn</span>
+            <span className="text-[10px] text-amber-700 font-bold uppercase block">{isEn ? 'Honor Certificates' : 'Số Giấy Khen Đạt Chuẩn'}</span>
             <span className="text-2xl font-mono font-black text-amber-600 mt-1 block">
-              {certificatesCount} em
+              {certificatesCount} {isEn ? 'students' : 'em'}
             </span>
-            <span className="text-[11px] text-amber-700 font-semibold mt-0.5 block">Đạt kết quả ≥ 80%</span>
+            <span className="text-[11px] text-amber-700 font-semibold mt-0.5 block">{isEn ? 'Score ≥ 80%' : 'Đạt kết quả ≥ 80%'}</span>
           </div>
         </div>
 

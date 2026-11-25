@@ -14,6 +14,8 @@ import { ClassroomManager } from './components/classroom/ClassroomManager';
 import { ClassroomSeatingChart } from './components/classroom/ClassroomSeatingChart';
 import { VnEduGradebook } from './components/classroom/VnEduGradebook';
 import { LessonPlanManager } from './components/classroom/LessonPlanManager';
+import { SlideStudio } from './components/classroom/SlideStudio';
+import { LessonPlan } from './data/lessonPlansData';
 import { CustomGameStudio } from './components/games/CustomGameStudio';
 import { initialVnEduRecords } from './data/vneduData';
 import { QuestionBank } from './components/questions/QuestionBank';
@@ -371,7 +373,32 @@ export default function App() {
 
   const [questions, setQuestions] = useState<Question[]>(() => {
     const saved = localStorage.getItem('mathquest_questions');
-    return saved ? JSON.parse(saved) : initialQuestions;
+    if (saved) {
+      try {
+        const parsed: Question[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const defaultsById = new Map(initialQuestions.map((q) => [q.id, q]));
+          const existingIds = new Set(parsed.map((q) => q.id));
+          // Sync bilingual *En fields onto existing default questions while keeping teacher edits
+          const synced = parsed.map((q) => {
+            const def = defaultsById.get(q.id);
+            if (!def) return q;
+            return {
+              ...q,
+              topicNameEn: q.topicNameEn || def.topicNameEn,
+              questionTextEn: q.questionTextEn || def.questionTextEn,
+              optionsEn: q.optionsEn || def.optionsEn,
+              explanationEn: q.explanationEn || def.explanationEn,
+              hintEn: q.hintEn || def.hintEn,
+            };
+          });
+          // Append any newly added default questions that aren't in localStorage yet
+          const missing = initialQuestions.filter((q) => !existingIds.has(q.id));
+          return [...synced, ...missing];
+        }
+      } catch {}
+    }
+    return initialQuestions;
   });
 
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>(() => {
@@ -399,6 +426,7 @@ export default function App() {
   });
 
   const [preselectedExamId, setPreselectedExamId] = useState<string | null>(null);
+  const [selectedLessonPlanForSlides, setSelectedLessonPlanForSlides] = useState<LessonPlan | null>(null);
 
   const [gradebook, setGradebook] = useState<Record<string, StudentScoreRecord>>(() => {
     return loadSavedGradebook(students);
@@ -553,6 +581,24 @@ export default function App() {
       sessionStorage.removeItem('mathquest_parent_phone');
     }
     soundManager.playClick();
+  };
+
+  const handleUpdateStudentIdentity = (identity: {
+    name: string;
+    studentId?: string;
+    className?: string;
+  }) => {
+    setAuthUser((prev) => {
+      if (!prev || prev.role !== 'student') return prev;
+      const updated: AuthUser = {
+        ...prev,
+        name: identity.name.trim() || prev.name,
+        studentId: identity.studentId,
+        className: identity.className || prev.className,
+      };
+      saveAuthUser(updated);
+      return updated;
+    });
   };
 
   const handlePortalChange = (portal: MainPortal) => {
@@ -723,6 +769,8 @@ export default function App() {
     return (
       <LoginPage
         onLoginSuccess={handleLoginSuccess}
+        students={students}
+        classrooms={classrooms}
         language={language}
         onToggleLanguage={handleToggleLanguage}
         theme={theme}
@@ -732,6 +780,21 @@ export default function App() {
   }
 
   const effectivePortal: MainPortal = authUser.role;
+  const matchedStudentObj =
+    authUser.role === 'student' && authUser.studentId
+      ? students.find((s) => s.id === authUser.studentId)
+      : undefined;
+  const activeStudentName =
+    authUser.role === 'student' && authUser.name?.trim()
+      ? authUser.name.trim()
+      : students[0]?.name || 'Nguyễn Minh Quân';
+  const activeClassName =
+    (authUser.role === 'student' &&
+      (authUser.className ||
+        (matchedStudentObj &&
+          classrooms.find((c) => c.id === matchedStudentObj.classId)?.name))) ||
+    classrooms[0]?.name ||
+    'Lớp 6A1';
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900 transition-colors">
@@ -760,6 +823,9 @@ export default function App() {
         onLockParent={handleLockParent}
         onOpenPinSettings={() => setIsPinSettingsOpen(true)}
         ongoingTestType={ongoingExamInfo ? ongoingExamInfo.type : null}
+        students={students}
+        classrooms={classrooms}
+        onUpdateStudentIdentity={handleUpdateStudentIdentity}
       />
 
       {/* Main Content Area */}
@@ -836,8 +902,8 @@ export default function App() {
               <SoloGamesHub
                 questions={questions}
                 onSaveScore={handleSaveLeaderboardEntry}
-                activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
-                activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
+                activeStudentName={activeStudentName}
+                activeClassName={activeClassName}
                 language={language}
               />
             )}
@@ -845,9 +911,10 @@ export default function App() {
             {/* Tab: Vận Động Cơ Thể Qua Camera (Chuẩn Lớp Học) */}
             {activeTab === 'body_games' && (
               <BodyCameraGamesHub
-                activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
-                activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
+                activeStudentName={activeStudentName}
+                activeClassName={activeClassName}
                 userRole={authUser.role}
+                language={language}
               />
             )}
 
@@ -856,9 +923,10 @@ export default function App() {
               <SemesterExamPortal
                 students={students}
                 onSaveExamResult={handleSaveExamResult}
-                activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
+                activeStudentName={activeStudentName}
                 customExams={aiExams}
                 preselectedExamId={preselectedExamId}
+                language={language}
               />
             )}
 
@@ -872,6 +940,7 @@ export default function App() {
                 onAddSubmission={handleAddHomeworkSubmission}
                 language={language}
                 userRole={authUser.role}
+                activeStudentName={activeStudentName}
               />
             )}
 
@@ -949,6 +1018,7 @@ export default function App() {
                 onDeleteStudent={handleDeleteStudent}
                 onSelectStudentForReport={handleNavigateToReport}
                 onUpdateClassroom={handleUpdateClassroom}
+                language={language}
               />
             )}
 
@@ -966,7 +1036,22 @@ export default function App() {
 
             {/* Tab: Giáo Án / Kế Hoạch Bài Dạy (Chuẩn 5512) */}
             {activeTab === 'lesson_plans' && (
-              <LessonPlanManager language={language} />
+              <LessonPlanManager
+                language={language}
+                onCreateSlidesFromPlan={(plan) => {
+                  setSelectedLessonPlanForSlides(plan);
+                  setActiveTab('slide_studio');
+                }}
+              />
+            )}
+
+            {/* Tab: Tạo Slide Trình Chiếu Bài Giảng */}
+            {activeTab === 'slide_studio' && (
+              <SlideStudio
+                lessonPlan={selectedLessonPlanForSlides}
+                questions={questions}
+                language={language}
+              />
             )}
 
             {/* Tab: Radar Giám Sát Chống Chuyển Tab (Live Anti-Cheat) */}
@@ -975,6 +1060,7 @@ export default function App() {
                 students={students}
                 classroom={classrooms[0] || initialClassrooms[0]}
                 submissions={homeworkSubmissions}
+                language={language}
               />
             )}
 
@@ -999,6 +1085,7 @@ export default function App() {
                 onSaveAIExam={handleSaveAIExam}
                 onDeleteAIExam={handleDeleteAIExam}
                 onTakeExam={handleTakeAIExam}
+                language={language}
               />
             )}
 
@@ -1007,6 +1094,7 @@ export default function App() {
               <CustomGameStudio
                 activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
                 activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
+                language={language}
               />
             )}
 
@@ -1019,6 +1107,7 @@ export default function App() {
                 customExams={aiExams}
                 preselectedExamId={preselectedExamId}
                 onOpenAIGenerator={() => setActiveTab('ai_exam_studio')}
+                language={language}
               />
             )}
 
@@ -1029,6 +1118,7 @@ export default function App() {
                 onAddQuestion={handleAddQuestion}
                 onUpdateQuestion={handleUpdateQuestion}
                 onDeleteQuestion={handleDeleteQuestion}
+                language={language}
               />
             )}
 
@@ -1040,11 +1130,13 @@ export default function App() {
                   classrooms={classrooms}
                   submissions={homeworkSubmissions}
                   onSelectStudentForReport={handleNavigateToReport}
+                  language={language}
                 />
                 <ReportCardGenerator
                   students={students}
                   classrooms={classrooms}
                   selectedStudent={selectedStudentForReport}
+                  language={language}
                 />
               </div>
             )}
@@ -1055,6 +1147,7 @@ export default function App() {
                 classroom={classrooms[0] || initialClassrooms[0]}
                 students={students}
                 academicRecords={initialVnEduRecords}
+                language={language}
               />
             )}
 
@@ -1062,6 +1155,7 @@ export default function App() {
             {activeTab === 'vnedu_gradebook' && (
               <VnEduGradebook
                 classroom={classrooms[0] || initialClassrooms[0]}
+                language={language}
               />
             )}
           </div>

@@ -4,20 +4,25 @@ import { soundManager } from '../../utils/sound';
 import { BookOpen, Plus, Search, Filter, CheckCircle2, FileQuestion, Sparkles, Download, Trash2, HelpCircle, Eye, Edit3 } from 'lucide-react';
 import { MathView } from '../common/MathView';
 import { MathTypeToolbar } from '../common/MathTypeToolbar';
+import { Language } from '../../i18n/translations';
+import { getLocalizedQuestion } from '../../utils/localize';
 
 interface QuestionBankProps {
   questions: Question[];
   onAddQuestion: (newQ: Question) => void;
   onUpdateQuestion: (updatedQ: Question) => void;
   onDeleteQuestion: (qId: string) => void;
+  language?: Language;
 }
 
 export const QuestionBank: React.FC<QuestionBankProps> = ({
   questions,
   onAddQuestion,
   onUpdateQuestion,
-  onDeleteQuestion
+  onDeleteQuestion,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [selectedGrade, setSelectedGrade] = useState<GradeLevel | 'all'>('all');
   const [selectedTopic, setSelectedTopic] = useState<MathTopic | 'all'>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | 'all'>('all');
@@ -175,10 +180,16 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-5 border-b border-slate-100 gap-4 mb-6">
           <div>
-            <span className="text-xs font-semibold text-emerald-600 tracking-wider uppercase">Kho Học Liệu & Đề Thi THCS</span>
-            <h3 className="text-2xl font-bold text-slate-900 mt-0.5">Ngân Hàng Câu Hỏi & Tùy Chỉnh Đề Thi</h3>
+            <span className="text-xs font-semibold text-emerald-600 tracking-wider uppercase">
+              {isEn ? 'Middle School Math Repository' : 'Kho Học Liệu & Đề Thi THCS'}
+            </span>
+            <h3 className="text-2xl font-bold text-slate-900 mt-0.5">
+              {isEn ? 'Question Bank & Custom Quiz Builder' : 'Ngân Hàng Câu Hỏi & Tùy Chỉnh Đề Thi'}
+            </h3>
             <p className="text-sm text-slate-600">
-              Ngân hàng bài tập chuẩn GDPT THCS (Khối 6-9) kèm công cụ tùy biến đề thi, bài kiểm tra 15 phút và 45 phút.
+              {isEn
+                ? 'Curriculum-aligned exercises (Grades 6–9) with instant 15-min & 45-min exam builder and MathType KaTeX editor.'
+                : 'Ngân hàng bài tập chuẩn GDPT THCS (Khối 6-9) kèm công cụ tùy biến đề thi, bài kiểm tra 15 phút và 45 phút.'}
             </p>
           </div>
 
@@ -187,13 +198,13 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
               onClick={() => handleGenerateExam(10)}
               className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors border border-emerald-200"
             >
-              <FileQuestion className="w-4 h-4 text-emerald-600" /> Tạo Đề 15 Phút Nhanh
+              <FileQuestion className="w-4 h-4 text-emerald-600" /> {isEn ? 'Quick 15-Min Quiz' : 'Tạo Đề 15 Phút Nhanh'}
             </button>
             <button
               onClick={handleOpenAddModal}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-xs"
             >
-              <Plus className="w-4 h-4" /> Thêm Câu Hỏi Mới
+              <Plus className="w-4 h-4" /> {isEn ? 'Add New Question' : 'Thêm Câu Hỏi Mới'}
             </button>
           </div>
         </div>
@@ -205,7 +216,7 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Tìm theo nội dung..."
+              placeholder={isEn ? 'Search question or topic...' : 'Tìm theo nội dung...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800"
@@ -219,11 +230,11 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
               onChange={(e) => setSelectedGrade(e.target.value === 'all' ? 'all' : parseInt(e.target.value) as GradeLevel)}
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700"
             >
-              <option value="all">Tất cả Khối THCS</option>
-              <option value="6">Khối 6 (Số học & Hình trực quan)</option>
-              <option value="7">Khối 7 (Số hữu tỉ & Tam giác)</option>
-              <option value="8">Khối 8 (Hằng đẳng thức & Pythagoras)</option>
-              <option value="9">Khối 9 (Căn thức & Hàm số bậc nhất)</option>
+              <option value="all">{isEn ? 'All Middle School Grades' : 'Tất cả Khối THCS'}</option>
+              <option value="6">{isEn ? 'Grade 6 (Arithmetic & Visual Geo)' : 'Khối 6 (Số học & Hình trực quan)'}</option>
+              <option value="7">{isEn ? 'Grade 7 (Rationals & Triangles)' : 'Khối 7 (Số hữu tỉ & Tam giác)'}</option>
+              <option value="8">{isEn ? 'Grade 8 (Identities & Pythagoras)' : 'Khối 8 (Hằng đẳng thức & Pythagoras)'}</option>
+              <option value="9">{isEn ? 'Grade 9 (Radicals & Functions)' : 'Khối 9 (Căn thức & Hàm số bậc nhất)'}</option>
             </select>
           </div>
 
@@ -234,13 +245,13 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
               onChange={(e) => setSelectedTopic(e.target.value as any)}
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700"
             >
-              <option value="all">Tất cả Chủ Đề</option>
-              <option value="arithmetic">Số học & Số nguyên</option>
-              <option value="rational">Phân số & Số hữu tỉ</option>
-              <option value="algebra">Đại số & Hằng đẳng thức</option>
-              <option value="equation">Phương trình & Hệ PT</option>
-              <option value="geometry">Hình học & Đo lường</option>
-              <option value="statistics">Thống kê & Xác suất</option>
+              <option value="all">{isEn ? 'All Topics' : 'Tất cả Chủ Đề'}</option>
+              <option value="arithmetic">{isEn ? 'Arithmetic & Integers' : 'Số học & Số nguyên'}</option>
+              <option value="rational">{isEn ? 'Fractions & Rationals' : 'Phân số & Số hữu tỉ'}</option>
+              <option value="algebra">{isEn ? 'Algebra & Identities' : 'Đại số & Hằng đẳng thức'}</option>
+              <option value="equation">{isEn ? 'Equations & Systems' : 'Phương trình & Hệ PT'}</option>
+              <option value="geometry">{isEn ? 'Geometry & Measurement' : 'Hình học & Đo lường'}</option>
+              <option value="statistics">{isEn ? 'Statistics & Probability' : 'Thống kê & Xác suất'}</option>
             </select>
           </div>
 
@@ -251,37 +262,49 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
               onChange={(e) => setSelectedDifficulty(e.target.value as any)}
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700"
             >
-              <option value="all">Mọi Mức Độ Nhận Thức</option>
-              <option value="easy">Nhận biết (Dễ)</option>
-              <option value="medium">Thông hiểu (Trung bình)</option>
-              <option value="hard">Vận dụng cao (Khó)</option>
+              <option value="all">{isEn ? 'All Difficulty Levels' : 'Mọi Mức Độ Nhận Thức'}</option>
+              <option value="easy">{isEn ? 'Easy (Recall)' : 'Nhận biết (Dễ)'}</option>
+              <option value="medium">{isEn ? 'Medium (Comprehension)' : 'Thông hiểu (Trung bình)'}</option>
+              <option value="hard">{isEn ? 'Hard (Application)' : 'Vận dụng cao (Khó)'}</option>
             </select>
           </div>
         </div>
 
         {/* Question Counter */}
         <div className="flex items-center justify-between text-xs text-slate-500 mb-4 pb-2 border-b border-slate-100">
-          <span>Tìm thấy <b className="text-slate-900 font-mono">{filtered.length}</b> câu hỏi phù hợp</span>
-          <span className="text-[11px] text-slate-400">Cô Diễm Quỳnh có thể chỉnh sửa nội dung hoặc thêm câu hỏi MathType tùy ý</span>
+          <span>
+            {isEn
+              ? <>Found <b className="text-slate-900 font-mono">{filtered.length}</b> matching questions</>
+              : <>Tìm thấy <b className="text-slate-900 font-mono">{filtered.length}</b> câu hỏi phù hợp</>}
+          </span>
+          <span className="text-[11px] text-slate-400">
+            {isEn ? 'Teachers can edit or add MathType KaTeX questions anytime' : 'Cô Diễm Quỳnh có thể chỉnh sửa nội dung hoặc thêm câu hỏi MathType tùy ý'}
+          </span>
         </div>
 
         {/* Questions Cards List */}
         <div className="space-y-3.5">
-          {filtered.map((q, idx) => (
+          {filtered.map((q, idx) => {
+            const loc = getLocalizedQuestion(q, language);
+            return (
             <div key={q.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
-                    Toán {q.grade}
+                    {isEn ? `Math ${q.grade}` : `Toán ${q.grade}`}
                   </span>
                   <span className="font-semibold text-slate-700 bg-slate-200/70 px-2 py-0.5 rounded">
-                    {q.topicName}
+                    {loc.topicName}
                   </span>
                   <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${
                     q.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-800' :
                     q.difficulty === 'medium' ? 'bg-blue-100 text-blue-800' : 'bg-rose-100 text-rose-800'
                   }`}>
-                    {q.difficulty === 'easy' ? 'Nhận biết' : q.difficulty === 'medium' ? 'Thông hiểu' : 'Vận dụng'}
+                    {q.difficulty === 'easy'
+                      ? (isEn ? 'Easy' : 'Nhận biết')
+                      : q.difficulty === 'medium'
+                      ? (isEn ? 'Medium' : 'Thông hiểu')
+                      : (isEn ? 'Hard' : 'Vận dụng')}
                   </span>
                 </div>
 
@@ -289,10 +312,10 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
                   <button
                     onClick={() => handleStartEditQuestion(q)}
                     className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-semibold"
-                    title="Chỉnh sửa câu hỏi này"
+                    title={isEn ? 'Edit question' : 'Chỉnh sửa câu hỏi này'}
                   >
                     <Edit3 className="w-3.5 h-3.5 text-indigo-600" />
-                    <span className="text-[11px]">Sửa</span>
+                    <span className="text-[11px]">{isEn ? 'Edit' : 'Sửa'}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -300,7 +323,7 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
                       onDeleteQuestion(q.id);
                     }}
                     className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                    title="Xóa câu hỏi"
+                    title={isEn ? 'Delete question' : 'Xóa câu hỏi'}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -309,7 +332,7 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
 
               <h4 className="text-sm font-bold text-slate-900 mb-2 leading-relaxed">
                 <span className="font-mono text-slate-400 font-normal mr-1.5">#{idx + 1}.</span>
-                <MathView math={q.questionText} />
+                <MathView math={loc.questionText} />
               </h4>
 
               {q.formula && (
@@ -320,7 +343,7 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
 
               {/* Options */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 text-xs mb-3">
-                {q.options.map((opt, oIdx) => {
+                {loc.options.map((opt, oIdx) => {
                   const isCorrect = oIdx === q.correctAnswerIndex;
                   return (
                     <div
@@ -345,14 +368,15 @@ export const QuestionBank: React.FC<QuestionBankProps> = ({
 
               {/* Explanation */}
               <div className="text-xs text-slate-600 bg-white p-2.5 rounded-lg border border-slate-200/80">
-                <span className="font-bold text-slate-800">Lời giải chi tiết:</span> <MathView math={q.explanation} />
+                <span className="font-bold text-slate-800">{isEn ? 'Detailed Solution:' : 'Lời giải chi tiết:'}</span> <MathView math={loc.explanation} />
               </div>
             </div>
-          ))}
+            );
+          })}
 
           {filtered.length === 0 && (
             <div className="py-12 text-center text-slate-400 text-xs">
-              Không có câu hỏi nào khớp với bộ lọc đang chọn. Hãy thử tìm từ khóa khác hoặc bấm "Thêm Câu Hỏi Mới".
+              {isEn ? 'No matching questions found. Try another filter or click "Add New Question".' : 'Không có câu hỏi nào khớp với bộ lọc đang chọn. Hãy thử tìm từ khóa khác hoặc bấm "Thêm Câu Hỏi Mới".'}
             </div>
           )}
         </div>

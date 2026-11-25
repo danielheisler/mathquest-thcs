@@ -4,20 +4,25 @@ import { soundManager } from '../../utils/sound';
 import confetti from 'canvas-confetti';
 import { Users, Trophy, Flag, Zap, Bell, Check, X, Timer, RotateCcw, Play, Maximize2 } from 'lucide-react';
 import { MathView } from '../common/MathView';
+import { Language } from '../../i18n/translations';
+import { getLocalizedQuestion } from '../../utils/localize';
 
 interface TeamVersusGameProps {
   questions: Question[];
   classrooms: Classroom[];
   students: Student[];
   onSaveLeaderboard: (entry: Omit<LeaderboardEntry, 'id' | 'rank'>) => void;
+  language?: Language;
 }
 
 export const TeamVersusGame: React.FC<TeamVersusGameProps> = ({
   questions,
   classrooms,
   students,
-  onSaveLeaderboard
+  onSaveLeaderboard,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [selectedClassId, setSelectedClassId] = useState<string>(classrooms[0]?.id || '');
   const [teamCount, setTeamCount] = useState<2 | 4>(2);
   const [gameStatus, setGameStatus] = useState<'setup' | 'playing' | 'buzzer_active' | 'finished'>('setup');
@@ -350,19 +355,24 @@ export const TeamVersusGame: React.FC<TeamVersusGameProps> = ({
       {gameStatus === 'playing' && currentQ && (
         <div className="space-y-5">
           {/* Big Classroom Screen for current question */}
-          <div className="bg-gradient-to-br from-indigo-50 to-slate-100 rounded-2xl p-6 border border-indigo-100 text-center">
-            <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest block mb-1">
-              Câu hỏi số {currentQIndex + 1} ({currentQ.grade} · {currentQ.topicName})
-            </span>
-            <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 max-w-2xl mx-auto leading-snug">
-              <MathView math={currentQ.questionText} />
-            </h3>
-            {currentQ.formula && (
-              <div className="mt-3 p-3 bg-white rounded-xl inline-block border border-indigo-200 text-lg font-bold text-indigo-700 shadow-xs">
-                <MathView math={currentQ.formula} displayMode={true} />
+          {(() => {
+            const loc = getLocalizedQuestion(currentQ, language);
+            return (
+              <div className="bg-gradient-to-br from-indigo-50 to-slate-100 rounded-2xl p-6 border border-indigo-100 text-center">
+                <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest block mb-1">
+                  {isEn ? `Question #${currentQIndex + 1} (Grade ${currentQ.grade} · ${loc.topicName})` : `Câu hỏi số ${currentQIndex + 1} (${currentQ.grade} · ${loc.topicName})`}
+                </span>
+                <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 max-w-2xl mx-auto leading-snug">
+                  <MathView math={loc.questionText} />
+                </h3>
+                {currentQ.formula && (
+                  <div className="mt-3 p-3 bg-white rounded-xl inline-block border border-indigo-200 text-lg font-bold text-indigo-700 shadow-xs">
+                    <MathView math={currentQ.formula} displayMode={true} />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            );
+          })()}
 
           {/* Buzzer Buttons for Teams */}
           <div>
@@ -413,56 +423,60 @@ export const TeamVersusGame: React.FC<TeamVersusGameProps> = ({
             );
           })()}
 
-          <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-900 text-center mb-2">
-              <MathView math={currentQ.questionText} />
-            </h3>
-            {currentQ.formula && (
-              <div className="p-2.5 bg-white border rounded-lg text-center font-bold text-indigo-700 max-w-md mx-auto mb-3">
-                <MathView math={currentQ.formula} displayMode={true} />
-              </div>
-            )}
+          {(() => {
+            const loc = getLocalizedQuestion(currentQ, language);
+            return (
+              <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-900 text-center mb-2">
+                  <MathView math={loc.questionText} />
+                </h3>
+                {currentQ.formula && (
+                  <div className="p-2.5 bg-white border rounded-lg text-center font-bold text-indigo-700 max-w-md mx-auto mb-3">
+                    <MathView math={currentQ.formula} displayMode={true} />
+                  </div>
+                )}
 
-            {/* Answer Options */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              {currentQ.options.map((opt, idx) => {
-                const isCorrect = idx === currentQ.correctAnswerIndex;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => handleAnswerSubmit(isCorrect)}
-                    className="p-3.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-400 rounded-xl text-left text-sm font-semibold text-slate-800 transition-all flex items-center gap-3 shadow-xs"
-                  >
-                    <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center font-bold text-xs text-slate-600">
-                      {String.fromCharCode(65 + idx)}
-                    </span>
-                    <span>
-                      <MathView math={opt} />
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Teacher direct manual grading override */}
-            <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-              <span>Thầy/Cô chấm điểm trực tiếp:</span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleAnswerSubmit(true)}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"
-                >
-                  <Check className="w-3.5 h-3.5" /> Đúng (+100đ & Thuyền tiến)
-                </button>
-                <button
-                  onClick={() => handleAnswerSubmit(false)}
-                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold flex items-center gap-1"
-                >
-                  <X className="w-3.5 h-3.5" /> Sai (-30đ)
-                </button>
+                {/* Answer Options */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                  {loc.options.map((opt, idx) => {
+                    const isCorrect = idx === currentQ.correctAnswerIndex;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswerSubmit(isCorrect)}
+                        className="p-3.5 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-400 rounded-xl text-left text-sm font-semibold text-slate-800 transition-all flex items-center gap-3 shadow-xs"
+                      >
+                        <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center font-bold text-xs text-slate-600">
+                          {String.fromCharCode(65 + idx)}
+                        </span>
+                        <span>
+                          <MathView math={opt} />
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Teacher direct manual grading override */}
+                <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                  <span>{isEn ? 'Teacher quick score:' : 'Thầy/Cô chấm điểm trực tiếp:'}</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleAnswerSubmit(true)}
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1"
+                    >
+                      <Check className="w-3.5 h-3.5" /> {isEn ? 'Correct (+100)' : 'Đúng (+100đ & Thuyền tiến)'}
+                    </button>
+                    <button
+                      onClick={() => handleAnswerSubmit(false)}
+                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold flex items-center gap-1"
+                    >
+                      <X className="w-3.5 h-3.5" /> {isEn ? 'Wrong (-30)' : 'Sai (-30đ)'}
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            );
+          })()}
         </div>
       )}
 

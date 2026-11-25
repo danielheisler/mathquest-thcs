@@ -3,6 +3,7 @@ import { soundManager } from '../../utils/sound';
 import confetti from 'canvas-confetti';
 import { Sparkles, RotateCcw, Check, Brain, Timer } from 'lucide-react';
 import { MathView } from '../common/MathView';
+import { Language } from '../../i18n/translations';
 
 interface CardItem {
   id: string;
@@ -14,15 +15,18 @@ interface CardItem {
 }
 
 const pairsData = [
-  { pairId: 1, formula: 'a^2 + b^2 = c^2', title: 'Định lý Pythagoras (Tam giác vuông)' },
-  { pairId: 2, formula: '(A + B)^2 = A^2 + 2AB + B^2', title: 'Bình phương của một tổng' },
-  { pairId: 3, formula: 'S = \\frac{1}{2} \\cdot a \\cdot h', title: 'Diện tích hình tam giác' },
-  { pairId: 4, formula: 'C = 2 \\cdot \\pi \\cdot R', title: 'Chu vi hình tròn bán kính R' },
-  { pairId: 5, formula: '\\widehat{A} + \\widehat{B} + \\widehat{C} = 180^\\circ', title: 'Tổng ba góc trong một tam giác' },
-  { pairId: 6, formula: 'A^2 - B^2 = (A - B)(A + B)', title: 'Hiệu hai bình phương' }
+  { pairId: 1, formula: 'a^2 + b^2 = c^2', title: 'Định lý Pythagoras (Tam giác vuông)', titleEn: 'Pythagorean Theorem (Right triangle)' },
+  { pairId: 2, formula: '(A + B)^2 = A^2 + 2AB + B^2', title: 'Bình phương của một tổng', titleEn: 'Square of a sum' },
+  { pairId: 3, formula: 'S = \\frac{1}{2} \\cdot a \\cdot h', title: 'Diện tích hình tam giác', titleEn: 'Area of a triangle' },
+  { pairId: 4, formula: 'C = 2 \\cdot \\pi \\cdot R', title: 'Chu vi hình tròn bán kính R', titleEn: 'Circumference of a circle (radius R)' },
+  { pairId: 5, formula: '\\widehat{A} + \\widehat{B} + \\widehat{C} = 180^\\circ', title: 'Tổng ba góc trong một tam giác', titleEn: 'Sum of interior angles in a triangle' },
+  { pairId: 6, formula: 'A^2 - B^2 = (A - B)(A + B)', title: 'Hiệu hai bình phương', titleEn: 'Difference of two squares' },
+  { pairId: 7, formula: '\\Delta = b^2 - 4ac', title: 'Biệt thức phương trình bậc hai', titleEn: 'Quadratic discriminant' },
+  { pairId: 8, formula: 'x_1 + x_2 = -\\frac{b}{a}', title: 'Định lý Vi-ét (Tổng 2 nghiệm)', titleEn: 'Vieta’s formula (Sum of roots)' }
 ];
 
-export const FormulaMemoryGame: React.FC = () => {
+export const FormulaMemoryGame: React.FC<{ language?: Language }> = ({ language = 'vi' }) => {
+  const isEn = language === 'en';
   const [cards, setCards] = useState<CardItem[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [moves, setMoves] = useState<number>(0);
@@ -45,7 +49,7 @@ export const FormulaMemoryGame: React.FC = () => {
       newCards.push({
         id: `t-${pair.pairId}`,
         pairId: pair.pairId,
-        content: pair.title,
+        content: isEn ? pair.titleEn : pair.title,
         isFormula: false,
         isFlipped: false,
         isMatched: false
@@ -63,7 +67,7 @@ export const FormulaMemoryGame: React.FC = () => {
 
   useEffect(() => {
     initGame();
-  }, []);
+  }, [language]);
 
   // Timer
   useEffect(() => {
@@ -130,9 +134,15 @@ export const FormulaMemoryGame: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4 mb-6">
         <div>
-          <span className="text-xs font-semibold text-emerald-600 tracking-wider uppercase">Trò chơi cá nhân · Trí nhớ & Công thức</span>
-          <h3 className="text-2xl font-bold text-slate-900 mt-0.5">Lật Thẻ Ghép Đôi Công Thức & Định Lý</h3>
-          <p className="text-sm text-slate-600">Ghép đúng công thức toán học với tên gọi hoặc định lý tương ứng.</p>
+          <span className="text-xs font-semibold text-emerald-600 tracking-wider uppercase">
+            {isEn ? 'Solo Game · Memory & Formulas' : 'Trò chơi cá nhân · Trí nhớ & Công thức'}
+          </span>
+          <h3 className="text-2xl font-bold text-slate-900 mt-0.5">
+            {isEn ? 'Formula & Theorem Memory Match' : 'Lật Thẻ Ghép Đôi Công Thức & Định Lý'}
+          </h3>
+          <p className="text-sm text-slate-600">
+            {isEn ? 'Match each math formula with its corresponding concept or theorem.' : 'Ghép đúng công thức toán học với tên gọi hoặc định lý tương ứng.'}
+          </p>
         </div>
         <div className="flex items-center gap-4 text-xs font-mono font-medium">
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg">
@@ -141,12 +151,12 @@ export const FormulaMemoryGame: React.FC = () => {
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg">
             <Brain className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{moves} Lượt lật</span>
+            <span>{moves} {isEn ? 'Moves' : 'Lượt lật'}</span>
           </div>
           <button
             onClick={initGame}
             className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
-            title="Chơi lại"
+            title={isEn ? 'Restart' : 'Chơi lại'}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -155,14 +165,20 @@ export const FormulaMemoryGame: React.FC = () => {
 
       {isWon && (
         <div className="mb-6 p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-center">
-          <h4 className="text-lg font-bold text-emerald-900">🎉 Tuyệt vời! Bạn đã ghép thành công toàn bộ thẻ!</h4>
+          <h4 className="text-lg font-bold text-emerald-900">
+            {isEn ? '🎉 Awesome! You matched every formula card!' : '🎉 Tuyệt vời! Bạn đã ghép thành công toàn bộ thẻ!'}
+          </h4>
           <p className="text-xs text-emerald-700 mt-1">
-            Thời gian: <b>{seconds} giây</b> | Số lượt lật thẻ: <b>{moves}</b>. Trí nhớ toán học của bạn rất đáng nể!
+            {isEn ? (
+              <>Time: <b>{seconds}s</b> | Flips: <b>{moves}</b>. Impressive math memory!</>
+            ) : (
+              <>Thời gian: <b>{seconds} giây</b> | Số lượt lật thẻ: <b>{moves}</b>. Trí nhớ toán học của bạn rất đáng nể!</>
+            )}
           </p>
         </div>
       )}
 
-      {/* Cards Grid: 12 cards */}
+      {/* Cards Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
         {cards.map((card, idx) => {
           const isRevealed = card.isFlipped || card.isMatched;
@@ -184,7 +200,7 @@ export const FormulaMemoryGame: React.FC = () => {
                   <span className={`text-[10px] font-semibold uppercase tracking-wider block ${
                     card.isFormula ? 'text-indigo-600' : 'text-emerald-700'
                   }`}>
-                    {card.isFormula ? 'Công thức' : 'Khái niệm'}
+                    {card.isFormula ? (isEn ? 'Formula' : 'Công thức') : (isEn ? 'Concept' : 'Khái niệm')}
                   </span>
                   <div className={`text-xs font-bold leading-tight ${
                     card.isFormula ? 'text-indigo-900 text-sm' : 'text-slate-800'

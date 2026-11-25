@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { VnEduStudentAcademicRecord, SubjectCode, Classroom } from '../../types/math';
 import { initialVnEduRecords, vneduSubjectsMeta } from '../../data/vneduData';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { 
   FileSpreadsheet, Search, Filter, Printer, Send, MessageSquare, 
   Check, Award, TrendingUp, AlertCircle, Phone, Download, BookOpen, 
@@ -10,9 +11,11 @@ import {
 
 interface VnEduGradebookProps {
   classroom: Classroom;
+  language?: Language;
 }
 
-export const VnEduGradebook: React.FC<VnEduGradebookProps> = ({ classroom }) => {
+export const VnEduGradebook: React.FC<VnEduGradebookProps> = ({ classroom, language = 'vi' }) => {
+  const isEn = language === 'en';
   const [records, setRecords] = useState<VnEduStudentAcademicRecord[]>(initialVnEduRecords);
   const [selectedSubject, setSelectedSubject] = useState<SubjectCode | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -58,24 +61,25 @@ export const VnEduGradebook: React.FC<VnEduGradebookProps> = ({ classroom }) => 
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/30 text-blue-200 text-xs font-bold border border-blue-400/30 backdrop-blur-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Hệ Thống Quản Lý Giáo Dục Điện Tử VnEdu · THCS Chuẩn Quốc Gia</span>
+              <span>{isEn ? 'VnEdu Digital Gradebook · National Standard' : 'Hệ Thống Quản Lý Giáo Dục Điện Tử VnEdu · THCS Chuẩn Quốc Gia'}</span>
             </div>
             
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Sổ Điểm Điện Tử & Theo Dõi Các Môn Học Lớp {classroom.name}
+              {isEn ? `Digital Gradebook & Multi-Subject Tracking — ${classroom.name}` : `Sổ Điểm Điện Tử & Theo Dõi Các Môn Học Lớp ${classroom.name}`}
             </h1>
             
             <p className="text-xs sm:text-sm text-blue-200/90 leading-relaxed">
-              Theo dõi kết quả học tập 10 môn học, điểm thường xuyên (TX), điểm giữa kỳ (GK), cuối kỳ (CK), 
-              điểm trung bình môn (TBM) và xếp loại rèn luyện theo Thông tư 22/2021/TT-BGDĐT.
+              {isEn
+                ? 'Track 10 subjects, Regular (TX), Midterm (GK), Final (CK), Subject Average (TBM), and Conduct ratings under Circular 22.'
+                : 'Theo dõi kết quả học tập 10 môn học, điểm thường xuyên (TX), điểm giữa kỳ (GK), cuối kỳ (CK), điểm trung bình môn (TBM) và xếp loại rèn luyện theo Thông tư 22/2021/TT-BGDĐT.'}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 text-xs text-blue-200 pt-1">
-              <span>GVCN: <strong className="text-white">{classroom.homeroomTeacher}</strong></span>
+              <span>{isEn ? 'Homeroom:' : 'GVCN:'} <strong className="text-white">{classroom.homeroomTeacher}</strong></span>
               <span>·</span>
-              <span>GV Bộ Môn Toán: <strong className="text-amber-300">Cô Diễm Quỳnh</strong></span>
+              <span>{isEn ? 'Math Teacher:' : 'GV Bộ Môn Toán:'} <strong className="text-amber-300">Cô Diễm Quỳnh</strong></span>
               <span>·</span>
-              <span>Năm học: <strong className="text-white">{classroom.schoolYear}</strong></span>
+              <span>{isEn ? 'School Year:' : 'Năm học:'} <strong className="text-white">{classroom.schoolYear}</strong></span>
             </div>
           </div>
 

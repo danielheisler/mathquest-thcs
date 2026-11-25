@@ -28,6 +28,7 @@ import {
   Check,
   ClipboardList,
   Lightbulb,
+  Presentation,
 } from 'lucide-react';
 
 const STATUS_META: Record<
@@ -62,9 +63,13 @@ function loadLessonPlans(): LessonPlan[] {
 
 interface LessonPlanManagerProps {
   language?: Language;
+  onCreateSlidesFromPlan?: (plan: LessonPlan) => void;
 }
 
-export const LessonPlanManager: React.FC<LessonPlanManagerProps> = ({ language = 'vi' }) => {
+export const LessonPlanManager: React.FC<LessonPlanManagerProps> = ({
+  language = 'vi',
+  onCreateSlidesFromPlan,
+}) => {
   const isEn = language === 'en';
   const [plans, setPlans] = useState<LessonPlan[]>(() => loadLessonPlans());
   const [selectedGrade, setSelectedGrade] = useState<GradeLevel | 'all'>('all');
@@ -570,6 +575,19 @@ export const LessonPlanManager: React.FC<LessonPlanManagerProps> = ({ language =
               </div>
 
               <div className="flex flex-wrap items-center gap-2 shrink-0 no-print">
+                {onCreateSlidesFromPlan && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundManager.playClick();
+                      onCreateSlidesFromPlan(activePlan);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Presentation className="w-3.5 h-3.5" />
+                    <span>{isEn ? 'Create Lecture Slides' : 'Tạo Slide Bài Giảng'}</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => openEditModal(activePlan)}

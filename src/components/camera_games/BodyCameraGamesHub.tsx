@@ -5,29 +5,32 @@ import { BodyMotionQuizGame } from './BodyMotionQuizGame';
 import { BodyTiltTrueFalseGame } from './BodyTiltTrueFalseGame';
 import { CameraCatchMathGame } from './CameraCatchMathGame';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { 
-  Camera, Zap, Target, Plus, Check, Sparkles, BookOpen, 
-  HelpCircle, Presentation, Users, MonitorPlay, Video
+  Camera, Zap, Target, Plus, Check, Sparkles
 } from 'lucide-react';
 
 interface BodyCameraGamesHubProps {
   activeStudentName?: string;
   activeClassName?: string;
   userRole?: 'student' | 'parent' | 'teacher';
+  language?: Language;
 }
 
 export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
   activeStudentName = 'Nguyễn Minh Quân',
   activeClassName = 'Lớp 6A1',
-  userRole = 'student'
+  userRole = 'student',
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [activeGame, setActiveGame] = useState<'motion_quiz' | 'tilt_tf' | 'catch_math'>('motion_quiz');
   const [questions, setQuestions] = useState<BodyMotionQuestion[]>(initialBodyMotionQuestions);
 
   // Add Question Modal state for Teacher Cô Diễm Quỳnh
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [newGrade, setNewGrade] = useState<GradeLevel>(6);
-  const [newTopicName, setNewTopicName] = useState<string>('Số Tự Nhiên');
+  const [newTopicName, setNewTopicName] = useState<string>(isEn ? 'Natural Numbers' : 'Số Tự Nhiên');
   const [newQuestionText, setNewQuestionText] = useState<string>('');
   const [newFormula, setNewFormula] = useState<string>('');
   const [opt1, setOpt1] = useState<string>('');
@@ -45,30 +48,39 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
       grade: newGrade,
       topic: 'arithmetic',
       topicName: newTopicName,
+      topicNameEn: newTopicName,
       questionText: newQuestionText.trim(),
+      questionTextEn: newQuestionText.trim(),
       formula: newFormula.trim() || undefined,
       options: [
         {
           text: opt1.trim(),
+          textEn: opt1.trim(),
           pose: 'both_hands_up',
           poseLabel: 'Hai tay giơ cao qua đầu',
+          poseLabelEn: 'Raise both hands high',
           color: 'blue'
         },
         {
           text: opt2.trim(),
+          textEn: opt2.trim(),
           pose: 'right_hand_up',
           poseLabel: 'Giơ tay phải lên cao',
+          poseLabelEn: 'Raise right hand high',
           color: 'red'
         },
         {
           text: opt3.trim(),
+          textEn: opt3.trim(),
           pose: 'left_hand_up',
           poseLabel: 'Giơ tay trái lên cao',
+          poseLabelEn: 'Raise left hand high',
           color: 'green'
         }
       ],
       correctIndex: newCorrectIdx,
-      explanation: newExplanation.trim() || 'Đáp án chính xác dựa trên kiến thức bài học.'
+      explanation: newExplanation.trim() || (isEn ? 'Correct answer based on lesson concepts.' : 'Đáp án chính xác dựa trên kiến thức bài học.'),
+      explanationEn: newExplanation.trim() || 'Correct answer based on lesson concepts.'
     };
 
     setQuestions(prev => [newQ, ...prev]);
@@ -87,26 +99,32 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
   const gameModes = [
     {
       id: 'motion_quiz',
-      title: 'Đố Vui Vận Động (Chuẩn Lớp Học)',
-      desc: 'Chiếu bảng câu hỏi bên trái, Camera trực tiếp bên phải. Học sinh tạo dáng cơ thể để chọn đáp án!',
+      title: isEn ? 'Body Motion Quiz (Classroom Mode)' : 'Đố Vui Vận Động (Chuẩn Lớp Học)',
+      desc: isEn
+        ? 'Question board on the left, live webcam on the right. Perform body poses to select your answer!'
+        : 'Chiếu bảng câu hỏi bên trái, Camera trực tiếp bên phải. Học sinh tạo dáng cơ thể để chọn đáp án!',
       icon: Camera,
-      badge: 'Theo ảnh lớp học ⭐',
+      badge: isEn ? 'Classroom Star ⭐' : 'Theo ảnh lớp học ⭐',
       color: 'from-blue-600 to-indigo-600 text-white'
     },
     {
       id: 'tilt_tf',
-      title: 'Nghiêng Người Đúng / Sai',
-      desc: 'Nghiêng sang Trái = ĐÚNG, nghiêng sang Phải = SAI. Đọ phản xạ tính toán nhanh như chớp!',
+      title: isEn ? 'Body Tilt True / False' : 'Nghiêng Người Đúng / Sai',
+      desc: isEn
+        ? 'Tilt Left = TRUE, Tilt Right = FALSE. Test your fast mental math reflexes!'
+        : 'Nghiêng sang Trái = ĐÚNG, nghiêng sang Phải = SAI. Đọ phản xạ tính toán nhanh như chớp!',
       icon: Zap,
-      badge: 'Vận động toàn thân',
+      badge: isEn ? 'Full Body Action' : 'Vận động toàn thân',
       color: 'from-emerald-600 to-teal-600 text-white'
     },
     {
       id: 'catch_math',
-      title: 'Hứng Bóng Toán Học (Bắt Bong Bóng)',
-      desc: 'Bong bóng chứa đáp án bay trên màn hình camera. Dùng tay hoặc đầu chạm vào để nổ bóng!',
+      title: isEn ? 'Catch Math Bubbles (Hand & Head)' : 'Hứng Bóng Toán Học (Bắt Bong Bóng)',
+      desc: isEn
+        ? 'Answer bubbles float across the camera screen. Wave or touch the right bubble to pop it!'
+        : 'Bong bóng chứa đáp án bay trên màn hình camera. Dùng tay hoặc đầu chạm vào để nổ bóng!',
       icon: Target,
-      badge: 'Cực vui nhộn',
+      badge: isEn ? 'Super Fun' : 'Cực vui nhộn',
       color: 'from-pink-600 to-rose-600 text-white'
     }
   ];
@@ -119,16 +137,17 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
         <div className="relative z-10 max-w-3xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-xs font-bold border border-indigo-400/30 backdrop-blur-xs">
             <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>Trò Chơi Tương Tác Qua Camera Máy Tính & Máy Chiếu Lớp Học</span>
+            <span>{isEn ? 'Interactive Classroom Camera & Projector Math Games' : 'Trò Chơi Tương Tác Qua Camera Máy Tính & Máy Chiếu Lớp Học'}</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
-            Vận Động Cơ Thể Chọn Đáp Án Toán Học
+            {isEn ? 'Body Motion Math Answer Arena' : 'Vận Động Cơ Thể Chọn Đáp Án Toán Học'}
           </h1>
 
           <p className="text-sm sm:text-base text-indigo-100/90 leading-relaxed">
-            Học sinh đứng trước máy tính hoặc màn hình tivi/máy chiếu lớp học, thực hiện các tư thế cơ thể 
-            (giơ 2 tay lên cao, giơ tay phải, giơ tay trái, nghiêng người) để trả lời câu hỏi và rèn luyện thể chất kết hợp tư duy toán học!
+            {isEn
+              ? 'Stand in front of your webcam or classroom projector and perform poses (both hands up, right hand, left hand, or body tilt) to answer math questions while staying active!'
+              : 'Học sinh đứng trước máy tính hoặc màn hình tivi/máy chiếu lớp học, thực hiện các tư thế cơ thể (giơ 2 tay lên cao, giơ tay phải, giơ tay trái, nghiêng người) để trả lời câu hỏi và rèn luyện thể chất kết hợp tư duy toán học!'}
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -141,11 +160,11 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
                 className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-900 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-colors shadow-md"
               >
                 <Plus className="w-4 h-4" />
-                <span>Cô Quỳnh Thêm Câu Hỏi Mới Cho Lớp</span>
+                <span>{isEn ? 'Add New Class Question' : 'Cô Quỳnh Thêm Câu Hỏi Mới Cho Lớp'}</span>
               </button>
             )}
             <div className="text-xs text-indigo-200 flex items-center gap-1">
-              <span>Mã Lớp:</span>
+              <span>{isEn ? 'Class Code:' : 'Mã Lớp:'}</span>
               <strong className="font-mono bg-white/10 px-2 py-0.5 rounded text-white">20112002</strong>
             </div>
           </div>
@@ -194,7 +213,7 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
                 <span className={isSelected ? 'text-indigo-600' : 'text-slate-400'}>
-                  {isSelected ? 'Đang chơi chế độ này' : 'Bấm để vào chơi'}
+                  {isSelected ? (isEn ? 'Currently Playing' : 'Đang chơi chế độ này') : (isEn ? 'Click to Play' : 'Bấm để vào chơi')}
                 </span>
                 <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-indigo-600 animate-ping' : 'bg-slate-300'}`} />
               </div>
@@ -210,18 +229,21 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
             customQuestions={questions}
             activeStudentName={activeStudentName}
             activeClassName={activeClassName}
+            language={language}
           />
         )}
         {activeGame === 'tilt_tf' && (
           <BodyTiltTrueFalseGame
             activeStudentName={activeStudentName}
             activeClassName={activeClassName}
+            language={language}
           />
         )}
         {activeGame === 'catch_math' && (
           <CameraCatchMathGame
             activeStudentName={activeStudentName}
             activeClassName={activeClassName}
+            language={language}
           />
         )}
       </div>
@@ -237,10 +259,10 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
                 </div>
                 <div>
                   <h3 className="text-lg font-extrabold text-slate-900">
-                    Thêm Câu Hỏi Vận Động Cơ Thể Mới
+                    {isEn ? 'Add New Body Motion Question' : 'Thêm Câu Hỏi Vận Động Cơ Thể Mới'}
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Giáo viên Cô Diễm Quỳnh soạn câu hỏi cho lớp 20112002
+                    {isEn ? 'Create an interactive classroom question for code 20112002' : 'Giáo viên Cô Diễm Quỳnh soạn câu hỏi cho lớp 20112002'}
                   </p>
                 </div>
               </div>
@@ -255,26 +277,26 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
             <form onSubmit={handleAddQuestion} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Khối Lớp:</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">{isEn ? 'Grade:' : 'Khối Lớp:'}</label>
                   <select
                     value={newGrade}
                     onChange={(e) => setNewGrade(Number(e.target.value) as GradeLevel)}
                     className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800"
                   >
-                    <option value={6}>Lớp 6</option>
-                    <option value={7}>Lớp 7</option>
-                    <option value={8}>Lớp 8</option>
-                    <option value={9}>Lớp 9</option>
+                    <option value={6}>{isEn ? 'Grade 6' : 'Lớp 6'}</option>
+                    <option value={7}>{isEn ? 'Grade 7' : 'Lớp 7'}</option>
+                    <option value={8}>{isEn ? 'Grade 8' : 'Lớp 8'}</option>
+                    <option value={9}>{isEn ? 'Grade 9' : 'Lớp 9'}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Chủ Đề / Bài Học:</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">{isEn ? 'Topic:' : 'Chủ Đề / Bài Học:'}</label>
                   <input
                     type="text"
                     value={newTopicName}
                     onChange={(e) => setNewTopicName(e.target.value)}
-                    placeholder="VD: Số học, Hằng đẳng thức..."
+                    placeholder={isEn ? 'e.g., Arithmetic, Identities...' : 'VD: Số học, Hằng đẳng thức...'}
                     className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800"
                   />
                 </div>
@@ -282,27 +304,27 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Nội Dung Câu Hỏi: <span className="text-rose-500">*</span>
+                  {isEn ? 'Question Prompt:' : 'Nội Dung Câu Hỏi:'} <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   rows={2}
                   required
                   value={newQuestionText}
                   onChange={(e) => setNewQuestionText(e.target.value)}
-                  placeholder="VD: Dùng các chữ số 1, 2, 3 lập số lớn nhất..."
+                  placeholder={isEn ? 'e.g., Form the largest number from digits 1, 2, 3...' : 'VD: Dùng các chữ số 1, 2, 3 lập số lớn nhất...'}
                   className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Công thức Toán KaTeX/MathType (Tùy chọn):
+                  {isEn ? 'Math Formula KaTeX/MathType (Optional):' : 'Công thức Toán KaTeX/MathType (Tùy chọn):'}
                 </label>
                 <input
                   type="text"
                   value={newFormula}
                   onChange={(e) => setNewFormula(e.target.value)}
-                  placeholder="VD: A^2 - B^2 hoặc (-15) + (-25)"
+                  placeholder={isEn ? 'e.g. A^2 - B^2 or (-15) + (-25)' : 'VD: A^2 - B^2 hoặc (-15) + (-25)'}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono text-slate-800"
                 />
               </div>
@@ -310,21 +332,21 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
               {/* 3 Options corresponding to 3 Poses */}
               <div className="space-y-2.5 pt-2 border-t border-slate-100">
                 <span className="text-xs font-extrabold text-slate-800 block">
-                  3 Đáp án tương ứng 3 Động tác cơ thể:
+                  {isEn ? '3 Answers mapped to 3 Body Poses:' : '3 Đáp án tương ứng 3 Động tác cơ thể:'}
                 </span>
 
                 {/* Option 1: Both Hands Up */}
                 <div className="flex items-center gap-2 p-2.5 rounded-xl bg-blue-50 border border-blue-200">
                   <div className="shrink-0 text-xs font-bold text-blue-700 w-32 flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">1</span>
-                    <span>🙆‍♂️ Giơ 2 tay:</span>
+                    <span>🙆‍♂️ {isEn ? 'Both Hands:' : 'Giơ 2 tay:'}</span>
                   </div>
                   <input
                     type="text"
                     required
                     value={opt1}
                     onChange={(e) => setOpt1(e.target.value)}
-                    placeholder="Nội dung đáp án 1..."
+                    placeholder={isEn ? 'Answer 1...' : 'Nội dung đáp án 1...'}
                     className="flex-1 p-2 bg-white border border-blue-300 rounded-lg text-xs font-bold text-slate-800"
                   />
                   <label className="flex items-center gap-1 cursor-pointer shrink-0 text-xs font-bold text-blue-800">
@@ -334,7 +356,7 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
                       checked={newCorrectIdx === 0}
                       onChange={() => setNewCorrectIdx(0)}
                     />
-                    <span>Đúng</span>
+                    <span>{isEn ? 'True' : 'Đúng'}</span>
                   </label>
                 </div>
 
@@ -342,14 +364,14 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
                 <div className="flex items-center gap-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200">
                   <div className="shrink-0 text-xs font-bold text-rose-700 w-32 flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px]">2</span>
-                    <span>🙋‍♀️ Giơ tay phải:</span>
+                    <span>🙋‍♀️ {isEn ? 'Right Hand:' : 'Giơ tay phải:'}</span>
                   </div>
                   <input
                     type="text"
                     required
                     value={opt2}
                     onChange={(e) => setOpt2(e.target.value)}
-                    placeholder="Nội dung đáp án 2..."
+                    placeholder={isEn ? 'Answer 2...' : 'Nội dung đáp án 2...'}
                     className="flex-1 p-2 bg-white border border-rose-300 rounded-lg text-xs font-bold text-slate-800"
                   />
                   <label className="flex items-center gap-1 cursor-pointer shrink-0 text-xs font-bold text-rose-800">
@@ -359,7 +381,7 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
                       checked={newCorrectIdx === 1}
                       onChange={() => setNewCorrectIdx(1)}
                     />
-                    <span>Đúng</span>
+                    <span>{isEn ? 'True' : 'Đúng'}</span>
                   </label>
                 </div>
 
@@ -367,14 +389,14 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
                 <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
                   <div className="shrink-0 text-xs font-bold text-emerald-700 w-32 flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px]">3</span>
-                    <span>🙋‍♂️ Giơ tay trái:</span>
+                    <span>🙋‍♂️ {isEn ? 'Left Hand:' : 'Giơ tay trái:'}</span>
                   </div>
                   <input
                     type="text"
                     required
                     value={opt3}
                     onChange={(e) => setOpt3(e.target.value)}
-                    placeholder="Nội dung đáp án 3..."
+                    placeholder={isEn ? 'Answer 3...' : 'Nội dung đáp án 3...'}
                     className="flex-1 p-2 bg-white border border-emerald-300 rounded-lg text-xs font-bold text-slate-800"
                   />
                   <label className="flex items-center gap-1 cursor-pointer shrink-0 text-xs font-bold text-emerald-800">
@@ -384,20 +406,20 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
                       checked={newCorrectIdx === 2}
                       onChange={() => setNewCorrectIdx(2)}
                     />
-                    <span>Đúng</span>
+                    <span>{isEn ? 'True' : 'Đúng'}</span>
                   </label>
                 </div>
               </div>
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Lời giải thích / Hướng dẫn giải:
+                  {isEn ? 'Explanation / Step-by-step Guide:' : 'Lời giải thích / Hướng dẫn giải:'}
                 </label>
                 <input
                   type="text"
                   value={newExplanation}
                   onChange={(e) => setNewExplanation(e.target.value)}
-                  placeholder="Giải thích ngắn gọn khi học sinh làm bài..."
+                  placeholder={isEn ? 'Brief explanation for students...' : 'Giải thích ngắn gọn khi học sinh làm bài...'}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800"
                 />
               </div>
@@ -408,14 +430,14 @@ export const BodyCameraGamesHub: React.FC<BodyCameraGamesHubProps> = ({
                   onClick={() => setShowAddModal(false)}
                   className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors"
                 >
-                  Hủy Bỏ
+                  {isEn ? 'Cancel' : 'Hủy Bỏ'}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-1.5"
                 >
                   <Check className="w-4 h-4" />
-                  <span>Lưu Câu Hỏi Vào Trò Chơi</span>
+                  <span>{isEn ? 'Save Question To Game' : 'Lưu Câu Hỏi Vào Trò Chơi'}</span>
                 </button>
               </div>
             </form>

@@ -3,6 +3,7 @@ import { Question } from '../../types/math';
 import { MathView } from '../common/MathView';
 import { soundManager } from '../../utils/sound';
 import { Language, translations } from '../../i18n/translations';
+import { getLocalizedQuestion } from '../../utils/localize';
 import confetti from 'canvas-confetti';
 import { Bot, User, Zap, Timer, Trophy, RotateCcw, Swords, ShieldAlert, Sparkles, Check, X } from 'lucide-react';
 
@@ -141,6 +142,8 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
   };
 
   const currentQ = duelQuestions[currentRound];
+  const localizedQ = currentQ ? getLocalizedQuestion(currentQ, language) : null;
+  const isEn = language === 'en';
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm max-w-3xl mx-auto">
@@ -149,17 +152,17 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
         <div>
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-xs font-semibold text-purple-600 tracking-wider uppercase">
-              Chế Độ Chơi AI Mới Mẻ
+              {isEn ? 'AI Arena Mode' : 'Chế Độ Chơi AI Mới Mẻ'}
             </span>
             <span className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-[11px] font-mono font-bold">
-              Mã: {classCode}
+              {isEn ? 'Code:' : 'Mã:'} {classCode}
             </span>
           </div>
           <h3 className="text-2xl font-bold text-slate-900">
-            Thách Đấu Với AI MathBot Siêu Trí Tuệ
+            {isEn ? 'Challenge AI MathBot Superbrain' : 'Thách Đấu Với AI MathBot Siêu Trí Tuệ'}
           </h3>
           <p className="text-xs text-slate-600">
-            Đối kháng 5 hiệp với trí tuệ nhân tạo! Trả lời nhanh hơn và chính xác hơn để giành chiến thắng.
+            {isEn ? 'Compete in 5 rounds against AI! Answer faster and more accurately to claim victory.' : 'Đối kháng 5 hiệp với trí tuệ nhân tạo! Trả lời nhanh hơn và chính xác hơn để giành chiến thắng.'}
           </p>
         </div>
       </div>
@@ -172,8 +175,8 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
           </div>
 
           <div>
-            <h4 className="text-lg font-bold text-slate-900">Thiết Lập Đấu Trường AI</h4>
-            <p className="text-xs text-slate-500 mt-1">Chọn cấp độ tư duy của đối thủ máy tính:</p>
+            <h4 className="text-lg font-bold text-slate-900">{isEn ? 'Configure AI Arena' : 'Thiết Lập Đấu Trường AI'}</h4>
+            <p className="text-xs text-slate-500 mt-1">{isEn ? 'Select your computer opponent’s difficulty level:' : 'Chọn cấp độ tư duy của đối thủ máy tính:'}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-2.5">
@@ -185,7 +188,7 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
                   : 'bg-slate-50 border-slate-200 text-slate-700'
               }`}
             >
-              Tân Binh (Dễ)
+              {isEn ? 'Rookie (Easy)' : 'Tân Binh (Dễ)'}
             </button>
             <button
               onClick={() => setAiDifficulty('medium')}
@@ -195,7 +198,7 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
                   : 'bg-slate-50 border-slate-200 text-slate-700'
               }`}
             >
-              Chuyên Gia (Vừa)
+              {isEn ? 'Expert (Medium)' : 'Chuyên Gia (Vừa)'}
             </button>
             <button
               onClick={() => setAiDifficulty('hard')}
@@ -205,7 +208,7 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
                   : 'bg-slate-50 border-slate-200 text-slate-700'
               }`}
             >
-              Bậc Thầy (Khó)
+              {isEn ? 'Master (Hard)' : 'Bậc Thầy (Khó)'}
             </button>
           </div>
 
@@ -213,13 +216,13 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
             onClick={handleStartDuel}
             className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
           >
-            <Swords className="w-4 h-4" /> Bắt Đầu Thách Đấu Ngay
+            <Swords className="w-4 h-4" /> {isEn ? 'Start Duel Now' : 'Bắt Đầu Thách Đấu Ngay'}
           </button>
         </div>
       )}
 
       {/* Dueling screen */}
-      {gameState === 'dueling' && currentQ && (
+      {gameState === 'dueling' && currentQ && localizedQ && (
         <div className="space-y-6">
           {/* Live Scoreboard (You vs AI) */}
           <div className="grid grid-cols-3 items-center bg-slate-900 text-white p-4 rounded-2xl shadow-md">
@@ -230,14 +233,14 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
               </div>
               <div>
                 <span className="text-[11px] text-blue-300 font-semibold block">{t.you}</span>
-                <span className="font-mono text-xl font-bold text-white">{userScore} Điểm</span>
+                <span className="font-mono text-xl font-bold text-white">{userScore} {isEn ? 'Pts' : 'Điểm'}</span>
               </div>
             </div>
 
             {/* Round & Timer */}
             <div className="text-center">
               <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-mono">
-                Hiệp {currentRound + 1}/5
+                {isEn ? `Round ${currentRound + 1}/5` : `Hiệp ${currentRound + 1}/5`}
               </span>
               <div className={`inline-flex items-center gap-1 font-mono font-black text-xl px-3 py-0.5 rounded-lg ${
                 roundTimeLeft <= 5 ? 'text-rose-400 bg-rose-950 animate-pulse' : 'text-amber-400'
@@ -250,7 +253,7 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
             <div className="flex items-center justify-end gap-3 text-right">
               <div>
                 <span className="text-[11px] text-purple-300 font-semibold block">{t.aiBot}</span>
-                <span className="font-mono text-xl font-bold text-white">{aiScore} Điểm</span>
+                <span className="font-mono text-xl font-bold text-white">{aiScore} {isEn ? 'Pts' : 'Điểm'}</span>
               </div>
               <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center font-bold">
                 <Bot className="w-5 h-5 text-white" />
@@ -261,10 +264,10 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
           {/* Question Box */}
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
             <span className="text-[11px] font-semibold text-purple-700 bg-purple-100 px-2.5 py-0.5 rounded-md inline-block mb-2">
-              Khối {currentQ.grade} · {currentQ.topicName}
+              {isEn ? `Grade ${currentQ.grade}` : `Khối ${currentQ.grade}`} · {localizedQ.topicName}
             </span>
             <h4 className="text-base md:text-lg font-bold text-slate-900 leading-relaxed max-w-xl mx-auto">
-              <MathView math={currentQ.questionText} />
+              <MathView math={localizedQ.questionText} />
             </h4>
             {currentQ.formula && (
               <div className="my-3 p-3 bg-white rounded-xl inline-block border border-slate-200 text-lg font-bold text-indigo-700 shadow-xs">
@@ -275,7 +278,7 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
 
           {/* Options */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {currentQ.options.map((opt, idx) => {
+            {localizedQ.options.map((opt, idx) => {
               const isUserPicked = selectedUserOpt === idx;
               const isAiPicked = aiChoice === idx;
               const isCorrect = idx === currentQ.correctAnswerIndex;
@@ -310,7 +313,7 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
                   <div className="flex items-center gap-1.5 shrink-0">
                     {isUserPicked && (
                       <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-bold">
-                        Bạn
+                        {isEn ? 'You' : 'Bạn'}
                       </span>
                     )}
                     {isAiPicked && (
@@ -331,7 +334,7 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
                 onClick={handleNextRound}
                 className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
               >
-                {currentRound + 1 < duelQuestions.length ? 'Hiệp Tiếp Theo' : 'Xem Kết Quả Chung Cuộc'}
+                {currentRound + 1 < duelQuestions.length ? (isEn ? 'Next Round' : 'Hiệp Tiếp Theo') : (isEn ? 'View Final Result' : 'Xem Kết Quả Chung Cuộc')}
               </button>
             </div>
           )}
@@ -347,10 +350,14 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
 
           <div>
             <h3 className="text-2xl font-black text-slate-900">
-              {userScore > aiScore ? '🎉 BẠN ĐÃ CHIẾN THẮNG AI MATHBOT!' : userScore === aiScore ? 'HÒA NHAU VỚI AI!' : 'AI MATHBOT ĐÃ DẪN ĐẦU!'}
+              {userScore > aiScore
+                ? (isEn ? '🎉 YOU DEFEATED AI MATHBOT!' : '🎉 BẠN ĐÃ CHIẾN THẮNG AI MATHBOT!')
+                : userScore === aiScore
+                ? (isEn ? 'TIED WITH AI!' : 'HÒA NHAU VỚI AI!')
+                : (isEn ? 'AI MATHBOT TOOK THE LEAD!' : 'AI MATHBOT ĐÃ DẪN ĐẦU!')}
             </h3>
             <p className="text-xs text-slate-600 mt-1">
-              Điểm số của bạn: <b className="text-indigo-600 font-mono text-sm">{userScore}</b> vs AI: <b className="text-purple-600 font-mono text-sm">{aiScore}</b>
+              {isEn ? 'Your score:' : 'Điểm số của bạn:'} <b className="text-indigo-600 font-mono text-sm">{userScore}</b> vs AI: <b className="text-purple-600 font-mono text-sm">{aiScore}</b>
             </p>
           </div>
 
@@ -358,7 +365,7 @@ export const AIMathDuel: React.FC<AIMathDuelProps> = ({ questions, language }) =
             onClick={() => setGameState('setup')}
             className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold inline-flex items-center gap-2"
           >
-            <RotateCcw className="w-4 h-4" /> Thách Đấu Lại
+            <RotateCcw className="w-4 h-4" /> {isEn ? 'Challenge Again' : 'Thách Đấu Lại'}
           </button>
         </div>
       )}

@@ -3,6 +3,7 @@ import { soundManager } from '../../utils/sound';
 import confetti from 'canvas-confetti';
 import { Lock, Unlock, KeyRound, Sparkles, HelpCircle, RotateCcw, Check, ArrowRight } from 'lucide-react';
 import { MathView } from '../common/MathView';
+import { Language } from '../../i18n/translations';
 
 interface QuestStage {
   id: number;
@@ -16,8 +17,54 @@ interface QuestStage {
   explanation: string;
 }
 
-export const MathEscapeRoom: React.FC = () => {
-  const stages: QuestStage[] = [
+export const MathEscapeRoom: React.FC<{ language?: Language }> = ({ language = 'vi' }) => {
+  const isEn = language === 'en';
+  const stages: QuestStage[] = isEn ? [
+    {
+      id: 1,
+      title: 'Stage 1: Ancient Stone Gate - Integer Seal',
+      grade: 'Math 6',
+      lore: 'You stand before an ancient stone gate carved with positive and negative integers. Solve the seal to unlock it!',
+      riddle: 'Calculate the passcode: A = (-8) × 4 + 50',
+      formula: '(-8) \\times 4 + 50 = ?',
+      hint: 'Multiply first: (-8) × 4 = -32, then add 50.',
+      correctCode: '18',
+      explanation: '(-8) × 4 = -32. Then -32 + 50 = 18. The passcode is 18!'
+    },
+    {
+      id: 2,
+      title: 'Stage 2: Silver Tower - Algebraic Identity',
+      grade: 'Math 8',
+      lore: 'A sphinx guarding the suspension bridge asks you to find positive x to unlock the gate!',
+      riddle: 'Given x² - 25 = 0 and x > 0. Find x:',
+      formula: 'x^2 - 25 = 0 \\quad (x > 0)',
+      hint: 'x² = 25. Which positive number squared equals 25?',
+      correctCode: '5',
+      explanation: 'x² - 25 = (x - 5)(x + 5) = 0. Since x > 0, x = 5!'
+    },
+    {
+      id: 3,
+      title: 'Stage 3: Pythagoras Labyrinth',
+      grade: 'Math 7 & 8',
+      lore: 'The labyrinth wall forms a right triangle with legs 9 m and 12 m. The hypotenuse unlocks the door!',
+      riddle: 'Find hypotenuse c of a right triangle with legs a = 9 and b = 12:',
+      formula: 'c = \\sqrt{9^2 + 12^2}',
+      hint: '9² = 81, 12² = 144. Sum is 225. Take its square root.',
+      correctCode: '15',
+      explanation: 'c² = 81 + 144 = 225 => c = 15. Passcode is 15!'
+    },
+    {
+      id: 4,
+      title: 'Stage 4: Royal Vault - System of Equations',
+      grade: 'Math 9',
+      lore: 'The golden treasure chest is sealed by a magic system of equations. Find the product x · y!',
+      riddle: 'Solve: x + y = 10 and x - y = 4. Enter passcode x × y:',
+      formula: '\\begin{cases} x + y = 10 \\\\ x - y = 4 \\end{cases} \\implies \\text{Code} = x \\cdot y',
+      hint: 'Add both equations: 2x = 14 => x = 7, y = 3. Compute 7 × 3.',
+      correctCode: '21',
+      explanation: 'Adding equations gives 2x = 14 => x = 7 => y = 3. Product x · y = 21!'
+    }
+  ] : [
     {
       id: 1,
       title: 'Ải 1: Cửa Đá Cổ - Phong Ấn Số Nguyên',
@@ -78,7 +125,7 @@ export const MathEscapeRoom: React.FC = () => {
       soundManager.playCorrect();
       setFeedback({
         isCorrect: true,
-        text: `Chính xác! Cửa ải đã mở! ${stage.explanation}`
+        text: isEn ? `Correct! Stage unlocked! ${stage.explanation}` : `Chính xác! Cửa ải đã mở! ${stage.explanation}`
       });
       if (!unlockedStages.includes(stage.id)) {
         setUnlockedStages([...unlockedStages, stage.id]);
@@ -94,7 +141,7 @@ export const MathEscapeRoom: React.FC = () => {
       soundManager.playWrong();
       setFeedback({
         isCorrect: false,
-        text: 'Mật mã chưa chính xác! Hãy kiểm tra lại các bước tính hoặc xem gợi ý bên dưới.'
+        text: isEn ? 'Wrong code! Double-check your calculations or use the hint below.' : 'Mật mã chưa chính xác! Hãy kiểm tra lại các bước tính hoặc xem gợi ý bên dưới.'
       });
     }
   };
@@ -124,9 +171,15 @@ export const MathEscapeRoom: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-4 mb-6">
         <div>
-          <span className="text-xs font-semibold text-purple-600 tracking-wider uppercase">Trò chơi cá nhân · Vượt chướng ngại vật</span>
-          <h3 className="text-2xl font-bold text-slate-900 mt-0.5">Mật Mã Số Học & Hòm Kho Báu Tri Thức</h3>
-          <p className="text-sm text-slate-600">Vận dụng kiến thức Số học, Hằng đẳng thức, Pythagoras và Hệ phương trình để giải mã.</p>
+          <span className="text-xs font-semibold text-purple-600 tracking-wider uppercase">
+            {isEn ? 'Solo Game · Logic Escape' : 'Trò chơi cá nhân · Vượt chướng ngại vật'}
+          </span>
+          <h3 className="text-2xl font-bold text-slate-900 mt-0.5">
+            {isEn ? 'Math Escape Room & Treasure Vault' : 'Mật Mã Số Học & Hòm Kho Báu Tri Thức'}
+          </h3>
+          <p className="text-sm text-slate-600">
+            {isEn ? 'Apply integers, identities, Pythagoras, and linear systems to crack all locks.' : 'Vận dụng kiến thức Số học, Hằng đẳng thức, Pythagoras và Hệ phương trình để giải mã.'}
+          </p>
         </div>
         <div className="flex items-center gap-1.5">
           {stages.map((s, idx) => {
@@ -155,19 +208,23 @@ export const MathEscapeRoom: React.FC = () => {
           <div className="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-4 text-amber-600 shadow-inner animate-bounce">
             <Unlock className="w-10 h-10" />
           </div>
-          <h4 className="text-2xl font-extrabold text-slate-900">CHÚC MỪNG BẬC THẦY MẬT MÃ!</h4>
+          <h4 className="text-2xl font-extrabold text-slate-900">
+            {isEn ? 'CONGRATULATIONS, MASTER CODEBREAKER!' : 'CHÚC MỪNG BẬC THẦY MẬT MÃ!'}
+          </h4>
           <p className="text-sm text-slate-600 max-w-md mx-auto mt-2">
-            Bạn đã xuất sắc vượt qua toàn bộ 4 ải mật mã toán học, mở khóa thành công Hòm Kho Báu Tri Thức của vương quốc Toán THCS!
+            {isEn
+              ? 'You unlocked all 4 mathematical seals and opened the Middle School Treasure Vault!'
+              : 'Bạn đã xuất sắc vượt qua toàn bộ 4 ải mật mã toán học, mở khóa thành công Hòm Kho Báu Tri Thức của vương quốc Toán THCS!'}
           </p>
           <div className="my-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl max-w-md mx-auto text-amber-800 text-xs">
-            🏆 Danh hiệu trao tặng: <b>Chuyên Gia Giải Mã Toán Học THCS</b><br />
-            Điểm thưởng tích lũy: <b>+1000 EXP</b> vào hồ sơ học tập.
+            🏆 {isEn ? 'Title Unlocked:' : 'Danh hiệu trao tặng:'} <b>{isEn ? 'Math Codebreaker Master' : 'Chuyên Gia Giải Mã Toán Học THCS'}</b><br />
+            {isEn ? 'Bonus EXP:' : 'Điểm thưởng tích lũy:'} <b>+1000 EXP</b>
           </div>
           <button
             onClick={resetQuest}
             className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold inline-flex items-center gap-2 transition-colors"
           >
-            <RotateCcw className="w-4 h-4" /> Chơi Lại Vòng Khác
+            <RotateCcw className="w-4 h-4" /> {isEn ? 'Play Again' : 'Chơi Lại Vòng Khác'}
           </button>
         </div>
       ) : (
@@ -184,7 +241,7 @@ export const MathEscapeRoom: React.FC = () => {
             </p>
 
             <div className="bg-white rounded-xl p-4 border border-purple-200 shadow-xs">
-              <div className="text-xs font-semibold text-slate-500 uppercase mb-1">Câu hỏi giải mã:</div>
+              <div className="text-xs font-semibold text-slate-500 uppercase mb-1">{isEn ? 'Decoding Riddle:' : 'Câu hỏi giải mã:'}</div>
               <div className="text-base font-bold text-slate-900 mb-2">
                 <MathView math={stage.riddle} />
               </div>
@@ -197,12 +254,12 @@ export const MathEscapeRoom: React.FC = () => {
           {/* Keycode Input Pad */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
             <label className="text-xs font-semibold text-slate-700 block mb-2 flex items-center gap-1.5">
-              <KeyRound className="w-4 h-4 text-purple-600" /> Nhập Mã Khóa Số Để Mở Ải:
+              <KeyRound className="w-4 h-4 text-purple-600" /> {isEn ? 'Enter Passcode to Unlock:' : 'Nhập Mã Khóa Số Để Mở Ải:'}
             </label>
             <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
-                placeholder="Nhập con số giải mã..."
+                placeholder={isEn ? 'Enter passcode number...' : 'Nhập con số giải mã...'}
                 value={inputCode}
                 onChange={(e) => setInputCode(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleUnlockAttempt()}
@@ -212,7 +269,7 @@ export const MathEscapeRoom: React.FC = () => {
                 onClick={handleUnlockAttempt}
                 className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors shadow-sm flex items-center justify-center gap-2"
               >
-                <Unlock className="w-4 h-4" /> Mở Khóa
+                <Unlock className="w-4 h-4" /> {isEn ? 'Unlock' : 'Mở Khóa'}
               </button>
             </div>
 
@@ -226,13 +283,13 @@ export const MathEscapeRoom: React.FC = () => {
                 className="text-slate-500 hover:text-purple-600 font-medium flex items-center gap-1 transition-colors"
               >
                 <HelpCircle className="w-3.5 h-3.5" />
-                {showHint ? 'Ẩn gợi ý' : 'Cần gợi ý suy luận?'}
+                {showHint ? (isEn ? 'Hide hint' : 'Ẩn gợi ý') : (isEn ? 'Need a hint?' : 'Cần gợi ý suy luận?')}
               </button>
             </div>
 
             {showHint && (
               <div className="mt-2.5 p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800">
-                💡 <b>Gợi ý của sư phụ:</b> {stage.hint}
+                💡 <b>{isEn ? 'Master Hint:' : 'Gợi ý của sư phụ:'}</b> {stage.hint}
               </div>
             )}
 
@@ -255,7 +312,7 @@ export const MathEscapeRoom: React.FC = () => {
                 onClick={handleNextStage}
                 className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
               >
-                <span>Tiến Vào Ải Tiếp Theo ({currentStageIdx + 2}/{stages.length})</span>
+                <span>{isEn ? `Proceed to Stage ${currentStageIdx + 2}/${stages.length}` : `Tiến Vào Ải Tiếp Theo (${currentStageIdx + 2}/${stages.length})`}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

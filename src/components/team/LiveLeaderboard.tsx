@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { LeaderboardEntry } from '../../types/math';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { Trophy, Medal, Timer, Target, Search, Filter } from 'lucide-react';
 
 interface LiveLeaderboardProps {
   entries: LeaderboardEntry[];
+  language?: Language;
 }
 
-export const LiveLeaderboard: React.FC<LiveLeaderboardProps> = ({ entries }) => {
+export const LiveLeaderboard: React.FC<LiveLeaderboardProps> = ({ entries, language = 'vi' }) => {
+  const isEn = language === 'en';
   const [filterClass, setFilterClass] = useState<string>('all');
   const [filterMode, setFilterMode] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -30,10 +33,14 @@ export const LiveLeaderboard: React.FC<LiveLeaderboardProps> = ({ entries }) => 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-4 mb-6">
         <div>
-          <span className="text-xs font-semibold text-amber-600 tracking-wider uppercase">Bảng Vàng Danh Dự THCS</span>
-          <h3 className="text-2xl font-bold text-slate-900 mt-0.5">Bảng Xếp Hạng Thời Gian & Kết Quả</h3>
+          <span className="text-xs font-semibold text-amber-600 tracking-wider uppercase">
+            {isEn ? 'Middle School Hall of Fame' : 'Bảng Vàng Danh Dự THCS'}
+          </span>
+          <h3 className="text-2xl font-bold text-slate-900 mt-0.5">
+            {isEn ? 'Speed & Score Leaderboard' : 'Bảng Xếp Hạng Thời Gian & Kết Quả'}
+          </h3>
           <p className="text-sm text-slate-600">
-            Ghi nhận chính xác thành tích thi đấu, điểm số và tốc độ giải toán của từng học sinh và đội nhóm.
+            {isEn ? 'Accurate live record of scores, accuracy, and speed across students and teams.' : 'Ghi nhận chính xác thành tích thi đấu, điểm số và tốc độ giải toán của từng học sinh và đội nhóm.'}
           </p>
         </div>
 
@@ -43,7 +50,7 @@ export const LiveLeaderboard: React.FC<LiveLeaderboardProps> = ({ entries }) => 
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Tìm theo tên..."
+              placeholder={isEn ? 'Search student...' : 'Tìm theo tên...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 w-36"
@@ -55,11 +62,11 @@ export const LiveLeaderboard: React.FC<LiveLeaderboardProps> = ({ entries }) => 
             onChange={(e) => setFilterClass(e.target.value)}
             className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700"
           >
-            <option value="all">Tất cả các lớp</option>
-            <option value="6A1">Lớp 6A1</option>
-            <option value="7A2">Lớp 7A2</option>
-            <option value="8B">Lớp 8B</option>
-            <option value="9C">Lớp 9C</option>
+            <option value="all">{isEn ? 'All Classes' : 'Tất cả các lớp'}</option>
+            <option value="6A1">{isEn ? 'Class 6A1' : 'Lớp 6A1'}</option>
+            <option value="7A2">{isEn ? 'Class 7A2' : 'Lớp 7A2'}</option>
+            <option value="8B">{isEn ? 'Class 8B' : 'Lớp 8B'}</option>
+            <option value="9C">{isEn ? 'Class 9C' : 'Lớp 9C'}</option>
           </select>
 
           <select
@@ -67,10 +74,10 @@ export const LiveLeaderboard: React.FC<LiveLeaderboardProps> = ({ entries }) => 
             onChange={(e) => setFilterMode(e.target.value)}
             className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700"
           >
-            <option value="all">Mọi thể thức</option>
-            <option value="tốc độ">Thử thách Tốc độ</option>
-            <option value="đội nhóm">Đấu trường Đội nhóm</option>
-            <option value="mật mã">Mật mã Số học</option>
+            <option value="all">{isEn ? 'All Modes' : 'Mọi thể thức'}</option>
+            <option value="tốc độ">{isEn ? 'Speed Math' : 'Thử thách Tốc độ'}</option>
+            <option value="đội nhóm">{isEn ? 'Team Battle' : 'Đấu trường Đội nhóm'}</option>
+            <option value="mật mã">{isEn ? 'Math Escape Room' : 'Mật mã Số học'}</option>
           </select>
         </div>
       </div>

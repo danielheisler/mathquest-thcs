@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GradeLevel, SemesterExam, ExamQuestion } from '../../types/math';
 import { MathView } from '../common/MathView';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import {
   Sparkles,
   FileText,
@@ -28,6 +29,7 @@ interface AIExamGeneratorProps {
   onSaveAIExam: (exam: SemesterExam) => void;
   onDeleteAIExam: (examId: string) => void;
   onTakeExam: (exam: SemesterExam) => void;
+  language?: Language;
 }
 
 type AIExamPreset = 'midterm' | 'final' | 'quiz_15m' | 'custom';
@@ -77,7 +79,9 @@ export const AIExamGenerator: React.FC<AIExamGeneratorProps> = ({
   onSaveAIExam,
   onDeleteAIExam,
   onTakeExam,
+  language = 'vi',
 }) => {
+  const isEn = language === 'en';
   // Generator Form State
   const [grade, setGrade] = useState<GradeLevel>(8);
   const [semester, setSemester] = useState<'HK1' | 'HK2'>('HK1');
@@ -229,25 +233,27 @@ export const AIExamGenerator: React.FC<AIExamGeneratorProps> = ({
             <div className="max-w-3xl space-y-2.5">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-extrabold tracking-wider uppercase border border-white/20">
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>Tạo Đề Thi AI Trực Tiếp · Không Cần Kho Tài Liệu</span>
+                <span>{isEn ? 'Live AI Exam Builder · No External Docs Needed' : 'Tạo Đề Thi AI Trực Tiếp · Không Cần Kho Tài Liệu'}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
-                Phòng Ra Đề Toán THCS Bằng AI &amp; Giải Chi Tiết Từng Bước
+                {isEn ? 'AI Math Exam Generator & Step-by-Step Solutions' : 'Phòng Ra Đề Toán THCS Bằng AI & Giải Chi Tiết Từng Bước'}
               </h1>
               <p className="text-sm text-indigo-100 leading-relaxed">
-                Tự động biên soạn đề thi Toán Khối 6–9 hoàn toàn mới bất cứ lúc nào theo đúng mẫu chuẩn của{' '}
-                <b>Cô Diễm Quỳnh</b> (Giữa kỳ / Cuối kỳ 20 câu hoặc Kiểm tra 15 phút 6 câu), kèm{' '}
-                <b>Mục Giải Chi Tiết từng câu</b>, biểu điểm chấm tự luận và chế độ in giấy A4.
+                {isEn ? (
+                  <>Automatically compose brand-new Grades 6–9 math exams aligned with <b>Ms. Diem Quynh</b> standards (Midterm/Final 20 questions or 15-min Quiz 6 questions) with full solutions and A4 print support.</>
+                ) : (
+                  <>Tự động biên soạn đề thi Toán Khối 6–9 hoàn toàn mới bất cứ lúc nào theo đúng mẫu chuẩn của{' '}<b>Cô Diễm Quỳnh</b> (Giữa kỳ / Cuối kỳ 20 câu hoặc Kiểm tra 15 phút 6 câu), kèm{' '}<b>Mục Giải Chi Tiết từng câu</b>, biểu điểm chấm tự luận và chế độ in giấy A4.</>
+                )}
               </p>
             </div>
             <div className="flex flex-wrap gap-2.5 shrink-0">
               <div className="px-4 py-3 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md text-center min-w-[110px]">
                 <div className="text-2xl font-black text-amber-300">{aiExams.length}</div>
-                <div className="text-[11px] font-semibold text-indigo-100">Đề AI đã lưu</div>
+                <div className="text-[11px] font-semibold text-indigo-100">{isEn ? 'Saved AI Exams' : 'Đề AI đã lưu'}</div>
               </div>
               <div className="px-4 py-3 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md text-center min-w-[110px]">
                 <div className="text-2xl font-black text-emerald-300">100%</div>
-                <div className="text-[11px] font-semibold text-indigo-100">Có giải chi tiết</div>
+                <div className="text-[11px] font-semibold text-indigo-100">{isEn ? 'Full Solutions' : 'Có giải chi tiết'}</div>
               </div>
             </div>
           </div>

@@ -15,13 +15,18 @@ export interface Question {
   grade: GradeLevel;
   topic: MathTopic;
   topicName: string;
+  topicNameEn?: string;
   difficulty: DifficultyLevel;
   questionText: string;
+  questionTextEn?: string;
   formula?: string;
   options: string[];
+  optionsEn?: string[];
   correctAnswerIndex: number;
   explanation: string;
+  explanationEn?: string;
   hint?: string;
+  hintEn?: string;
 }
 
 export interface Student {
@@ -262,9 +267,11 @@ export type BodyPoseType =
 
 export interface BodyMotionQuestionOption {
   text: string;
+  textEn?: string;
   formula?: string;
   pose: BodyPoseType;
   poseLabel: string;
+  poseLabelEn?: string;
   color: 'blue' | 'red' | 'green' | 'amber' | 'purple';
 }
 
@@ -273,12 +280,16 @@ export interface BodyMotionQuestion {
   grade: GradeLevel;
   topic: MathTopic;
   topicName: string;
+  topicNameEn?: string;
   questionText: string;
+  questionTextEn?: string;
   formula?: string;
   options: BodyMotionQuestionOption[];
   correctIndex: number;
   explanation: string;
+  explanationEn?: string;
   hint?: string;
+  hintEn?: string;
 }
 
 export type TeacherRole = 'subject_teacher' | 'homeroom_teacher';

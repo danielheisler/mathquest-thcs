@@ -5,6 +5,7 @@ import { MathView } from '../common/MathView';
 import { CertificateModal } from '../certificate/CertificateModal';
 import { soundManager } from '../../utils/sound';
 import { ExamCodeScannerModal } from '../common/ExamCodeScannerModal';
+import { Language } from '../../i18n/translations';
 import { 
   FileText, Timer, Award, CheckCircle2, XCircle, ArrowRight, ArrowLeft, 
   RotateCcw, Printer, Sparkles, Filter, ChevronRight, Bookmark, AlertCircle, 
@@ -18,6 +19,7 @@ interface SemesterExamPortalProps {
   customExams?: SemesterExam[];
   preselectedExamId?: string | null;
   onOpenAIGenerator?: () => void;
+  language?: Language;
 }
 
 export const SemesterExamPortal: React.FC<SemesterExamPortalProps> = ({
@@ -26,8 +28,10 @@ export const SemesterExamPortal: React.FC<SemesterExamPortalProps> = ({
   activeStudentName = 'Nguyễn Minh Quân',
   customExams = [],
   preselectedExamId = null,
-  onOpenAIGenerator
+  onOpenAIGenerator,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   // Check for ongoing saved exam session
   const getSavedExamSession = () => {
     if (typeof window === 'undefined') return null;
@@ -495,14 +499,17 @@ export const SemesterExamPortal: React.FC<SemesterExamPortalProps> = ({
           <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="relative z-10 max-w-2xl">
               <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-widest backdrop-blur-md inline-block mb-3">
-                Chuẩn Cấu Trúc Đề Thi GDPT 2018 · Cô Diễm Quỳnh
+                {isEn ? 'GDPT 2018 Exam Standard · Ms. Diem Quynh' : 'Chuẩn Cấu Trúc Đề Thi GDPT 2018 · Cô Diễm Quỳnh'}
               </span>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-                Ngân Hàng Đề Thi Giữa Kỳ, Cuối Kỳ & Kiểm Tra 15 Phút
+                {isEn ? 'Midterm, Final & 15-Minute Math Exam Bank' : 'Ngân Hàng Đề Thi Giữa Kỳ, Cuối Kỳ & Kiểm Tra 15 Phút'}
               </h2>
               <p className="text-sm text-indigo-100 mt-2 leading-relaxed">
-                Đề Giữa kỳ / Cuối kỳ chuẩn: <b>12 câu trắc nghiệm ABCD (3đ) + 1 câu Đúng/Sai 4 ý (1đ) + 2 câu trả lời ngắn (1đ) + 5 câu tự luận (5đ)</b>. 
-                Đề kiểm tra 15 phút: <b>4 câu trắc nghiệm (4đ) + 2 câu tự luận (6đ)</b>.
+                {isEn ? (
+                  <>Midterm / Final standard: <b>12 MCQs (3pts) + 1 True/False 4-part (1pt) + 2 Short Answers (1pt) + 5 Essays (5pts)</b>. 15-min quiz: <b>4 MCQs (4pts) + 2 Essays (6pts)</b>.</>
+                ) : (
+                  <>Đề Giữa kỳ / Cuối kỳ chuẩn: <b>12 câu trắc nghiệm ABCD (3đ) + 1 câu Đúng/Sai 4 ý (1đ) + 2 câu trả lời ngắn (1đ) + 5 câu tự luận (5đ)</b>. Đề kiểm tra 15 phút: <b>4 câu trắc nghiệm (4đ) + 2 câu tự luận (6đ)</b>.</>
+                )}
               </p>
             </div>
 
@@ -518,8 +525,8 @@ export const SemesterExamPortal: React.FC<SemesterExamPortalProps> = ({
                 >
                   <Sparkles className="w-5 h-5 text-indigo-800 shrink-0" />
                   <div className="text-left">
-                    <span className="block text-[10px] text-indigo-900 uppercase font-extrabold">Không Cần Kho Tài Liệu</span>
-                    <span className="block text-sm">Tạo Đề AI &amp; Giải Chi Tiết</span>
+                    <span className="block text-[10px] text-indigo-900 uppercase font-extrabold">{isEn ? 'No Docs Needed' : 'Không Cần Kho Tài Liệu'}</span>
+                    <span className="block text-sm">{isEn ? 'AI Exam & Solutions' : 'Tạo Đề AI & Giải Chi Tiết'}</span>
                   </div>
                 </button>
               )}
@@ -532,8 +539,8 @@ export const SemesterExamPortal: React.FC<SemesterExamPortalProps> = ({
               >
                 <Scan className="w-5 h-5 text-cyan-300 animate-pulse" />
                 <div className="text-left">
-                  <span className="block text-[10px] text-cyan-200 uppercase font-bold">Mắt Đọc Camera</span>
-                  <span className="block text-sm">Quét Mã Đề QR Thi Ngay</span>
+                  <span className="block text-[10px] text-cyan-200 uppercase font-bold">{isEn ? 'Camera Scanner' : 'Mắt Đọc Camera'}</span>
+                  <span className="block text-sm">{isEn ? 'Scan Exam QR Code' : 'Quét Mã Đề QR Thi Ngay'}</span>
                 </div>
               </button>
             </div>

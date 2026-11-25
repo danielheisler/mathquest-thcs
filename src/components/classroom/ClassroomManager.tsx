@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Classroom, Student, HomeworkSubmission } from '../../types/math';
+import { Language } from '../../i18n/translations';
 import { soundManager } from '../../utils/sound';
 import { ComprehensiveClassReportModal } from '../reports/ComprehensiveClassReportModal';
 import { WeeklyParticipationReport } from '../analytics/WeeklyParticipationReport';
@@ -20,6 +21,7 @@ interface ClassroomManagerProps {
   onDeleteStudent: (studentId: string) => void;
   onSelectStudentForReport: (student: Student) => void;
   onUpdateClassroom?: (updatedClassroom: Classroom) => void;
+  language?: Language;
 }
 
 export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
@@ -31,8 +33,10 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
   onUpdateStudent,
   onDeleteStudent,
   onSelectStudentForReport,
-  onUpdateClassroom
+  onUpdateClassroom,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [selectedClassId, setSelectedClassId] = useState<string>(classrooms[0]?.id || '');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [classroomTab, setClassroomTab] = useState<'roster' | 'weekly_report'>('roster');
@@ -402,20 +406,22 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-semibold text-indigo-600 tracking-wider uppercase">
-                Sổ Quản Lý & Xếp Hạng Học Sinh
+                {isEn ? 'Classroom Roster & Ranking' : 'Sổ Quản Lý & Xếp Hạng Học Sinh'}
               </span>
               <span className="px-2.5 py-0.5 bg-indigo-50 border border-indigo-200 rounded-md text-xs font-bold text-indigo-700">
-                🔐 Mật mã GV & PH: Đã Ẩn Bảo Mật
+                {isEn ? '🔐 Teacher & Parent PIN: Protected' : '🔐 Mật mã GV & PH: Đã Ẩn Bảo Mật'}
               </span>
               <span className="px-2.5 py-0.5 bg-slate-100 border border-slate-200 rounded-md text-xs font-bold text-slate-700">
-                GV: Cô Diễm Quỳnh
+                {isEn ? 'Teacher: Ms. Diem Quynh' : 'GV: Cô Diễm Quỳnh'}
               </span>
             </div>
             <h3 className="text-2xl font-bold text-slate-900 mt-0.5">
-              Xếp Thứ Hạng & Quản Lý Liên Lạc Phụ Huynh THCS
+              {isEn ? 'Student Ranking & Parent Communication' : 'Xếp Thứ Hạng & Quản Lý Liên Lạc Phụ Huynh THCS'}
             </h3>
             <p className="text-sm text-slate-600">
-              Quản lý danh sách học sinh kèm SĐT phụ huynh, gửi tin nhắn SMS/Zalo đánh giá kết quả và xếp thứ hạng thi đua.
+              {isEn
+                ? 'Manage class roster with parent phone numbers, send SMS/Zalo updates, and track class rankings.'
+                : 'Quản lý danh sách học sinh kèm SĐT phụ huynh, gửi tin nhắn SMS/Zalo đánh giá kết quả và xếp thứ hạng thi đua.'}
             </p>
           </div>
 
@@ -425,7 +431,7 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
               pulseActive ? 'bg-emerald-100 border-emerald-400 text-emerald-800 scale-105' : 'bg-slate-50 border-slate-200 text-slate-700'
             }`}>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Cập nhật sau: <b className="text-emerald-600">{autoRefreshSec}s</b></span>
+              <span>{isEn ? 'Sync in:' : 'Cập nhật sau:'} <b className="text-emerald-600">{autoRefreshSec}s</b></span>
             </div>
 
             <button
@@ -434,10 +440,10 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                 setShowPdfReportModal(true);
               }}
               className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors border border-indigo-200 shadow-2xs"
-              title="Xuất bảng báo cáo tổng hợp danh sách điểm và xếp hạng in PDF"
+              title={isEn ? 'Export PDF summary report' : 'Xuất bảng báo cáo tổng hợp danh sách điểm và xếp hạng in PDF'}
             >
               <Printer className="w-4 h-4 text-indigo-600" />
-              <span>Xuất Báo Cáo PDF</span>
+              <span>{isEn ? 'Export PDF Report' : 'Xuất Báo Cáo PDF'}</span>
             </button>
 
             <button
@@ -446,10 +452,10 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                 setShowBatchModal(true);
               }}
               className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors border border-emerald-200 shadow-2xs"
-              title="Chèn danh sách học sinh từ file hoặc danh sách văn bản"
+              title={isEn ? 'Import student list from Excel/CSV' : 'Chèn danh sách học sinh từ file hoặc danh sách văn bản'}
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              <span>Chèn DS (Excel)</span>
+              <span>{isEn ? 'Import (Excel)' : 'Chèn DS (Excel)'}</span>
             </button>
 
             <button
@@ -459,7 +465,7 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
               }}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors shadow-xs"
             >
-              <UserPlus className="w-4 h-4" /> Thêm HS Mới
+              <UserPlus className="w-4 h-4" /> {isEn ? 'Add Student' : 'Thêm HS Mới'}
             </button>
           </div>
         </div>

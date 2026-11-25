@@ -9,6 +9,8 @@ export interface AuthUser {
   phone: string;
   name: string;
   roleLabel: string;
+  studentId?: string;
+  className?: string;
 }
 
 interface AccountRecord extends AuthUser {
@@ -39,6 +41,8 @@ const ACCOUNTS: AccountRecord[] = [
     password: 'HS201102',
     name: 'Nguyễn Minh Quân',
     roleLabel: 'Học sinh',
+    studentId: 's1',
+    className: 'Lớp 6A1',
   },
 ];
 
@@ -146,6 +150,7 @@ const TEACHER_TABS = new Set([
   'classroom',
   'gradebook',
   'lesson_plans',
+  'slide_studio',
   'ai_exam_studio',
   'custom_game',
   'anti_cheat_monitor',
@@ -156,6 +161,12 @@ const TEACHER_TABS = new Set([
   'seating_chart',
   'vnedu_gradebook',
 ]);
+
+export function getInitialFromName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return 'H';
+  return parts[parts.length - 1].charAt(0).toUpperCase();
+}
 
 export function isTabAllowedForRole(tab: string, role: UserRole): boolean {
   if (role === 'parent') return tab === 'parent_portal';

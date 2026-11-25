@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AntiCheatIncident, HomeworkSubmission, Student, Classroom } from '../../types/math';
 import { ANTI_CHEAT_CHANNEL_NAME, ANTI_CHEAT_STORAGE_KEY, ANTI_CHEAT_REMOTE_WARNING_KEY } from '../../utils/antiCheatProctor';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { 
   ShieldAlert, ShieldCheck, AlertTriangle, Eye, Bell, BellOff, 
   Send, Clock, History, RotateCcw, User, CheckCircle2, MessageSquare, 
@@ -12,13 +13,16 @@ interface AntiCheatMonitorPanelProps {
   students: Student[];
   classroom: Classroom;
   submissions: HomeworkSubmission[];
+  language?: Language;
 }
 
 export const AntiCheatMonitorPanel: React.FC<AntiCheatMonitorPanelProps> = ({
   students,
   classroom,
-  submissions
+  submissions,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [incidents, setIncidents] = useState<AntiCheatIncident[]>(() => {
     if (typeof localStorage !== 'undefined') {
       try {
@@ -182,26 +186,27 @@ export const AntiCheatMonitorPanel: React.FC<AntiCheatMonitorPanelProps> = ({
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold border border-rose-400/30 backdrop-blur-xs">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-              <span>Hệ Thống Giám Sát Chống Gian Lận Chuyển Tab (Live Anti-Cheat Radar)</span>
+              <span>{isEn ? 'Live Anti-Cheat Tab Monitor Radar' : 'Hệ Thống Giám Sát Chống Gian Lận Chuyển Tab (Live Anti-Cheat Radar)'}</span>
             </div>
             
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Báo Cáo Trực Tiếp Học Sinh Chuyển Tab & Tra Cứu
+              {isEn ? 'Live Student Tab-Switch & Focus Report' : 'Báo Cáo Trực Tiếp Học Sinh Chuyển Tab & Tra Cứu'}
             </h1>
             
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Tự động phát hiện ngay lập tức khi học sinh rời khỏi màn hình bài thi, mở tab khác để tra Google/ChatGPT 
-              hoặc Alt-Tab chuyển ứng dụng, đồng thời phát tín hiệu cảnh báo trực tiếp về máy của Cô Diễm Quỳnh.
+              {isEn
+                ? 'Instantly detects when a student leaves the exam window or opens another browser tab, firing a live alert directly to the teacher console.'
+                : 'Tự động phát hiện ngay lập tức khi học sinh rời khỏi màn hình bài thi, mở tab khác để tra Google/ChatGPT hoặc Alt-Tab chuyển ứng dụng, đồng thời phát tín hiệu cảnh báo trực tiếp về máy của Cô Diễm Quỳnh.'}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 text-xs text-rose-200/90 pt-1">
-              <span>Mã Lớp: <strong className="font-mono bg-white/10 px-2 py-0.5 rounded text-white">20112002</strong></span>
+              <span>{isEn ? 'Class Code:' : 'Mã Lớp:'} <strong className="font-mono bg-white/10 px-2 py-0.5 rounded text-white">20112002</strong></span>
               <span>·</span>
-              <span>Giáo viên quản nhiệm: <strong className="text-white">Cô Diễm Quỳnh</strong></span>
+              <span>{isEn ? 'Lead Teacher:' : 'Giáo viên quản nhiệm:'} <strong className="text-white">Cô Diễm Quỳnh</strong></span>
               <span>·</span>
               <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
                 <Radio className="w-3.5 h-3.5 animate-pulse" />
-                Đang trực tuyến & đồng bộ 0s
+                {isEn ? 'Online & synced 0s delay' : 'Đang trực tuyến & đồng bộ 0s'}
               </span>
             </div>
           </div>
@@ -214,10 +219,10 @@ export const AntiCheatMonitorPanel: React.FC<AntiCheatMonitorPanelProps> = ({
                 soundManager.playCheatAlarm();
               }}
               className="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-rose-500 hover:bg-rose-600 text-white shadow-md transition-all active:scale-95"
-              title="Phát thử âm thanh còi chuông cảnh báo vi phạm chuyển tab trên máy giáo viên"
+              title={isEn ? 'Test anti-cheat alarm sound' : 'Phát thử âm thanh còi chuông cảnh báo vi phạm chuyển tab trên máy giáo viên'}
             >
               <Volume2 className="w-4 h-4 text-white animate-pulse" />
-              <span>Thử Chuông Báo Động</span>
+              <span>{isEn ? 'Test Siren' : 'Thử Chuông Báo Động'}</span>
             </button>
 
             {/* Alert sound toggle */}
@@ -231,10 +236,10 @@ export const AntiCheatMonitorPanel: React.FC<AntiCheatMonitorPanelProps> = ({
                   ? 'bg-rose-600/30 border-rose-500 text-rose-200 shadow-sm' 
                   : 'bg-slate-800 border-slate-700 text-slate-400'
               }`}
-              title="Bật/Tắt chuông báo động trên máy GV"
+              title={isEn ? 'Toggle alarm sound' : 'Bật/Tắt chuông báo động trên máy GV'}
             >
               {isAlertSoundEnabled ? <Bell className="w-4 h-4 text-rose-400 animate-bounce" /> : <BellOff className="w-4 h-4" />}
-              <span>{isAlertSoundEnabled ? 'Chuông Báo Động: Đang Bật' : 'Chuông: Đã Tắt'}</span>
+              <span>{isAlertSoundEnabled ? (isEn ? 'Siren: ON' : 'Chuông Báo Động: Đang Bật') : (isEn ? 'Siren: OFF' : 'Chuông: Đã Tắt')}</span>
             </button>
 
             <button
@@ -242,7 +247,7 @@ export const AntiCheatMonitorPanel: React.FC<AntiCheatMonitorPanelProps> = ({
               className="px-3.5 py-2 bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Đặt Lại Ca Mới</span>
+              <span>{isEn ? 'Reset Session' : 'Đặt Lại Ca Mới'}</span>
             </button>
           </div>
         </div>

@@ -2,22 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Question, GradeLevel, LeaderboardEntry } from '../../types/math';
 import { soundManager } from '../../utils/sound';
 import confetti from 'canvas-confetti';
-import { Timer, Zap, Trophy, RotateCcw, ArrowRight, CheckCircle2, XCircle, Award } from 'lucide-react';
+import { Timer, Zap, Trophy, RotateCcw, ArrowRight, CheckCircle2, XCircle } from 'lucide-react';
 import { MathView } from '../common/MathView';
+import { Language } from '../../i18n/translations';
+import { getLocalizedQuestion } from '../../utils/localize';
 
 interface SpeedMathGameProps {
   questions: Question[];
   onSaveScore?: (entry: Omit<LeaderboardEntry, 'id' | 'rank'>) => void;
   studentName?: string;
   className?: string;
+  language?: Language;
 }
 
 export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
   questions,
   onSaveScore,
   studentName = 'Học sinh',
-  className = 'Lớp 8B'
+  className = 'Lớp 8B',
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [selectedGrade, setSelectedGrade] = useState<GradeLevel | 'all'>('all');
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'ended'>('idle');
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
@@ -129,7 +134,8 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
     }
   };
 
-  const currentQ = currentQuestions[currentIndex];
+    const currentQ = currentQuestions[currentIndex];
+    const localizedQ = currentQ ? getLocalizedQuestion(currentQ, language) : null;
 
   if (gameState === 'idle') {
     return (
@@ -137,14 +143,20 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
         <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-amber-600 shadow-inner">
           <Zap className="w-8 h-8" />
         </div>
-        <h3 className="text-2xl font-bold text-slate-900">Thử Thách Tốc Độ Số Học (Speed Math)</h3>
+        <h3 className="text-2xl font-bold text-slate-900">
+          {isEn ? 'Speed Math Challenge' : 'Thử Thách Tốc Độ Số Học (Speed Math)'}
+        </h3>
         <p className="text-sm text-slate-600 mt-2 max-w-lg mx-auto">
-          Chạy đua với thời gian trong 60 giây! Trả lời liên tiếp để kích hoạt <span className="font-semibold text-amber-600">Chuỗi Combo Điểm Thưởng</span> và ghi danh lên bảng vàng lớp học.
+          {isEn ? (
+            <>Race the 60-second clock! Answer streaks unlock <span className="font-semibold text-amber-600">Bonus Combo Multipliers</span> on the class leaderboard.</>
+          ) : (
+            <>Chạy đua với thời gian trong 60 giây! Trả lời liên tiếp để kích hoạt <span className="font-semibold text-amber-600">Chuỗi Combo Điểm Thưởng</span> và ghi danh lên bảng vàng lớp học.</>
+          )}
         </p>
 
         {/* Grade Selector */}
         <div className="mt-6 mb-8 flex flex-wrap items-center justify-center gap-2">
-          <span className="text-xs font-semibold text-slate-500 mr-2">Chọn Khối Lớp:</span>
+          <span className="text-xs font-semibold text-slate-500 mr-2">{isEn ? 'Select Grade:' : 'Chọn Khối Lớp:'}</span>
           {(['all', 6, 7, 8, 9] as const).map(grade => (
             <button
               key={grade}
@@ -158,7 +170,7 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
                   : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              {grade === 'all' ? 'Tất cả Khối THCS' : `Khối ${grade}`}
+              {grade === 'all' ? (isEn ? 'All Middle School Grades' : 'Tất cả Khối THCS') : (isEn ? `Grade ${grade}` : `Khối ${grade}`)}
             </button>
           ))}
         </div>
@@ -167,7 +179,7 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
           onClick={startGame}
           className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all text-base flex items-center gap-2 mx-auto"
         >
-          <Zap className="w-5 h-5" /> Bắt Đầu Thử Thách Ngay
+          <Zap className="w-5 h-5" /> {isEn ? 'Start Challenge Now' : 'Bắt Đầu Thử Thách Ngay'}
         </button>
       </div>
     );
@@ -180,20 +192,24 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
         <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-inner">
           <Trophy className="w-8 h-8" />
         </div>
-        <h3 className="text-2xl font-bold text-slate-900">Hoàn Thành Thử Thách Tốc Độ!</h3>
-        <p className="text-sm text-slate-600 mt-1">Kết quả của {studentName} ({className}):</p>
+        <h3 className="text-2xl font-bold text-slate-900">
+          {isEn ? 'Speed Challenge Complete!' : 'Hoàn Thành Thử Thách Tốc Độ!'}
+        </h3>
+        <p className="text-sm text-slate-600 mt-1">
+          {isEn ? `Result for ${studentName} (${className}):` : `Kết quả của ${studentName} (${className}):`}
+        </p>
 
         <div className="grid grid-cols-3 gap-3 my-6">
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-            <span className="text-xs text-amber-700 block font-medium">Tổng Điểm</span>
+            <span className="text-xs text-amber-700 block font-medium">{isEn ? 'Total Score' : 'Tổng Điểm'}</span>
             <span className="text-2xl font-black text-amber-600 font-mono">{score}</span>
           </div>
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
-            <span className="text-xs text-emerald-700 block font-medium">Độ Chính Xác</span>
+            <span className="text-xs text-emerald-700 block font-medium">{isEn ? 'Accuracy' : 'Độ Chính Xác'}</span>
             <span className="text-2xl font-black text-emerald-600 font-mono">{accuracy}%</span>
           </div>
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-            <span className="text-xs text-blue-700 block font-medium">Đúng / Tổng</span>
+            <span className="text-xs text-blue-700 block font-medium">{isEn ? 'Correct / Total' : 'Đúng / Tổng'}</span>
             <span className="text-2xl font-black text-blue-600 font-mono">{correctCount}/{currentQuestions.length}</span>
           </div>
         </div>
@@ -203,7 +219,7 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
             onClick={startGame}
             className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl flex items-center gap-2 transition-colors"
           >
-            <RotateCcw className="w-4 h-4" /> Chơi Lại Vòng Khác
+            <RotateCcw className="w-4 h-4" /> {isEn ? 'Play Another Round' : 'Chơi Lại Vòng Khác'}
           </button>
         </div>
       </div>
@@ -217,7 +233,7 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-xs font-bold font-mono">
             <Zap className="w-3.5 h-3.5 text-amber-600" />
-            <span>{score} Điểm</span>
+            <span>{score} {isEn ? 'Pts' : 'Điểm'}</span>
           </div>
           {streak >= 2 && (
             <div className="px-2.5 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-lg animate-pulse">
@@ -227,7 +243,7 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
         </div>
 
         <div className="flex items-center gap-4 text-xs font-mono font-bold">
-          <span className="text-slate-500">Câu {currentIndex + 1}/{currentQuestions.length}</span>
+          <span className="text-slate-500">{isEn ? `Q ${currentIndex + 1}/${currentQuestions.length}` : `Câu ${currentIndex + 1}/${currentQuestions.length}`}</span>
           <div className={`flex items-center gap-1 px-3 py-1 rounded-lg ${
             timeLeft <= 10 ? 'bg-rose-100 text-rose-700 animate-pulse' : 'bg-slate-100 text-slate-700'
           }`}>
@@ -238,15 +254,17 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
       </div>
 
       {/* Question Card */}
-      {currentQ && (
+      {currentQ && localizedQ && (
         <div className="space-y-6">
           <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
             <div className="flex items-center justify-between gap-2 text-xs text-slate-500 mb-2">
-              <span className="font-semibold text-indigo-600">Khối {currentQ.grade} · {currentQ.topicName}</span>
+              <span className="font-semibold text-indigo-600">
+                {isEn ? `Grade ${currentQ.grade}` : `Khối ${currentQ.grade}`} · {localizedQ.topicName}
+              </span>
               <span className="capitalize px-2 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-medium">{currentQ.difficulty}</span>
             </div>
             <h4 className="text-lg font-bold text-slate-900 leading-snug">
-              <MathView math={currentQ.questionText} />
+              <MathView math={localizedQ.questionText} />
             </h4>
             {currentQ.formula && (
               <div className="mt-3 p-3 bg-white border border-slate-200 rounded-lg text-lg font-bold text-indigo-700 text-center shadow-xs">
@@ -257,7 +275,7 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
 
           {/* Options Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {currentQ.options.map((opt, idx) => {
+            {localizedQ.options.map((opt, idx) => {
               const isSelected = selectedOption === idx;
               const isCorrect = idx === currentQ.correctAnswerIndex;
 
@@ -297,9 +315,11 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
           {/* Explanation if answered */}
           {isAnswered && (
             <div className="p-4 bg-indigo-50/70 border border-indigo-200 rounded-xl text-xs space-y-1">
-              <span className="font-bold text-indigo-900 block">Giải thích chi tiết (Chuẩn MathType):</span>
+              <span className="font-bold text-indigo-900 block">
+                {isEn ? 'Detailed Explanation:' : 'Giải thích chi tiết (Chuẩn MathType):'}
+              </span>
               <p className="text-indigo-800 leading-relaxed">
-                <MathView math={currentQ.explanation} />
+                <MathView math={localizedQ.explanation} />
               </p>
             </div>
           )}
@@ -311,7 +331,7 @@ export const SpeedMathGame: React.FC<SpeedMathGameProps> = ({
                 onClick={handleNextQuestion}
                 className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
               >
-                <span>{currentIndex + 1 < currentQuestions.length ? 'Câu Tiếp Theo' : 'Xem Kết Quả'}</span>
+                <span>{currentIndex + 1 < currentQuestions.length ? (isEn ? 'Next Question' : 'Câu Tiếp Theo') : (isEn ? 'View Results' : 'Xem Kết Quả')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

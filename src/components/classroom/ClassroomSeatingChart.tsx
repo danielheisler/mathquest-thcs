@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Classroom, Student, ClassroomSeatingDesk, VnEduStudentAcademicRecord } from '../../types/math';
 import { defaultSeatingDesks } from '../../data/vneduData';
 import { soundManager } from '../../utils/sound';
+import { Language } from '../../i18n/translations';
 import { 
   Users, User, ArrowLeftRight, Check, AlertCircle, Phone, 
   Sparkles, Printer, UserCheck, Shield, Award, Edit2, RotateCcw
@@ -12,14 +13,17 @@ interface ClassroomSeatingChartProps {
   students: Student[];
   academicRecords: VnEduStudentAcademicRecord[];
   onSwapStudents?: (studentId1: string, studentId2: string) => void;
+  language?: Language;
 }
 
 export const ClassroomSeatingChart: React.FC<ClassroomSeatingChartProps> = ({
   classroom,
   students,
   academicRecords,
-  onSwapStudents
+  onSwapStudents,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [desks, setDesks] = useState<ClassroomSeatingDesk[]>(defaultSeatingDesks);
   const [selectedSeat, setSelectedSeat] = useState<{ deskNumber: number; side: 'left' | 'right' } | null>(null);
   const [swapSourceSeat, setSwapSourceSeat] = useState<{ deskNumber: number; side: 'left' | 'right'; studentId?: string } | null>(null);
@@ -97,11 +101,13 @@ export const ClassroomSeatingChart: React.FC<ClassroomSeatingChartProps> = ({
               🪑
             </span>
             <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-              Sơ Đồ Chỗ Ngồi Lớp {classroom.name} (Năm Học {classroom.schoolYear})
+              {isEn ? `Classroom Seating Chart — ${classroom.name} (${classroom.schoolYear})` : `Sơ Đồ Chỗ Ngồi Lớp ${classroom.name} (Năm Học ${classroom.schoolYear})`}
             </h2>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Giáo viên chủ nhiệm: <strong className="text-slate-800">{classroom.homeroomTeacher}</strong> · Phòng học: <strong>{classroom.roomNumber}</strong> · 4 Dãy (Tổ 1 - 4)
+            {isEn
+              ? <>Homeroom: <strong className="text-slate-800">{classroom.homeroomTeacher}</strong> · Room: <strong>{classroom.roomNumber}</strong> · 4 Rows (Groups 1–4)</>
+              : <>Giáo viên chủ nhiệm: <strong className="text-slate-800">{classroom.homeroomTeacher}</strong> · Phòng học: <strong>{classroom.roomNumber}</strong> · 4 Dãy (Tổ 1 - 4)</>}
           </p>
         </div>
 
@@ -109,12 +115,12 @@ export const ClassroomSeatingChart: React.FC<ClassroomSeatingChartProps> = ({
         <div className="flex flex-wrap items-center gap-2.5">
           {swapSourceSeat ? (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-300 text-xs font-bold animate-pulse">
-              <span>Đang chọn học sinh đổi chỗ... Hãy bấm vào ghế đích!</span>
+              <span>{isEn ? 'Select destination seat to swap!' : 'Đang chọn học sinh đổi chỗ... Hãy bấm vào ghế đích!'}</span>
               <button
                 onClick={() => setSwapSourceSeat(null)}
                 className="px-2 py-0.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded font-semibold text-[11px]"
               >
-                Hủy
+                {isEn ? 'Cancel' : 'Hủy'}
               </button>
             </div>
           ) : (
@@ -126,7 +132,7 @@ export const ClassroomSeatingChart: React.FC<ClassroomSeatingChartProps> = ({
               className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-indigo-200 transition-colors"
             >
               <ArrowLeftRight className="w-4 h-4" />
-              <span>Chế Độ Đổi Chỗ Ngồi</span>
+              <span>{isEn ? 'Swap Seats Mode' : 'Chế Độ Đổi Chỗ Ngồi'}</span>
             </button>
           )}
 
@@ -143,7 +149,7 @@ export const ClassroomSeatingChart: React.FC<ClassroomSeatingChartProps> = ({
                   filterGroup === g ? 'bg-white text-indigo-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                {g === 'all' ? 'Tất Cả Tổ' : `Tổ ${g}`}
+                {g === 'all' ? (isEn ? 'All Groups' : 'Tất Cả Tổ') : (isEn ? `Group ${g}` : `Tổ ${g}`)}
               </button>
             ))}
           </div>
@@ -153,7 +159,7 @@ export const ClassroomSeatingChart: React.FC<ClassroomSeatingChartProps> = ({
             className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-200 transition-colors"
           >
             <Printer className="w-4 h-4" />
-            <span>In Sơ Đồ A4</span>
+            <span>{isEn ? 'Print A4 Chart' : 'In Sơ Đồ A4'}</span>
           </button>
         </div>
       </div>

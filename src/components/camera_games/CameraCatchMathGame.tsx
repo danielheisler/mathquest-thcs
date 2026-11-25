@@ -4,6 +4,7 @@ import { soundManager } from '../../utils/sound';
 import { CertificateModal } from '../certificate/CertificateModal';
 import { useCameraStream } from '../../hooks/useCameraStream';
 import { CameraPermissionGuideModal } from '../common/CameraPermissionGuideModal';
+import { Language } from '../../i18n/translations';
 import { 
   Camera, CameraOff, Video, Sparkles, Award, RotateCcw, Clock, 
   Zap, Heart, Target, RefreshCw, Lock
@@ -20,18 +21,22 @@ interface Bubble {
 
 interface CatchMathQuestion {
   question: string;
+  questionEn: string;
   targetAnswer: string;
   wrongAnswers: string[];
 }
 
 const catchQuestions: CatchMathQuestion[] = [
-  { question: '7 × 8 = ?', targetAnswer: '56', wrongAnswers: ['54', '64'] },
-  { question: '(-15) + 23 = ?', targetAnswer: '8', wrongAnswers: ['-8', '38'] },
-  { question: '√144 = ?', targetAnswer: '12', wrongAnswers: ['14', '24'] },
-  { question: '2³ × 3 = ?', targetAnswer: '24', wrongAnswers: ['18', '36'] },
-  { question: '(-5)² = ?', targetAnswer: '25', wrongAnswers: ['-25', '10'] },
-  { question: 'ƯCLN(18; 24) = ?', targetAnswer: '6', wrongAnswers: ['3', '12'] },
-  { question: 'x + 15 = 40 => x = ?', targetAnswer: '25', wrongAnswers: ['35', '55'] }
+  { question: '7 × 8 = ?', questionEn: '7 × 8 = ?', targetAnswer: '56', wrongAnswers: ['54', '64'] },
+  { question: '(-15) + 23 = ?', questionEn: '(-15) + 23 = ?', targetAnswer: '8', wrongAnswers: ['-8', '38'] },
+  { question: '√144 = ?', questionEn: '√144 = ?', targetAnswer: '12', wrongAnswers: ['14', '24'] },
+  { question: '2³ × 3 = ?', questionEn: '2³ × 3 = ?', targetAnswer: '24', wrongAnswers: ['18', '36'] },
+  { question: '(-5)² = ?', questionEn: '(-5)² = ?', targetAnswer: '25', wrongAnswers: ['-25', '10'] },
+  { question: 'ƯCLN(18; 24) = ?', questionEn: 'GCD(18, 24) = ?', targetAnswer: '6', wrongAnswers: ['3', '12'] },
+  { question: 'x + 15 = 40 ⇒ x = ?', questionEn: 'x + 15 = 40 ⇒ x = ?', targetAnswer: '25', wrongAnswers: ['35', '55'] },
+  { question: '3² + 4² = ?', questionEn: '3² + 4² = ?', targetAnswer: '25', wrongAnswers: ['14', '49'] },
+  { question: 'BCNN(4; 6) = ?', questionEn: 'LCM(4, 6) = ?', targetAnswer: '12', wrongAnswers: ['24', '8'] },
+  { question: 'cos(60°) = ?', questionEn: 'cos(60°) = ?', targetAnswer: '0.5', wrongAnswers: ['1', '0.8'] }
 ];
 
 const bubbleColors = [
@@ -45,13 +50,16 @@ interface CameraCatchMathGameProps {
   activeStudentName?: string;
   activeClassName?: string;
   onExit?: () => void;
+  language?: Language;
 }
 
 export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
   activeStudentName = 'Nguyễn Minh Quân',
   activeClassName = 'Lớp 6A1',
-  onExit
+  onExit,
+  language = 'vi'
 }) => {
+  const isEn = language === 'en';
   const [qIndex, setQIndex] = useState<number>(0);
   const currentQ = catchQuestions[qIndex];
 
@@ -231,10 +239,10 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
           </div>
           <div>
             <h2 className="text-base font-extrabold text-white">
-              Hứng Bóng Toán Học Bằng Tay & Đầu
+              {isEn ? 'Catch Math Bubbles (Hand & Head)' : 'Hứng Bóng Toán Học Bằng Tay & Đầu'}
             </h2>
             <p className="text-xs text-slate-400">
-              Vẫy tay hoặc chạm đầu vào quả bóng mang đáp số đúng trên màn hình!
+              {isEn ? 'Wave your hand or touch the bubble with the right answer on screen!' : 'Vẫy tay hoặc chạm đầu vào quả bóng mang đáp số đúng trên màn hình!'}
             </p>
           </div>
         </div>
@@ -255,16 +263,16 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
                 ? 'bg-emerald-600/30 border-emerald-500/50 text-emerald-300 hover:bg-emerald-600/40'
                 : 'bg-rose-600/30 border-rose-500/50 text-rose-300 hover:bg-rose-600/40'
             }`}
-            title={cameraActive ? 'Tắt Camera' : 'Bật Camera'}
+            title={cameraActive ? (isEn ? 'Turn Off Camera' : 'Tắt Camera') : (isEn ? 'Turn On Camera' : 'Bật Camera')}
           >
             {cameraActive ? <Video className="w-3.5 h-3.5" /> : <CameraOff className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{cameraActive ? 'Camera Bật' : 'Bật Camera'}</span>
+            <span className="hidden sm:inline">{cameraActive ? (isEn ? 'Camera On' : 'Camera Bật') : (isEn ? 'Start Camera' : 'Bật Camera')}</span>
           </button>
           <button
             type="button"
             onClick={() => setIsMirror(prev => !prev)}
             className="p-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 transition-colors cursor-pointer"
-            title="Lật gương camera"
+            title={isEn ? 'Flip mirror' : 'Lật gương camera'}
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
@@ -273,7 +281,7 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
             <span>{timeLeft}s</span>
           </div>
           <div className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-bold text-sm">
-            {score} Điểm
+            {score} {isEn ? 'Pts' : 'Điểm'}
           </div>
         </div>
       </div>
@@ -284,10 +292,10 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
           {/* Top Target Question Bar */}
           <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 text-center shadow-lg max-w-xl mx-auto w-full">
             <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider block mb-1">
-              Câu {qIndex + 1} / {catchQuestions.length} · Chạm vào đáp án:
+              {isEn ? `Question ${qIndex + 1} / ${catchQuestions.length} · Tap the answer:` : `Câu ${qIndex + 1} / ${catchQuestions.length} · Chạm vào đáp án:`}
             </span>
             <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">
-              <MathView math={currentQ.question} />
+              <MathView math={isEn ? currentQ.questionEn : currentQ.question} />
             </div>
           </div>
 
@@ -309,8 +317,8 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
                 <CameraOff className="w-10 h-10 text-slate-400" />
                 <p className="text-xs text-slate-200 max-w-sm leading-relaxed">
                   {isCameraLoading
-                    ? 'Đang kết nối Camera...'
-                    : cameraError || 'Bạn có thể bật Camera để vẫy tay chạm bóng hoặc bấm trực tiếp vào các quả bóng.'}
+                    ? (isEn ? 'Connecting Camera...' : 'Đang kết nối Camera...')
+                    : cameraError || (isEn ? 'Enable your Camera to wave at bubbles, or click the bubbles directly!' : 'Bạn có thể bật Camera để vẫy tay chạm bóng hoặc bấm trực tiếp vào các quả bóng.')}
                 </p>
                 {!isCameraLoading && (
                   <div className="flex items-center gap-2">
@@ -320,7 +328,7 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
                       className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                     >
                       <Video className="w-3.5 h-3.5" />
-                      <span>Bật Camera</span>
+                      <span>{isEn ? 'Start Camera' : 'Bật Camera'}</span>
                     </button>
                     <button
                       type="button"
@@ -328,7 +336,7 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
                       className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"
                     >
                       <Lock className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Hướng dẫn</span>
+                      <span>{isEn ? 'Guide' : 'Hướng dẫn'}</span>
                     </button>
                   </div>
                 )}
@@ -354,7 +362,7 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
                 >
                   <span className="drop-shadow-md">{b.value}</span>
                   <span className="text-[9px] font-sans font-bold uppercase tracking-tight text-white/80">
-                    Chạm tôi!
+                    {isEn ? 'Tap me!' : 'Chạm tôi!'}
                   </span>
                 </button>
               );
@@ -363,20 +371,20 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
             {/* Live Indicator */}
             <div className="absolute bottom-3 left-3 z-20 px-2 py-1 rounded-md bg-black/50 text-[10px] text-emerald-300 font-mono flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>Camera Bong Bóng Tương Tác</span>
+              <span>{isEn ? 'Interactive Bubble Camera' : 'Camera Bong Bóng Tương Tác'}</span>
             </div>
           </div>
 
           <div className="text-center text-xs text-slate-400">
-            Mẹo: Đứng lùi lại khoảng 1.5m để camera bắt trọn chuyển động của hai tay và đầu!
+            {isEn ? 'Tip: Step back ~1.5m so the camera captures both hands clearly!' : 'Mẹo: Đứng lùi lại khoảng 1.5m để camera bắt trọn chuyển động của hai tay và đầu!'}
           </div>
         </div>
       ) : (
         /* Game Over */
         <div className="flex-1 p-8 flex flex-col items-center justify-center text-center space-y-4">
           <Award className="w-16 h-16 text-amber-400" />
-          <h3 className="text-2xl font-bold text-white">Hoàn Thành Trò Chơi!</h3>
-          <p className="text-slate-300 text-sm">Điểm số: <strong className="text-amber-400 font-mono text-lg">{score}</strong></p>
+          <h3 className="text-2xl font-bold text-white">{isEn ? 'Game Complete!' : 'Hoàn Thành Trò Chơi!'}</h3>
+          <p className="text-slate-300 text-sm">{isEn ? 'Score:' : 'Điểm số:'} <strong className="text-amber-400 font-mono text-lg">{score}</strong></p>
           <button
             onClick={() => {
               setQIndex(0);
@@ -386,7 +394,7 @@ export const CameraCatchMathGame: React.FC<CameraCatchMathGameProps> = ({
             }}
             className="px-6 py-2.5 bg-indigo-600 text-white font-bold text-xs rounded-xl"
           >
-            Chơi Lại
+            {isEn ? 'Play Again' : 'Chơi Lại'}
           </button>
         </div>
       )}

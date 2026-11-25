@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { soundManager } from '../../utils/sound';
 import { MathView } from '../common/MathView';
+import { Language } from '../../i18n/translations';
 import { Shield, Zap, Sparkles, AlertTriangle, RotateCcw, Award, Flame, Heart } from 'lucide-react';
 
 interface Invader {
@@ -16,7 +17,8 @@ const PRIMES = [2, 3, 5, 7, 11, 13];
 
 const SAMPLE_NUMBERS = [24, 36, 45, 60, 72, 84, 90, 105, 120, 150];
 
-export const PrimeDefense: React.FC = () => {
+export const PrimeDefense: React.FC<{ language?: Language }> = ({ language = 'vi' }) => {
+  const isEn = language === 'en';
   const [invaders, setInvaders] = useState<Invader[]>([]);
   const [score, setScore] = useState<number>(0);
   const [fortressHp, setFortressHp] = useState<number>(100);
@@ -172,12 +174,12 @@ export const PrimeDefense: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                Trò Chơi Số Học Khắc Sâu · Mới
+                {isEn ? 'Deep Arithmetic Game · New' : 'Trò Chơi Số Học Khắc Sâu · Mới'}
               </span>
-              <span className="text-xs text-slate-400">Phân Tích Thừa Số Nguyên Tố & Chia Hết</span>
+              <span className="text-xs text-slate-400">{isEn ? 'Prime Factorization & Divisibility' : 'Phân Tích Thừa Số Nguyên Tố & Chia Hết'}</span>
             </div>
             <h3 className="text-2xl font-black text-white tracking-tight mt-0.5">
-              Pháo Đài Thừa Số Nguyên Tố (Prime Defense)
+              {isEn ? 'Prime Factor Fortress (Prime Defense)' : 'Pháo Đài Thừa Số Nguyên Tố (Prime Defense)'}
             </h3>
           </div>
         </div>
@@ -185,7 +187,7 @@ export const PrimeDefense: React.FC = () => {
         <div className="flex items-center gap-4 bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-slate-700/60">
           <div className="text-right">
             <span className="text-[10px] text-slate-400 uppercase font-bold block flex items-center gap-1 justify-end">
-              <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> HP Pháo Đài
+              <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> {isEn ? 'Fortress HP' : 'HP Pháo Đài'}
             </span>
             <span className={`text-lg font-mono font-black ${fortressHp < 30 ? 'text-rose-500 animate-bounce' : 'text-emerald-400'}`}>
               {fortressHp}%
@@ -193,13 +195,13 @@ export const PrimeDefense: React.FC = () => {
           </div>
           <div className="w-px h-7 bg-slate-700" />
           <div className="text-right">
-            <span className="text-[10px] text-slate-400 uppercase font-bold block">Điểm Phòng Thủ</span>
+            <span className="text-[10px] text-slate-400 uppercase font-bold block">{isEn ? 'Defense Score' : 'Điểm Phòng Thủ'}</span>
             <span className="text-lg font-mono font-black text-amber-400">{score}</span>
           </div>
           <button
             onClick={handleRestart}
             className="p-2 bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors text-slate-300"
-            title="Chơi lại"
+            title={isEn ? 'Restart' : 'Chơi lại'}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -214,7 +216,11 @@ export const PrimeDefense: React.FC = () => {
         </div>
 
         <div className="text-xs text-slate-400 mb-4 flex items-center justify-between">
-          <span>Quái vật số hợp thành đang tiến về thành lũy (Click vào quái vật để nhắm bắn):</span>
+          <span>
+            {isEn
+              ? 'Composite number monsters are marching toward your fortress (Click one to target):'
+              : 'Quái vật số hợp thành đang tiến về thành lũy (Click vào quái vật để nhắm bắn):'}
+          </span>
           {combo > 1 && (
             <span className="text-amber-400 font-bold flex items-center gap-1">
               <Flame className="w-3.5 h-3.5 fill-amber-400" /> Combo x{combo}
@@ -244,16 +250,16 @@ export const PrimeDefense: React.FC = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-200">
-                          Gốc: <span className="font-mono text-slate-400">{inv.originalNumber}</span>
+                          {isEn ? 'Base:' : 'Gốc:'} <span className="font-mono text-slate-400">{inv.originalNumber}</span>
                         </span>
                         {isTargeted && (
                           <span className="text-[10px] px-2 py-0.2 rounded-full bg-rose-500 text-white font-bold">
-                            Đang Ngắm
+                            {isEn ? 'Targeted' : 'Đang Ngắm'}
                           </span>
                         )}
                       </div>
                       <span className="text-[11px] text-slate-400 font-mono">
-                        Cần chia hết cho các thừa số nguyên tố
+                        {isEn ? 'Must divide by prime factors' : 'Cần chia hết cho các thừa số nguyên tố'}
                       </span>
                     </div>
                   </div>
@@ -273,7 +279,7 @@ export const PrimeDefense: React.FC = () => {
           })}
           {invaders.length === 0 && !isGameOver && (
             <div className="py-8 text-center text-slate-500 text-xs italic">
-              Chiến trường an toàn! Đang dò quét làn sóng quái vật tiếp theo...
+              {isEn ? 'Sector clear! Scanning for the next monster wave...' : 'Chiến trường an toàn! Đang dò quét làn sóng quái vật tiếp theo...'}
             </div>
           )}
         </div>
@@ -283,11 +289,11 @@ export const PrimeDefense: React.FC = () => {
       <div className="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/80 space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-300 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-amber-400" /> Chọn Thừa Số Nguyên Tố Để Bắn (Nạp Đạn):
+            <Zap className="w-4 h-4 text-amber-400" /> {isEn ? 'Select a Prime Factor to Fire:' : 'Chọn Thừa Số Nguyên Tố Để Bắn (Nạp Đạn):'}
           </span>
           {activeInvader && (
             <span className="text-xs font-mono font-bold text-rose-400">
-              Mục Tiêu Hiện Tại: {activeInvader.currentNumber}
+              {isEn ? 'Current Target:' : 'Mục Tiêu Hiện Tại:'} {activeInvader.currentNumber}
             </span>
           )}
         </div>
@@ -304,7 +310,7 @@ export const PrimeDefense: React.FC = () => {
               >
                 <span>{p}</span>
                 <span className="text-[10px] block font-sans font-semibold text-slate-300 group-hover:text-amber-100 uppercase tracking-wider mt-0.5">
-                  Nguyên tố
+                  {isEn ? 'Prime' : 'Nguyên tố'}
                 </span>
               </button>
             );
@@ -315,7 +321,7 @@ export const PrimeDefense: React.FC = () => {
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-700">
           <div className="flex items-center gap-2 text-xs text-slate-400">
             <Sparkles className="w-4 h-4 text-purple-400" />
-            <span>Năng lượng Sóng Thần Ước Lớn Nhất (ƯCLN):</span>
+            <span>{isEn ? 'GCD Tsunami Energy:' : 'Năng lượng Sóng Thần Ước Lớn Nhất (ƯCLN):'}</span>
             <div className="w-24 bg-slate-700 rounded-full h-2 overflow-hidden">
               <div
                 className="bg-purple-500 h-full transition-all"
@@ -330,7 +336,7 @@ export const PrimeDefense: React.FC = () => {
             disabled={superCharge < 100 || invaders.length === 0}
             className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-40 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-purple-900/30"
           >
-            <Sparkles className="w-3.5 h-3.5" /> Khai Hỏa Siêu Pháo Bão Số (Diệt Toàn Bộ)
+            <Sparkles className="w-3.5 h-3.5" /> {isEn ? 'Fire Super Prime Storm (Clear All)' : 'Khai Hỏa Siêu Pháo Bão Số (Diệt Toàn Bộ)'}
           </button>
         </div>
       </div>
@@ -342,20 +348,20 @@ export const PrimeDefense: React.FC = () => {
             <AlertTriangle className="w-7 h-7" />
           </div>
           <div>
-            <h4 className="text-xl font-black text-white">PHÁO ĐÀI ĐÃ BỊ XÂM NHẬP!</h4>
+            <h4 className="text-xl font-black text-white">{isEn ? 'FORTRESS BREACHED!' : 'PHÁO ĐÀI ĐÃ BỊ XÂM NHẬP!'}</h4>
             <p className="text-xs text-rose-200 mt-1">
-              Đừng nản lòng! Phân tích thừa số nguyên tố nhanh hơn để bảo vệ pháo đài.
+              {isEn ? 'Keep going! Factorize faster to defend the fortress.' : 'Đừng nản lòng! Phân tích thừa số nguyên tố nhanh hơn để bảo vệ pháo đài.'}
             </p>
           </div>
           <div className="p-3 bg-slate-950/60 rounded-xl max-w-xs mx-auto text-xs">
-            <span className="text-slate-400 block">Tổng điểm đạt được:</span>
+            <span className="text-slate-400 block">{isEn ? 'Final Score:' : 'Tổng điểm đạt được:'}</span>
             <span className="text-xl font-mono font-black text-amber-400">{score}</span>
           </div>
           <button
             onClick={handleRestart}
             className="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs transition-colors shadow-lg"
           >
-            Chơi Lại Trận Mới
+            {isEn ? 'Play Again' : 'Chơi Lại Trận Mới'}
           </button>
         </div>
       )}
