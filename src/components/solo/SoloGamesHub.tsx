@@ -94,8 +94,8 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
                 setActiveGame(g.id as any);
               }}
               className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between ${isSelected
-                  ? 'bg-white border-indigo-600 ring-2 ring-indigo-500/10 shadow-sm'
-                  : 'bg-white/70 hover:bg-white border-slate-200'
+                ? 'bg-white border-indigo-600 ring-2 ring-indigo-500/10 shadow-sm'
+                : 'bg-white/70 hover:bg-white border-slate-200'
                 }`}
             >
               <div className="flex items-center gap-2 mb-2">

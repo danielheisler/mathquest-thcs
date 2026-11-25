@@ -218,7 +218,7 @@ export default function App() {
           if (examSession && JSON.parse(examSession)?.isExamActive) return 'exams';
           const hwSession = localStorage.getItem('mathquest_ongoing_homework_session');
           if (hwSession && JSON.parse(hwSession)?.isSessionActive) return 'homework';
-        } catch {}
+        } catch { }
       }
       const saved = typeof window !== 'undefined'
         ? (localStorage.getItem('mathquest_active_tab') as NavTab)
@@ -269,7 +269,7 @@ export default function App() {
           };
         }
       }
-    } catch {}
+    } catch { }
     return null;
   });
 
@@ -361,7 +361,7 @@ export default function App() {
         }));
         localStorage.setItem('mathquest_classrooms', JSON.stringify(updated));
         return updated;
-      } catch {}
+      } catch { }
     }
     return initialClassrooms;
   });
@@ -396,7 +396,7 @@ export default function App() {
           const missing = initialQuestions.filter((q) => !existingIds.has(q.id));
           return [...synced, ...missing];
         }
-      } catch {}
+      } catch { }
     }
     return initialQuestions;
   });
@@ -530,7 +530,7 @@ export default function App() {
           }
         }
         setOngoingExamInfo(null);
-      } catch {}
+      } catch { }
     };
 
     checkSessions();
@@ -658,11 +658,11 @@ export default function App() {
 
   const handleToggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().catch(() => { });
       setIsFullscreen(true);
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
+        document.exitFullscreen().catch(() => { });
         setIsFullscreen(false);
       }
     }
@@ -995,160 +995,160 @@ export default function App() {
               </div>
 
               {/* Tab: Quản lý lớp học, học sinh & SĐT Phụ huynh */}
-            {activeTab === 'classroom' && (
-              <ClassroomManager
-                classrooms={classrooms}
-                students={students}
-                submissions={homeworkSubmissions}
-                parentPin={parentPin}
-                onAddStudent={handleAddStudent}
-                onUpdateStudent={handleUpdateStudent}
-                onDeleteStudent={handleDeleteStudent}
-                onSelectStudentForReport={handleNavigateToReport}
-                onUpdateClassroom={handleUpdateClassroom}
-                language={language}
-              />
-            )}
+              {activeTab === 'classroom' && (
+                <ClassroomManager
+                  classrooms={classrooms}
+                  students={students}
+                  submissions={homeworkSubmissions}
+                  parentPin={parentPin}
+                  onAddStudent={handleAddStudent}
+                  onUpdateStudent={handleUpdateStudent}
+                  onDeleteStudent={handleDeleteStudent}
+                  onSelectStudentForReport={handleNavigateToReport}
+                  onUpdateClassroom={handleUpdateClassroom}
+                  language={language}
+                />
+              )}
 
-            {/* Tab: Bảng Điểm Môn Toán (5 TX, 1 GK, 1 CK & Tính ĐTB) */}
-            {activeTab === 'gradebook' && (
-              <MathGradebookBoard
-                mode="teacher"
-                students={students}
-                classrooms={classrooms}
-                gradebook={gradebook}
-                onUpdateStudentScores={handleUpdateStudentScores}
-                language={language}
-              />
-            )}
+              {/* Tab: Bảng Điểm Môn Toán (5 TX, 1 GK, 1 CK & Tính ĐTB) */}
+              {activeTab === 'gradebook' && (
+                <MathGradebookBoard
+                  mode="teacher"
+                  students={students}
+                  classrooms={classrooms}
+                  gradebook={gradebook}
+                  onUpdateStudentScores={handleUpdateStudentScores}
+                  language={language}
+                />
+              )}
 
-            {/* Tab: Giáo Án / Kế Hoạch Bài Dạy (Chuẩn 5512) */}
-            {activeTab === 'lesson_plans' && (
-              <LessonPlanManager
-                language={language}
-                onCreateSlidesFromPlan={(plan) => {
-                  setSelectedLessonPlanForSlides(plan);
-                  setActiveTab('slide_studio');
-                }}
-              />
-            )}
+              {/* Tab: Giáo Án / Kế Hoạch Bài Dạy (Chuẩn 5512) */}
+              {activeTab === 'lesson_plans' && (
+                <LessonPlanManager
+                  language={language}
+                  onCreateSlidesFromPlan={(plan) => {
+                    setSelectedLessonPlanForSlides(plan);
+                    setActiveTab('slide_studio');
+                  }}
+                />
+              )}
 
-            {/* Tab: Tạo Slide Trình Chiếu Bài Giảng */}
-            {activeTab === 'slide_studio' && (
-              <SlideStudio
-                lessonPlan={selectedLessonPlanForSlides}
-                questions={questions}
-                language={language}
-              />
-            )}
+              {/* Tab: Tạo Slide Trình Chiếu Bài Giảng */}
+              {activeTab === 'slide_studio' && (
+                <SlideStudio
+                  lessonPlan={selectedLessonPlanForSlides}
+                  questions={questions}
+                  language={language}
+                />
+              )}
 
-            {/* Tab: Radar Giám Sát Chống Chuyển Tab (Live Anti-Cheat) */}
-            {activeTab === 'anti_cheat_monitor' && (
-              <AntiCheatMonitorPanel
-                students={students}
-                classroom={classrooms[0] || initialClassrooms[0]}
-                submissions={homeworkSubmissions}
-                language={language}
-              />
-            )}
+              {/* Tab: Radar Giám Sát Chống Chuyển Tab (Live Anti-Cheat) */}
+              {activeTab === 'anti_cheat_monitor' && (
+                <AntiCheatMonitorPanel
+                  students={students}
+                  classroom={classrooms[0] || initialClassrooms[0]}
+                  submissions={homeworkSubmissions}
+                  language={language}
+                />
+              )}
 
-            {/* Tab: Giám sát BTVN (Đã nộp vs CHƯA NỘP, Nhắn tin SMS) */}
-            {activeTab === 'homework_tracker' && (
-              <HomeworkPortal
-                questions={questions}
-                students={students}
-                classrooms={classrooms}
-                submissions={homeworkSubmissions}
-                onAddSubmission={handleAddHomeworkSubmission}
-                language={language}
-                initialTab="teacher"
-                userRole={authUser.role}
-              />
-            )}
-
-            {/* Tab: Tạo Đề Thi AI Không Cần Kho Tài Liệu & Giải Chi Tiết (Góc GV) */}
-            {activeTab === 'ai_exam_studio' && (
-              <AIExamGenerator
-                aiExams={aiExams}
-                onSaveAIExam={handleSaveAIExam}
-                onDeleteAIExam={handleDeleteAIExam}
-                onTakeExam={handleTakeAIExam}
-                language={language}
-              />
-            )}
-
-            {/* Tab: Tự Tạo Trò Chơi Theo Yêu Cầu (Game Studio - Góc GV) */}
-            {activeTab === 'custom_game' && (
-              <CustomGameStudio
-                activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
-                activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
-                language={language}
-              />
-            )}
-
-            {/* Tab: Ngân hàng Đề thi thử Giữa/Cuối kỳ & In đề thi A4 */}
-            {activeTab === 'teacher_exams' && (
-              <SemesterExamPortal
-                students={students}
-                onSaveExamResult={handleSaveExamResult}
-                activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
-                customExams={aiExams}
-                preselectedExamId={preselectedExamId}
-                onOpenAIGenerator={() => setActiveTab('ai_exam_studio')}
-                language={language}
-              />
-            )}
-
-            {/* Tab: Ngân hàng câu hỏi MathType */}
-            {activeTab === 'questions' && (
-              <QuestionBank
-                questions={questions}
-                onAddQuestion={handleAddQuestion}
-                onUpdateQuestion={handleUpdateQuestion}
-                onDeleteQuestion={handleDeleteQuestion}
-                language={language}
-              />
-            )}
-
-            {/* Tab: Báo cáo định kỳ & Xuất PDF */}
-            {activeTab === 'reports' && (
-              <div className="space-y-8">
-                <StudentProgress
+              {/* Tab: Giám sát BTVN (Đã nộp vs CHƯA NỘP, Nhắn tin SMS) */}
+              {activeTab === 'homework_tracker' && (
+                <HomeworkPortal
+                  questions={questions}
                   students={students}
                   classrooms={classrooms}
                   submissions={homeworkSubmissions}
-                  onSelectStudentForReport={handleNavigateToReport}
+                  onAddSubmission={handleAddHomeworkSubmission}
+                  language={language}
+                  initialTab="teacher"
+                  userRole={authUser.role}
+                />
+              )}
+
+              {/* Tab: Tạo Đề Thi AI Không Cần Kho Tài Liệu & Giải Chi Tiết (Góc GV) */}
+              {activeTab === 'ai_exam_studio' && (
+                <AIExamGenerator
+                  aiExams={aiExams}
+                  onSaveAIExam={handleSaveAIExam}
+                  onDeleteAIExam={handleDeleteAIExam}
+                  onTakeExam={handleTakeAIExam}
                   language={language}
                 />
-                <ReportCardGenerator
+              )}
+
+              {/* Tab: Tự Tạo Trò Chơi Theo Yêu Cầu (Game Studio - Góc GV) */}
+              {activeTab === 'custom_game' && (
+                <CustomGameStudio
+                  activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
+                  activeClassName={classrooms[0]?.name || 'Lớp 6A1'}
+                  language={language}
+                />
+              )}
+
+              {/* Tab: Ngân hàng Đề thi thử Giữa/Cuối kỳ & In đề thi A4 */}
+              {activeTab === 'teacher_exams' && (
+                <SemesterExamPortal
                   students={students}
-                  classrooms={classrooms}
-                  selectedStudent={selectedStudentForReport}
+                  onSaveExamResult={handleSaveExamResult}
+                  activeStudentName={students[0]?.name || 'Nguyễn Minh Quân'}
+                  customExams={aiExams}
+                  preselectedExamId={preselectedExamId}
+                  onOpenAIGenerator={() => setActiveTab('ai_exam_studio')}
                   language={language}
                 />
-              </div>
-            )}
+              )}
 
-            {/* Tab: Sơ Đồ Chỗ Ngồi Lớp Học (4 Dãy / 4 Tổ - GV Chủ Nhiệm) */}
-            {activeTab === 'seating_chart' && (
-              <ClassroomSeatingChart
-                classroom={classrooms[0] || initialClassrooms[0]}
-                students={students}
-                academicRecords={initialVnEduRecords}
-                language={language}
-              />
-            )}
+              {/* Tab: Ngân hàng câu hỏi MathType */}
+              {activeTab === 'questions' && (
+                <QuestionBank
+                  questions={questions}
+                  onAddQuestion={handleAddQuestion}
+                  onUpdateQuestion={handleUpdateQuestion}
+                  onDeleteQuestion={handleDeleteQuestion}
+                  language={language}
+                />
+              )}
 
-            {/* Tab: Sổ Điểm Điện Tử VnEdu (Các Môn - GV Chủ Nhiệm) */}
-            {activeTab === 'vnedu_gradebook' && (
-              <VnEduGradebook
-                classroom={classrooms[0] || initialClassrooms[0]}
-                language={language}
-              />
-            )}
-          </div>
-        )
-      )}
+              {/* Tab: Báo cáo định kỳ & Xuất PDF */}
+              {activeTab === 'reports' && (
+                <div className="space-y-8">
+                  <StudentProgress
+                    students={students}
+                    classrooms={classrooms}
+                    submissions={homeworkSubmissions}
+                    onSelectStudentForReport={handleNavigateToReport}
+                    language={language}
+                  />
+                  <ReportCardGenerator
+                    students={students}
+                    classrooms={classrooms}
+                    selectedStudent={selectedStudentForReport}
+                    language={language}
+                  />
+                </div>
+              )}
+
+              {/* Tab: Sơ Đồ Chỗ Ngồi Lớp Học (4 Dãy / 4 Tổ - GV Chủ Nhiệm) */}
+              {activeTab === 'seating_chart' && (
+                <ClassroomSeatingChart
+                  classroom={classrooms[0] || initialClassrooms[0]}
+                  students={students}
+                  academicRecords={initialVnEduRecords}
+                  language={language}
+                />
+              )}
+
+              {/* Tab: Sổ Điểm Điện Tử VnEdu (Các Môn - GV Chủ Nhiệm) */}
+              {activeTab === 'vnedu_gradebook' && (
+                <VnEduGradebook
+                  classroom={classrooms[0] || initialClassrooms[0]}
+                  language={language}
+                />
+              )}
+            </div>
+          )
+        )}
       </main>
 
       {/* Educational Footer */}

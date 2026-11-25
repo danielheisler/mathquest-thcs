@@ -267,11 +267,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 soundManager.playClick();
                 onToggleTheme();
               }}
-              className={`p-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
-                theme === 'dark'
+              className={`p-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${theme === 'dark'
                   ? 'bg-indigo-600 border-indigo-500 text-amber-300 hover:bg-indigo-500'
                   : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-              }`}
+                }`}
               title={theme === 'dark' ? t.lightMode : t.darkMode}
               aria-label={theme === 'dark' ? t.lightMode : t.darkMode}
             >
@@ -284,11 +283,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 soundManager.playClick();
                 onToggleLanguage();
               }}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
-                language === 'en'
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${language === 'en'
                   ? 'bg-indigo-600 border-indigo-500 text-white hover:bg-indigo-500'
                   : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
-              }`}
+                }`}
               title={`${t.language}: ${language === 'vi' ? t.vietnamese : t.english}`}
             >
               <Globe className={`w-3.5 h-3.5 ${language === 'en' ? 'text-cyan-200' : 'text-indigo-600'}`} />
@@ -298,11 +296,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Sound Toggle */}
             <button
               onClick={onToggleSound}
-              className={`p-2 rounded-xl border text-xs font-medium transition-colors cursor-pointer ${
-                isSoundEnabled
+              className={`p-2 rounded-xl border text-xs font-medium transition-colors cursor-pointer ${isSoundEnabled
                   ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                   : 'bg-rose-50 border-rose-200 text-rose-600'
-              }`}
+                }`}
               title={isSoundEnabled ? t.soundOff : t.soundOn}
             >
               {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
@@ -346,18 +343,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                     soundManager.playClick();
                     onTabChange(item.id);
                   }}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
-                    isActive
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${isActive
                       ? 'bg-indigo-50 text-indigo-700 font-bold'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   <span>{item.label}</span>
                   {item.badge && (
                     <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
-                        isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
-                      }`}
+                      className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+                        }`}
                     >
                       {item.badge}
                     </span>
@@ -379,11 +374,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onTeacherRoleChange?.('subject_teacher');
                   onTabChange('classroom');
                 }}
-                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-                  teacherRole === 'subject_teacher'
+                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${teacherRole === 'subject_teacher'
                     ? 'bg-indigo-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <span>{t.subjectTeacherBtn}</span>
               </button>
@@ -395,11 +389,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onTeacherRoleChange?.('homeroom_teacher');
                   onTabChange('seating_chart');
                 }}
-                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-                  teacherRole === 'homeroom_teacher'
+                className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${teacherRole === 'homeroom_teacher'
                     ? 'bg-blue-700 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 <span>{t.homeroomTeacherBtn}</span>
               </button>
@@ -416,18 +409,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                       soundManager.playClick();
                       onTabChange(item.id);
                     }}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
-                      isActive
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${isActive
                         ? 'bg-indigo-50 text-indigo-700 font-bold'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                    }`}
+                      }`}
                   >
                     <span>{item.label}</span>
                     {item.badge && (
                       <span
-                        className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${
-                          isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
-                        }`}
+                        className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-bold ${isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
                       >
                         {item.badge}
                       </span>

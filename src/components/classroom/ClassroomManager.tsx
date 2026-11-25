@@ -5,9 +5,9 @@ import { getStudentCredentials } from '../../utils/auth';
 import { soundManager } from '../../utils/sound';
 import { ComprehensiveClassReportModal } from '../reports/ComprehensiveClassReportModal';
 import { WeeklyParticipationReport } from '../analytics/WeeklyParticipationReport';
-import { 
-  Users, UserPlus, GraduationCap, CheckCircle, Clock, XCircle, Award, 
-  Trash2, FileText, Search, Phone, MessageSquare, Send, Copy, Check, 
+import {
+  Users, UserPlus, GraduationCap, CheckCircle, Clock, XCircle, Award,
+  Trash2, FileText, Search, Phone, MessageSquare, Send, Copy, Check,
   FileSpreadsheet, Edit3, Sparkles, ExternalLink, X, AlertCircle, Printer, RefreshCw,
   Settings, Calendar, BarChart3, ShieldCheck, CheckCircle2, Upload, Download
 } from 'lucide-react';
@@ -41,7 +41,7 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
   const [selectedClassId, setSelectedClassId] = useState<string>(classrooms[0]?.id || '');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [classroomTab, setClassroomTab] = useState<'roster' | 'weekly_report'>('roster');
-  
+
   // Real-time 5s auto-update ticker
   const [autoRefreshSec, setAutoRefreshSec] = useState<number>(5);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string>(new Date().toLocaleTimeString('vi-VN'));
@@ -109,7 +109,7 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
   const classStudents = students.filter(s => s.classId === currentClass?.id);
 
   const filteredStudents = classStudents
-    .filter(s => 
+    .filter(s =>
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (s.parentPhone && s.parentPhone.includes(searchTerm)) ||
       (s.parentName && s.parentName.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -428,9 +428,8 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             {/* Live 5-Second Real-Time Update Indicator */}
-            <div className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition-all ${
-              pulseActive ? 'bg-emerald-100 border-emerald-400 text-emerald-800 scale-105' : 'bg-slate-50 border-slate-200 text-slate-700'
-            }`}>
+            <div className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition-all ${pulseActive ? 'bg-emerald-100 border-emerald-400 text-emerald-800 scale-105' : 'bg-slate-50 border-slate-200 text-slate-700'
+              }`}>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>{isEn ? 'Sync in:' : 'Cập nhật sau:'} <b className="text-emerald-600">{autoRefreshSec}s</b></span>
             </div>
@@ -484,17 +483,15 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                   soundManager.playClick();
                   setSelectedClassId(c.id);
                 }}
-                className={`px-4 py-2.5 rounded-xl border text-left transition-all cursor-pointer relative group ${
-                  isSelected
+                className={`px-4 py-2.5 rounded-xl border text-left transition-all cursor-pointer relative group ${isSelected
                     ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
                     : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-sm">{c.name}</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${
-                    isSelected ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-200 text-slate-600'
-                  }`}>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${isSelected ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-200 text-slate-600'
+                    }`}>
                     {count} học sinh
                   </span>
                 </div>
@@ -521,8 +518,8 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
               <div>
                 <span className="text-slate-500 block text-[11px]">Điểm trung bình môn</span>
                 <span className="font-bold text-emerald-600 text-sm font-mono">
-                  {classStudents.length > 0 
-                    ? (classStudents.reduce((acc, s) => acc + s.overallScore, 0) / classStudents.length).toFixed(1) 
+                  {classStudents.length > 0
+                    ? (classStudents.reduce((acc, s) => acc + s.overallScore, 0) / classStudents.length).toFixed(1)
                     : '0.0'}/10
                 </span>
               </div>
@@ -578,11 +575,10 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
               soundManager.playClick();
               setClassroomTab('roster');
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-              classroomTab === 'roster'
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${classroomTab === 'roster'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+              }`}
           >
             <Users className="w-4 h-4" />
             <span>Sổ Quản Lý & Thứ Hạng Lớp</span>
@@ -594,11 +590,10 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
               soundManager.playClick();
               setClassroomTab('weekly_report');
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-              classroomTab === 'weekly_report'
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${classroomTab === 'weekly_report'
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+              }`}
           >
             <BarChart3 className="w-4 h-4" />
             <span>Thống Kê Tham Gia Theo Tuần & Rà Soát Giờ Vào - Ra</span>
@@ -657,195 +652,194 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-              {filteredStudents.map((s, index) => {
-                const rank = index + 1;
-                return (
-                  <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
-                    {/* Rank column */}
-                    <td className="py-3 px-3 text-center font-mono">
-                      {rank === 1 ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-md font-black text-xs shadow-2xs">
-                          #1 👑
-                        </span>
-                      ) : rank === 2 ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-200 text-slate-800 border border-slate-300 rounded-md font-bold text-xs">
-                          #2 🥈
-                        </span>
-                      ) : rank === 3 ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md font-bold text-xs">
-                          #3 🥉
-                        </span>
-                      ) : (
-                        <span className="text-slate-500 font-semibold text-xs">
-                          #{rank}
-                        </span>
-                      )}
-                    </td>
+                  {filteredStudents.map((s, index) => {
+                    const rank = index + 1;
+                    return (
+                      <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
+                        {/* Rank column */}
+                        <td className="py-3 px-3 text-center font-mono">
+                          {rank === 1 ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-md font-black text-xs shadow-2xs">
+                              #1 👑
+                            </span>
+                          ) : rank === 2 ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-200 text-slate-800 border border-slate-300 rounded-md font-bold text-xs">
+                              #2 🥈
+                            </span>
+                          ) : rank === 3 ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md font-bold text-xs">
+                              #3 🥉
+                            </span>
+                          ) : (
+                            <span className="text-slate-500 font-semibold text-xs">
+                              #{rank}
+                            </span>
+                          )}
+                        </td>
 
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs uppercase">
-                          {s.name.slice(0, 1)}
-                        </div>
-                        <div>
-                          <span className="font-bold text-slate-900 block">{s.name}</span>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs uppercase">
+                              {s.name.slice(0, 1)}
+                            </div>
+                            <div>
+                              <span className="font-bold text-slate-900 block">{s.name}</span>
+                              {(() => {
+                                const creds = getStudentCredentials(s, index);
+                                return (
+                                  <span className="text-[11px] text-slate-400 font-mono block">
+                                    TK: {creds.phone} · {creds.code} · MK: {creds.password}
+                                  </span>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Entry & Exit Times Column */}
+                        <td className="py-3 px-3 text-center font-mono bg-emerald-50/20 border-x border-emerald-100">
                           {(() => {
-                            const creds = getStudentCredentials(s, index);
+                            const sub = submissions.find(item => item.studentName === s.name || item.studentId === s.id);
+                            const defaultEntries = ['19:42:15', '20:07:40', '20:26:40', '21:01:23', '19:12:00', '19:31:50'];
+                            const defaultExits = ['19:45:19', '20:10:32', '20:30:10', '21:05:45', '19:15:30', '19:35:10'];
+                            const entryTime = sub?.entryTime || defaultEntries[index % defaultEntries.length];
+                            const exitTime = sub?.exitTime || defaultExits[index % defaultExits.length];
                             return (
-                              <span className="text-[11px] text-slate-400 font-mono block">
-                                TK: {creds.phone} · {creds.code} · MK: {creds.password}
-                              </span>
+                              <div className="inline-flex flex-col items-center gap-0.5">
+                                <span className="text-[10px] font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs">
+                                  🟢 Vào: {entryTime}
+                                </span>
+                                <span className="text-[10px] font-bold text-blue-800 bg-white px-2 py-0.5 rounded border border-blue-200 shadow-2xs">
+                                  🏁 Ra: {exitTime}
+                                </span>
+                              </div>
                             );
                           })()}
-                        </div>
-                      </div>
-                    </td>
+                        </td>
 
-                    {/* Entry & Exit Times Column */}
-                    <td className="py-3 px-3 text-center font-mono bg-emerald-50/20 border-x border-emerald-100">
-                      {(() => {
-                        const sub = submissions.find(item => item.studentName === s.name || item.studentId === s.id);
-                        const defaultEntries = ['19:42:15', '20:07:40', '20:26:40', '21:01:23', '19:12:00', '19:31:50'];
-                        const defaultExits = ['19:45:19', '20:10:32', '20:30:10', '21:05:45', '19:15:30', '19:35:10'];
-                        const entryTime = sub?.entryTime || defaultEntries[index % defaultEntries.length];
-                        const exitTime = sub?.exitTime || defaultExits[index % defaultExits.length];
-                        return (
-                          <div className="inline-flex flex-col items-center gap-0.5">
-                            <span className="text-[10px] font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs">
-                              🟢 Vào: {entryTime}
+                        <td className="py-3 px-3 text-center text-slate-600">
+                          {s.gender === 'male' ? 'Nam' : 'Nữ'}
+                        </td>
+
+                        <td className="py-3 px-3 text-center">
+                          <button
+                            onClick={() => handleToggleAttendance(s)}
+                            className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all inline-flex items-center gap-1 cursor-pointer ${s.attendance === 'present'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : s.attendance === 'late'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
+                              }`}
+                            title="Click để đổi điểm danh"
+                          >
+                            {s.attendance === 'present' && <CheckCircle className="w-3 h-3 text-emerald-600" />}
+                            {s.attendance === 'late' && <Clock className="w-3 h-3 text-amber-600" />}
+                            {s.attendance === 'absent' && <XCircle className="w-3 h-3 text-rose-600" />}
+                            <span>
+                              {s.attendance === 'present' ? 'Có mặt' : s.attendance === 'late' ? 'Đi muộn' : 'Vắng'}
                             </span>
-                            <span className="text-[10px] font-bold text-blue-800 bg-white px-2 py-0.5 rounded border border-blue-200 shadow-2xs">
-                              🏁 Ra: {exitTime}
+                          </button>
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-mono font-bold text-indigo-600 text-sm">
+                          {s.overallScore.toFixed(1)}
+                        </td>
+
+                        <td className="py-3 px-3 text-right font-mono text-emerald-600 font-semibold">
+                          {s.accuracyRate}%
+                        </td>
+
+                        {/* Parent Phone & Name Column */}
+                        <td className="py-3 px-4">
+                          <div>
+                            <span className="font-bold text-slate-800 block text-xs">
+                              {s.parentName || 'Phụ huynh'}
                             </span>
+                            <a
+                              href={`tel:${s.parentPhone}`}
+                              className="text-indigo-600 hover:text-indigo-800 font-mono text-[11px] font-bold flex items-center gap-1 mt-0.5"
+                            >
+                              <Phone className="w-3 h-3 text-indigo-500" />
+                              <span>{s.parentPhone || 'Chưa có SĐT'}</span>
+                            </a>
                           </div>
-                        );
-                      })()}
-                    </td>
+                        </td>
 
-                    <td className="py-3 px-3 text-center text-slate-600">
-                      {s.gender === 'male' ? 'Nam' : 'Nữ'}
-                    </td>
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-semibold">
+                            <Award className="w-3 h-3 text-amber-600" />
+                            {s.badge}
+                          </span>
+                        </td>
 
-                    <td className="py-3 px-3 text-center">
-                      <button
-                        onClick={() => handleToggleAttendance(s)}
-                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all inline-flex items-center gap-1 cursor-pointer ${
-                          s.attendance === 'present'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : s.attendance === 'late'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-rose-50 text-rose-700 border border-rose-200'
-                        }`}
-                        title="Click để đổi điểm danh"
-                      >
-                        {s.attendance === 'present' && <CheckCircle className="w-3 h-3 text-emerald-600" />}
-                        {s.attendance === 'late' && <Clock className="w-3 h-3 text-amber-600" />}
-                        {s.attendance === 'absent' && <XCircle className="w-3 h-3 text-rose-600" />}
-                        <span>
-                          {s.attendance === 'present' ? 'Có mặt' : s.attendance === 'late' ? 'Đi muộn' : 'Vắng'}
-                        </span>
-                      </button>
-                    </td>
+                        <td className="py-3 px-4 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            {/* Send SMS Button */}
+                            <button
+                              onClick={() => {
+                                soundManager.playClick();
+                                setSmsStudent(s);
+                              }}
+                              className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors shadow-2xs"
+                              title="Nhắn tin thông báo kết quả cho phụ huynh"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Nhắn Tin</span>
+                            </button>
 
-                    <td className="py-3 px-3 text-right font-mono font-bold text-indigo-600 text-sm">
-                      {s.overallScore.toFixed(1)}
-                    </td>
+                            {/* Edit Student Button */}
+                            <button
+                              onClick={() => {
+                                soundManager.playClick();
+                                setEditingStudent(s);
+                              }}
+                              className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                              title="Chỉnh sửa thông tin học sinh và phụ huynh"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
 
-                    <td className="py-3 px-3 text-right font-mono text-emerald-600 font-semibold">
-                      {s.accuracyRate}%
-                    </td>
+                            {/* Report Card Button */}
+                            <button
+                              onClick={() => {
+                                soundManager.playClick();
+                                onSelectStudentForReport(s);
+                              }}
+                              className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                              title="Xuất phiếu báo cáo phụ huynh"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                            </button>
 
-                    {/* Parent Phone & Name Column */}
-                    <td className="py-3 px-4">
-                      <div>
-                        <span className="font-bold text-slate-800 block text-xs">
-                          {s.parentName || 'Phụ huynh'}
-                        </span>
-                        <a
-                          href={`tel:${s.parentPhone}`}
-                          className="text-indigo-600 hover:text-indigo-800 font-mono text-[11px] font-bold flex items-center gap-1 mt-0.5"
-                        >
-                          <Phone className="w-3 h-3 text-indigo-500" />
-                          <span>{s.parentPhone || 'Chưa có SĐT'}</span>
-                        </a>
-                      </div>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-semibold">
-                        <Award className="w-3 h-3 text-amber-600" />
-                        {s.badge}
-                      </span>
-                    </td>
-
-                    <td className="py-3 px-4 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {/* Send SMS Button */}
-                        <button
-                          onClick={() => {
-                            soundManager.playClick();
-                            setSmsStudent(s);
-                          }}
-                          className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors shadow-2xs"
-                          title="Nhắn tin thông báo kết quả cho phụ huynh"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Nhắn Tin</span>
-                        </button>
-
-                        {/* Edit Student Button */}
-                        <button
-                          onClick={() => {
-                            soundManager.playClick();
-                            setEditingStudent(s);
-                          }}
-                          className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                          title="Chỉnh sửa thông tin học sinh và phụ huynh"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Report Card Button */}
-                        <button
-                          onClick={() => {
-                            soundManager.playClick();
-                            onSelectStudentForReport(s);
-                          }}
-                          className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                          title="Xuất phiếu báo cáo phụ huynh"
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Delete Student Button */}
-                        <button
-                          onClick={() => {
-                            soundManager.playWrong();
-                            onDeleteStudent(s.id);
-                          }}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                          title="Xóa học sinh"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-              {filteredStudents.length === 0 && (
-                <tr>
-                  <td colSpan={10} className="py-8 text-center text-slate-400 text-xs">
-                    Chưa có học sinh nào trong danh sách lớp này. Hãy bấm "Chèn DS Học Sinh" hoặc "Thêm Học Sinh Mới".
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                            {/* Delete Student Button */}
+                            <button
+                              onClick={() => {
+                                soundManager.playWrong();
+                                onDeleteStudent(s.id);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              title="Xóa học sinh"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {filteredStudents.length === 0 && (
+                    <tr>
+                      <td colSpan={10} className="py-8 text-center text-slate-400 text-xs">
+                        Chưa có học sinh nào trong danh sách lớp này. Hãy bấm "Chèn DS Học Sinh" hoặc "Thêm Học Sinh Mới".
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
-    )}
-  </div>
 
       {/* MODAL 1: ADD SINGLE STUDENT */}
       {showAddModal && (
@@ -1018,22 +1012,20 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                 <button
                   type="button"
                   onClick={() => setBatchImportMode('upload')}
-                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                    batchImportMode === 'upload'
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${batchImportMode === 'upload'
                       ? 'bg-white text-emerald-700 shadow-2xs'
                       : 'text-slate-600 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   <Upload className="w-3.5 h-3.5" /> 📁 Tải Tệp Excel / CSV Lên
                 </button>
                 <button
                   type="button"
                   onClick={() => setBatchImportMode('paste')}
-                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                    batchImportMode === 'paste'
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${batchImportMode === 'paste'
                       ? 'bg-white text-indigo-700 shadow-2xs'
                       : 'text-slate-600 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5" /> 📋 Dán Trực Tiếp (Copy/Paste)
                 </button>
@@ -1053,11 +1045,10 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                     const file = e.dataTransfer.files?.[0];
                     if (file) handleFileUpload(file);
                   }}
-                  className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${
-                    isDragOver
+                  className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${isDragOver
                       ? 'border-emerald-500 bg-emerald-50/60'
                       : 'border-slate-300 hover:border-emerald-400 bg-slate-50/50'
-                  }`}
+                    }`}
                   onClick={() => {
                     const input = document.getElementById('excel-file-input') as HTMLInputElement;
                     if (input) input.click();
@@ -1196,11 +1187,10 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                     type="button"
                     onClick={handleBatchImport}
                     disabled={parsedBatchList.length === 0}
-                    className={`px-5 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all ${
-                      parsedBatchList.length > 0
+                    className={`px-5 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all ${parsedBatchList.length > 0
                         ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer hover:shadow-md'
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                    }`}
+                      }`}
                   >
                     <CheckCircle className="w-4 h-4" />
                     {parsedBatchList.length > 0
@@ -1367,15 +1357,14 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                       setSmsTemplate(tmpl.id as any);
                       setShowPinInPreview(false);
                     }}
-                    className={`px-3 py-2 rounded-xl text-xs font-semibold border text-left transition-all ${
-                      smsTemplate === tmpl.id
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold border text-left transition-all ${smsTemplate === tmpl.id
                         ? tmpl.id === 'parent_pin'
                           ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
                           : 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                         : tmpl.id === 'parent_pin'
                           ? 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-800'
                           : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
-                    }`}
+                      }`}
                   >
                     {tmpl.label}
                   </button>
