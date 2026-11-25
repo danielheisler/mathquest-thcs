@@ -27,11 +27,11 @@ import {
   ArrowUp,
   ArrowDown,
   Eye,
-  BookOpen,
   Lightbulb,
-  HelpCircle,
   CheckCircle2,
   Palette,
+  BookPlus,
+  X,
 } from 'lucide-react';
 
 export interface LectureSlide {
@@ -50,12 +50,15 @@ export interface LectureSlide {
 
 type SlideThemeKey = 'indigo' | 'emerald' | 'midnight' | 'amber';
 
+const SLIDE_DECKS_STORAGE_KEY = 'mathquest_slide_decks_v1';
+
 const SLIDE_THEMES: Record<
   SlideThemeKey,
   {
     nameVi: string;
     nameEn: string;
     bg: string;
+    cssGradient: string;
     accentBadge: string;
     formulaBg: string;
     dot: string;
@@ -65,6 +68,7 @@ const SLIDE_THEMES: Record<
     nameVi: 'Xanh Sư Phạm',
     nameEn: 'Academic Indigo',
     bg: 'from-indigo-900 via-blue-900 to-slate-900 text-white',
+    cssGradient: 'linear-gradient(135deg,#312e81,#1e3a8a,#0f172a)',
     accentBadge: 'bg-indigo-500/30 text-indigo-100 border-indigo-400/40',
     formulaBg: 'bg-white/10 border-white/20 text-amber-300',
     dot: 'bg-indigo-600',
@@ -73,6 +77,7 @@ const SLIDE_THEMES: Record<
     nameVi: 'Bảng Xanh Phấn Trắng',
     nameEn: 'Green Chalkboard',
     bg: 'from-emerald-950 via-teal-900 to-slate-900 text-white',
+    cssGradient: 'linear-gradient(135deg,#022c22,#134e4a,#0f172a)',
     accentBadge: 'bg-emerald-500/25 text-emerald-100 border-emerald-400/40',
     formulaBg: 'bg-black/30 border-emerald-400/30 text-amber-300',
     dot: 'bg-emerald-600',
@@ -81,6 +86,7 @@ const SLIDE_THEMES: Record<
     nameVi: 'Tối Giản Hiện Đại',
     nameEn: 'Midnight Purple',
     bg: 'from-slate-950 via-purple-950 to-indigo-950 text-white',
+    cssGradient: 'linear-gradient(135deg,#020617,#3b0764,#1e1b4b)',
     accentBadge: 'bg-purple-500/25 text-purple-200 border-purple-400/40',
     formulaBg: 'bg-white/10 border-purple-300/30 text-cyan-300',
     dot: 'bg-purple-600',
@@ -89,6 +95,7 @@ const SLIDE_THEMES: Record<
     nameVi: 'Ấm Áp Nổi Bật',
     nameEn: 'Warm Sunset',
     bg: 'from-amber-900 via-orange-900 to-rose-950 text-white',
+    cssGradient: 'linear-gradient(135deg,#78350f,#7c2d12,#4c0519)',
     accentBadge: 'bg-amber-400/25 text-amber-100 border-amber-300/40',
     formulaBg: 'bg-black/25 border-amber-300/30 text-yellow-200',
     dot: 'bg-amber-600',
@@ -102,16 +109,35 @@ const GRADE_DEFAULT_FORMULAS: Record<GradeLevel, string> = {
   9: '\\Delta = b^2 - 4ac \\quad ; \\quad x_{1,2} = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}',
 };
 
+function pickRelevantQuestions(plan: LessonPlan, questions: Question[]): Question[] {
+  const gradePool = questions.filter((q) => q.grade === plan.grade);
+  const pool = gradePool.length > 0 ? gradePool : questions;
+  if (pool.length === 0) return [];
+
+  const titleWords = `${plan.title} ${plan.chapterName}`
+    .toLowerCase()
+    .split(/[\s.,:;()\-–]+/)
+    .filter((w) => w.length >= 3);
+
+  const scored = pool.map((q, idx) => {
+    const hay = `${q.topicName} ${q.questionText}`.toLowerCase();
+    const score = titleWords.reduce((sum, w) => (hay.includes(w) ? sum + 1 : sum), 0);
+    return { q, score, idx };
+  });
+
+  scored.sort((a, b) => b.score - a.score || a.idx - b.idx);
+  return scored.map((item) => item.q);
+}
+
 function buildSlidesFromLessonPlan(
   plan: LessonPlan,
   questions: Question[],
   slideLang: Language
 ): LectureSlide[] {
   const isEn = slideLang === 'en';
-  const gradeQuestions = questions.filter((q) => q.grade === plan.grade);
-  const pool = gradeQuestions.length > 0 ? gradeQuestions : questions;
-  const exampleRaw = pool[0];
-  const quizRaw = pool[1] || pool[0];
+  const rankedPool = pickRelevantQuestions(plan, questions);
+  const exampleRaw = rankedPool[0];
+  const quizRaw = rankedPool[1] || rankedPool[0];
 
   const exampleLoc = exampleRaw ? getLocalizedQuestion(exampleRaw, slideLang) : null;
   const quizLoc = quizRaw ? getLocalizedQuestion(quizRaw, slideLang) : null;
@@ -121,9 +147,10 @@ function buildSlidesFromLessonPlan(
   const act3 = plan.activities[2];
   const act4 = plan.activities[3] || plan.activities[plan.activities.length - 1];
 
+  const stamp = Date.now();
   return [
     {
-      id: `sl-1-${Date.now()}`,
+      id: `sl-1-${stamp}`,
       layout: 'cover',
       tag: isEn ? `Grade ${plan.grade} · Week ${plan.weekNumber}` : `Toán ${plan.grade} · Tuần ${plan.weekNumber}`,
       title: plan.title,
@@ -145,7 +172,7 @@ function buildSlidesFromLessonPlan(
         : 'Chào mừng các em đến với tiết học hôm nay. Giới thiệu tên bài, chương và mục tiêu trọng tâm.',
     },
     {
-      id: `sl-2-${Date.now()}`,
+      id: `sl-2-${stamp}`,
       layout: 'objectives',
       tag: isEn ? 'Lesson Objectives & Aids' : 'Mục Tiêu & Thiết Bị Dạy Học',
       title: isEn ? 'What We Will Master Today' : 'Mục Tiêu Cần Đạt & Phương Tiện',
@@ -160,10 +187,10 @@ function buildSlidesFromLessonPlan(
       ],
       speakerNotes: isEn
         ? 'Share learning goals clearly so students know what skills they should acquire by the end of class.'
-        : 'Trình bày nhanh để học sinh nắm rõ chuẩn kiến thức và kỹ năng cần đạt sau 45 phút.',
+        : 'Trình bày nhanh để học sinh nắm rõ chuẩn kiến thức và kỹ năng cần đạt sau tiết học.',
     },
     {
-      id: `sl-3-${Date.now()}`,
+      id: `sl-3-${stamp}`,
       layout: 'concept',
       tag: isEn ? `Activity 1 · Warm-Up (${act1?.durationMinutes || 5}m)` : `${act1?.phaseName || 'Hoạt động 1: Khởi động'} (${act1?.durationMinutes || 5} phút)`,
       title: act1?.phaseName || (isEn ? 'Warm-Up Challenge' : 'Khởi Động & Kết Nối Tri Thức'),
@@ -175,40 +202,42 @@ function buildSlidesFromLessonPlan(
       ],
       speakerNotes: isEn
         ? 'Encourage quick hands-up or Body Camera warm-up before introducing formal theory.'
-        : 'Khích lệ học sinh phát biểu nhanh hoặc khởi động bằng mini-game trước khi vào kiến thức mới.',
+        : 'Khích lệ học sinh phát biểu nhanh hoặc khởi động bằng trò chơi Vận động Camera trước khi vào kiến thức mới.',
     },
     {
-      id: `sl-4-${Date.now()}`,
+      id: `sl-4-${stamp}`,
       layout: 'concept',
-      tag: isEn ? `Activity 2 · Core Concept (${act2?.durationMinutes || 15}m)` : `${act2?.phaseName || 'Hoạt động 2: Hình thành kiến thức'}`,
+      tag: isEn ? `Activity 2 · Core Concept (${act2?.durationMinutes || 15}m)` : `${act2?.phaseName || 'Hoạt động 2: Hình thành kiến thức'} (${act2?.durationMinutes || 15} phút)`,
       title: isEn ? 'Core Concept & Key Formulas' : `Kiến Thức Trọng Tâm: ${plan.title}`,
-      subtitle: act2?.objective || (isEn ? 'Key theorem, definition, and notation' : 'Định nghĩa, tính chất và công thức cần nhớ'),
+      subtitle: act2?.objective || (isEn ? 'Key theorem, definition, and notation' : 'Định nghĩa, tính chất và nội dung ghi bảng'),
       bullets: [
-        act2?.implementationSteps?.assignTask || (isEn ? 'Guide students through discovery and proof' : 'Hướng dẫn học sinh khám phá quy tắc và chứng minh'),
-        act2?.implementationSteps?.studentWork || (isEn ? 'Take structured notes and highlight formulas' : 'Ghi chép quy tắc tổng quát và đối chiếu ví dụ'),
+        act2?.content || (isEn ? 'Explore definitions, rules, and core properties.' : 'Khám phá định nghĩa, tính chất và quy tắc trọng tâm.'),
+        act2?.boardNotes
+          ? (isEn ? `Board Notes: ${act2.boardNotes}` : `Ghi bảng: ${act2.boardNotes}`)
+          : (act2?.implementationSteps?.teacherConclusion || (isEn ? 'Summarize theorem formally on the board' : 'Chốt định lý và công thức tổng quát trên bảng')),
         act2?.expectedProduct || (isEn ? 'Accurate notebook summary & formula mastery' : 'Nắm vững định lý và công thức trọng tâm bài học'),
       ],
       formula: exampleRaw?.formula || GRADE_DEFAULT_FORMULAS[plan.grade],
       speakerNotes: isEn
         ? 'Emphasize the boxed formula. Ask 2 students to restate the theorem in their own words.'
-        : 'Nhấn mạnh công thức đóng khung trên bảng. Mời 1–2 học sinh phát biểu lại định nghĩa bằng lời.',
+        : 'Nhấn mạnh phần ghi bảng đóng khung. Mời 1–2 học sinh phát biểu lại định nghĩa bằng lời.',
     },
     {
-      id: `sl-5-${Date.now()}`,
+      id: `sl-5-${stamp}`,
       layout: 'example',
-      tag: isEn ? `Activity 3 · Guided Example (${act3?.durationMinutes || 15}m)` : `Hoạt Động 3 · Ví Dụ Minh Họa Mẫu`,
+      tag: isEn ? `Activity 3 · Guided Practice (${act3?.durationMinutes || 15}m)` : `Hoạt Động 3 · Ví Dụ & Luyện Tập (${act3?.durationMinutes || 15} phút)`,
       title: isEn
         ? `Worked Example (${exampleLoc?.topicName || plan.title})`
         : `Ví Dụ Mẫu (${exampleLoc?.topicName || plan.title})`,
-      subtitle: exampleLoc?.questionText || (isEn ? 'Solve step-by-step on the board' : 'Phân tích đề và trình bày lời giải chuẩn mực'),
+      subtitle: exampleLoc?.questionText || (act3?.content || (isEn ? 'Solve step-by-step on the board' : 'Phân tích đề và trình bày lời giải chuẩn mực')),
       formula: exampleRaw?.formula || GRADE_DEFAULT_FORMULAS[plan.grade],
       bullets: [
         isEn
-          ? `Step 1 (Analyze): ${exampleLoc?.hint || 'Identify given conditions and target unknown.'}`
-          : `Bước 1 (Phân tích): ${exampleLoc?.hint || 'Xác định giả thiết và yêu cầu bài toán.'}`,
+          ? `Step 1 (Analyze): ${exampleLoc?.hint || act3?.implementationSteps?.assignTask || 'Identify given conditions and target unknown.'}`
+          : `Bước 1 (Phân tích): ${exampleLoc?.hint || act3?.implementationSteps?.assignTask || 'Xác định giả thiết và yêu cầu bài toán.'}`,
         isEn
-          ? `Step 2 (Compute): Apply core formula carefully.`
-          : `Bước 2 (Biến đổi): Áp dụng công thức trọng tâm vừa học.`,
+          ? `Step 2 (Compute): ${act3?.implementationSteps?.studentWork || 'Apply core formula carefully.'}`
+          : `Bước 2 (Biến đổi): ${act3?.implementationSteps?.studentWork || 'Áp dụng công thức trọng tâm vừa học.'}`,
         isEn
           ? `Conclusion: ${exampleLoc?.explanation || 'Verify answer and units.'}`
           : `Bước 3 (Kết luận): ${exampleLoc?.explanation || 'Kiểm tra lại kết quả và đơn vị.'}`,
@@ -218,7 +247,7 @@ function buildSlidesFromLessonPlan(
         : 'Giảng chậm từng bước biến đổi, lưu ý lỗi sai thường gặp về dấu và điều kiện xác định.',
     },
     {
-      id: `sl-6-${Date.now()}`,
+      id: `sl-6-${stamp}`,
       layout: 'quiz',
       tag: isEn ? 'Interactive Class Practice Quiz' : 'Luyện Tập Nhanh Tại Lớp',
       title: quizLoc?.questionText || (isEn ? 'Quick Class Check' : 'Câu Hỏi Củng Cố Nhanh'),
@@ -235,15 +264,13 @@ function buildSlidesFromLessonPlan(
         : 'Cho học sinh suy nghĩ 45 giây và giơ thẻ A/B/C/D, sau đó bấm Hiện Đáp Án để chốt kiến thức.',
     },
     {
-      id: `sl-7-${Date.now()}`,
+      id: `sl-7-${stamp}`,
       layout: 'summary',
-      tag: isEn ? `Activity 4 · Wrap-Up & Homework (${act4?.durationMinutes || 10}m)` : 'Tổng Kết & Giao Bài Tập Về Nhà',
-      title: isEn ? 'Lesson Takeaways & Homework' : 'Ghi Nhớ & Nhiệm Vụ Về Nhà',
+      tag: isEn ? `Activity 4 · Wrap-Up & Homework (${act4?.durationMinutes || 10}m)` : `${act4?.phaseName || 'Hoạt động 4: Vận dụng'} (${act4?.durationMinutes || 10} phút)`,
+      title: isEn ? 'Lesson Takeaways & Homework' : 'Tổng Kết & Nhiệm Vụ Về Nhà',
       subtitle: isEn ? 'Consolidate key formulas & practice online on MathQuest' : 'Hệ thống kiến thức và thực hành trên MathQuest THCS',
       bullets: [
-        isEn
-          ? `Summary: Review all key rules from "${plan.title}".`
-          : `Tổng kết: Ôn lại công thức trọng tâm bài "${plan.title}".`,
+        act4?.content || (isEn ? `Apply "${plan.title}" to real-world problems.` : `Vận dụng "${plan.title}" giải bài toán thực tiễn.`),
         isEn
           ? `Homework: ${plan.homeworkAssignment}`
           : `Bài tập về nhà: ${plan.homeworkAssignment}`,
@@ -256,6 +283,22 @@ function buildSlidesFromLessonPlan(
         : 'Dặn dò học sinh hoàn thành BTVN đúng hạn để hệ thống cập nhật về phụ huynh.',
     },
   ];
+}
+
+function loadSavedDecksMap(): Record<string, LectureSlide[]> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(SLIDE_DECKS_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function deckStorageKey(planId: string, lang: Language): string {
+  return `${planId}__${lang}`;
 }
 
 interface SlideStudioProps {
@@ -287,31 +330,27 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
   );
   const [slideLang, setSlideLang] = useState<Language>(language);
   const [theme, setTheme] = useState<SlideThemeKey>('indigo');
+
+  const resolveOrBuildDeck = (plan: LessonPlan, lang: Language): LectureSlide[] => {
+    const decksMap = loadSavedDecksMap();
+    const existing = decksMap[deckStorageKey(plan.id, lang)];
+    if (Array.isArray(existing) && existing.length > 0) {
+      return existing;
+    }
+    return buildSlidesFromLessonPlan(plan, questions, lang);
+  };
+
   const [slides, setSlides] = useState<LectureSlide[]>(() =>
-    buildSlidesFromLessonPlan(lessonPlan || savedPlans[0] || initialLessonPlans[0], questions, language)
+    resolveOrBuildDeck(lessonPlan || savedPlans[0] || initialLessonPlans[0], language)
   );
   const [activeSlideIdx, setActiveSlideIdx] = useState<number>(0);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [showQuestionPicker, setShowQuestionPicker] = useState<boolean>(false);
   const [revealQuizAnswer, setRevealQuizAnswer] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [copiedNotice, setCopiedNotice] = useState<boolean>(false);
 
   const stageRef = useRef<HTMLDivElement | null>(null);
-
-  // Sync when teacher clicks "Create Slides" from LessonPlanManager
-  useEffect(() => {
-    if (lessonPlan) {
-      setSelectedPlanId(lessonPlan.id);
-      setSlides(buildSlidesFromLessonPlan(lessonPlan, questions, slideLang));
-      setActiveSlideIdx(0);
-      setRevealQuizAnswer(false);
-    }
-  }, [lessonPlan?.id]);
-
-  // Sync default slide language toggle cleanly if user toggles app language
-  useEffect(() => {
-    setSlideLang(language);
-  }, [language]);
 
   const currentPlan =
     (lessonPlan && lessonPlan.id === selectedPlanId ? lessonPlan : null) ||
@@ -319,14 +358,52 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
     savedPlans[0] ||
     initialLessonPlans[0];
 
+  // Save current slide deck edits per planId + slideLang
+  useEffect(() => {
+    if (!currentPlan?.id || slides.length === 0) return;
+    try {
+      const decksMap = loadSavedDecksMap();
+      decksMap[deckStorageKey(currentPlan.id, slideLang)] = slides;
+      localStorage.setItem(SLIDE_DECKS_STORAGE_KEY, JSON.stringify(decksMap));
+    } catch {
+      // ignore storage quota issues
+    }
+  }, [slides, currentPlan?.id, slideLang]);
+
+  // Sync when teacher clicks "Create Slides" from LessonPlanManager
+  useEffect(() => {
+    if (lessonPlan) {
+      setSelectedPlanId(lessonPlan.id);
+      setSlides(resolveOrBuildDeck(lessonPlan, slideLang));
+      setActiveSlideIdx(0);
+      setRevealQuizAnswer(false);
+    }
+  }, [lessonPlan?.id]);
+
+  // Sync when app language toggles
+  useEffect(() => {
+    setSlideLang(language);
+    setSlides(resolveOrBuildDeck(currentPlan, language));
+    setActiveSlideIdx(0);
+    setRevealQuizAnswer(false);
+  }, [language]);
+
   const currentSlide = slides[activeSlideIdx] || slides[0];
   const activeTheme = SLIDE_THEMES[theme];
 
-  const handleGenerateSlides = (targetPlan?: LessonPlan, targetLang?: Language) => {
+  const handleSelectPlan = (plan: LessonPlan, lang: Language) => {
+    soundManager.playClick();
+    setSlides(resolveOrBuildDeck(plan, lang));
+    setActiveSlideIdx(0);
+    setRevealQuizAnswer(false);
+  };
+
+  const handleRegenerateSlides = (targetPlan?: LessonPlan, targetLang?: Language) => {
     soundManager.playCorrect();
     const p = targetPlan || currentPlan;
     const l = targetLang || slideLang;
-    setSlides(buildSlidesFromLessonPlan(p, questions, l));
+    const fresh = buildSlidesFromLessonPlan(p, questions, l);
+    setSlides(fresh);
     setActiveSlideIdx(0);
     setRevealQuizAnswer(false);
   };
@@ -358,6 +435,30 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
     setIsEditing(true);
   };
 
+  const handleInsertQuestionSlide = (q: Question) => {
+    soundManager.playCorrect();
+    const loc = getLocalizedQuestion(q, slideLang);
+    const quizSlide: LectureSlide = {
+      id: `sl-q-${Date.now()}`,
+      layout: 'quiz',
+      tag: slideLang === 'en' ? `Quiz · Grade ${q.grade} · ${loc.topicName}` : `Trắc Nghiệm · Toán ${q.grade} · ${loc.topicName}`,
+      title: loc.questionText,
+      subtitle: slideLang === 'en' ? 'Interactive Class Check' : 'Câu Hỏi Củng Cố Tại Lớp',
+      formula: q.formula,
+      bullets: [],
+      quizOptions: loc.options,
+      correctOptionIndex: q.correctAnswerIndex,
+      quizExplanation: loc.explanation,
+      speakerNotes: loc.explanation,
+    };
+    const next = [...slides];
+    next.splice(activeSlideIdx + 1, 0, quizSlide);
+    setSlides(next);
+    setActiveSlideIdx(activeSlideIdx + 1);
+    setRevealQuizAnswer(false);
+    setShowQuestionPicker(false);
+  };
+
   const handleDuplicateSlide = () => {
     if (!currentSlide) return;
     soundManager.playClick();
@@ -365,6 +466,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
       ...currentSlide,
       id: `sl-dup-${Date.now()}`,
       bullets: [...currentSlide.bullets],
+      quizOptions: currentSlide.quizOptions ? [...currentSlide.quizOptions] : undefined,
     };
     const next = [...slides];
     next.splice(activeSlideIdx + 1, 0, copy);
@@ -444,28 +546,35 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
       .map(
         (s, idx) => `
       <section class="slide" data-index="${idx}" style="${idx === 0 ? 'display:flex' : 'display:none'}">
-        <div class="tag">${escapeHtml(s.tag)} · Slide ${idx + 1}/${slides.length}</div>
-        <h1>${escapeHtml(s.title)}</h1>
-        ${s.subtitle ? `<p class="sub">${escapeHtml(s.subtitle)}</p>` : ''}
-        ${s.formula ? `<div class="formula">${escapeHtml(s.formula)}</div>` : ''}
-        ${
-          s.bullets.length > 0
-            ? `<ul>${s.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
-            : ''
-        }
-        ${
-          s.quizOptions
-            ? `<div class="opts">${s.quizOptions
-                .map(
-                  (opt, oIdx) =>
-                    `<div class="opt ${
-                      oIdx === s.correctOptionIndex ? 'correct-hint' : ''
-                    }"><b>${String.fromCharCode(65 + oIdx)}.</b> ${escapeHtml(opt)}</div>`
-                )
-                .join('')}</div>`
-            : ''
-        }
-        <div class="footer">MathQuest THCS · Cô Diễm Quỳnh · PIN 20112002</div>
+        <div class="top-row">
+          <div class="tag">${escapeHtml(s.tag)}</div>
+          <div class="counter">Slide ${idx + 1}/${slides.length} · MathQuest THCS</div>
+        </div>
+        <div class="center">
+          <h1>${escapeHtml(s.title)}</h1>
+          ${s.subtitle ? `<p class="sub">${escapeHtml(s.subtitle)}</p>` : ''}
+          ${s.formula ? `<div class="formula">\\[${escapeHtml(s.formula)}\\]</div>` : ''}
+          ${
+            s.bullets.length > 0
+              ? `<ul>${s.bullets.map((b, bIdx) => `<li><span class="num">${bIdx + 1}</span><span>${escapeHtml(b)}</span></li>`).join('')}</ul>`
+              : ''
+          }
+          ${
+            s.quizOptions && s.quizOptions.length > 0
+              ? `<div class="opts">${s.quizOptions
+                  .map(
+                    (opt, oIdx) =>
+                      `<div class="opt" data-correct="${oIdx === s.correctOptionIndex ? '1' : '0'}"><b>${String.fromCharCode(65 + oIdx)}.</b> ${escapeHtml(opt)}</div>`
+                  )
+                  .join('')}</div>
+                <div class="quiz-actions">
+                  <button type="button" class="reveal-btn" onclick="toggleAns(this)">${slideLang === 'en' ? 'Reveal Answer' : 'Hiện Đáp Án Đúng'}</button>
+                  ${s.quizExplanation ? `<div class="exp" style="display:none">${escapeHtml(s.quizExplanation)}</div>` : ''}
+                </div>`
+              : ''
+          }
+        </div>
+        <div class="footer">${escapeHtml(currentPlan.title)} · Cô Diễm Quỳnh · PIN 20112002</div>
       </section>`
       )
       .join('\n');
@@ -475,20 +584,32 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
 <head>
   <meta charset="UTF-8" />
   <title>${escapeHtml(currentPlan.title)} - Slides</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body,{delimiters:[{left:'\\\\[',right:'\\\\]',display:true},{left:'$',right:'$',display:false}]});"></script>
   <style>
     body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#0f172a;color:#fff;overflow:hidden}
     .deck{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
-    .slide{width:90vw;max-width:1100px;height:80vh;background:linear-gradient(135deg,#1e1b4b,#1e3a8a,#0f172a);border-radius:24px;padding:48px;box-sizing:border-box;flex-direction:column;justify-content:space-between;box-shadow:0 25px 50px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15)}
-    .tag{display:inline-block;padding:6px 14px;border-radius:999px;background:rgba(99,102,241,.35);border:1px solid rgba(165,180,252,.4);font-size:13px;font-weight:700;width:fit-content}
-    h1{font-size:36px;margin:16px 0 8px;line-height:1.2}
-    .sub{font-size:18px;color:#cbd5e1;margin:0 0 18px}
-    .formula{background:rgba(255,255,255,.1);padding:16px 24px;border-radius:14px;font-family:monospace;font-size:22px;color:#fcd34d;text-align:center;margin:12px 0}
-    ul{font-size:20px;line-height:1.7;padding-left:24px}
-    .opts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
-    .opt{background:rgba(255,255,255,.1);padding:14px 18px;border-radius:12px;font-size:18px}
-    .footer{font-size:12px;color:#94a3b8;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
+    .slide{width:92vw;max-width:1120px;height:84vh;background:${activeTheme.cssGradient};border-radius:24px;padding:44px;box-sizing:border-box;flex-direction:column;justify-content:space-between;box-shadow:0 25px 50px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.16)}
+    .top-row{display:flex;justify-content:space-between;align-items:center}
+    .tag{display:inline-block;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);font-size:13px;font-weight:700}
+    .counter{font-size:12px;color:rgba(255,255,255,.7);font-family:monospace}
+    .center{margin:auto 0}
+    h1{font-size:34px;margin:14px 0 8px;line-height:1.25}
+    .sub{font-size:18px;color:#e2e8f0;margin:0 0 18px}
+    .formula{background:rgba(0,0,0,.25);padding:16px 24px;border-radius:14px;font-size:22px;color:#fcd34d;text-align:center;margin:14px 0;border:1px solid rgba(255,255,255,.18)}
+    ul{list-style:none;padding:0;margin:14px 0;display:flex;flex-direction:column;gap:10px}
+    li{display:flex;align-items:flex-start;gap:12px;font-size:18px;line-height:1.55;background:rgba(255,255,255,.07);padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.1)}
+    .num{min-width:24px;height:24px;border-radius:8px;background:#fbbf24;color:#0f172a;font-weight:900;font-size:12px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px}
+    .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+    .opt{background:rgba(255,255,255,.1);padding:14px 18px;border-radius:12px;font-size:17px;border:1px solid rgba(255,255,255,.2);transition:all .2s}
+    .opt.revealed-correct{background:#10b981;border-color:#a7f3d0;font-weight:800}
+    .quiz-actions{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+    .reveal-btn{padding:10px 16px;border-radius:10px;border:none;background:#fbbf24;color:#0f172a;font-weight:800;cursor:pointer}
+    .exp{flex:1;background:rgba(6,78,59,.7);border:1px solid rgba(52,211,153,.4);padding:10px 14px;border-radius:10px;font-size:14px}
+    .footer{font-size:12px;color:rgba(255,255,255,.7);border-top:1px solid rgba(255,255,255,.15);padding-top:12px}
     .nav{position:fixed;bottom:20px;right:24px;display:flex;gap:10px}
-    button{padding:10px 18px;border-radius:10px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer}
+    .nav button{padding:10px 18px;border-radius:10px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer}
   </style>
 </head>
 <body>
@@ -501,6 +622,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
     let cur=0;const slides=document.querySelectorAll('.slide');
     function show(n){cur=(n+slides.length)%slides.length;slides.forEach((s,i)=>s.style.display=i===cur?'flex':'none');}
     function step(d){show(cur+d);}
+    function toggleAns(btn){const sec=btn.closest('.slide');sec.querySelectorAll('.opt[data-correct="1"]').forEach(el=>el.classList.toggle('revealed-correct'));const exp=sec.querySelector('.exp');if(exp){exp.style.display=exp.style.display==='none'?'block':'none';}}
     window.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')step(1);if(e.key==='ArrowLeft')step(-1);});
   </script>
 </body>
@@ -516,6 +638,9 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
     setCopiedNotice(true);
     setTimeout(() => setCopiedNotice(false), 2500);
   };
+
+  const bankQuestionsForPicker = questions.filter((q) => q.grade === currentPlan.grade);
+  const pickerPool = bankQuestionsForPicker.length > 0 ? bankQuestionsForPicker : questions;
 
   return (
     <div className="space-y-6">
@@ -537,7 +662,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
             <p className="text-xs sm:text-sm text-indigo-100/90 leading-relaxed">
               {isEn
                 ? 'Automatically build an interactive 7-slide classroom deck from any Lesson Plan — including formulas, worked examples, live class quiz, and fullscreen projection.'
-                : 'Tự động tạo bộ 7 slide trình chiếu chuẩn sư phạm tương ứng từng Giáo án (Mục tiêu, Khởi động, Kiến thức trọng tâm KaTeX, Ví dụ mẫu, Quiz tương tác tại lớp & Dặn dò).'}
+                : 'Tự động tạo bộ 7 slide trình chiếu chuẩn sư phạm tương ứng từng Giáo án (Mục tiêu, Khởi động, Kiến thức trọng tâm KaTeX, Ví dụ mẫu, Quiz tương tác tại lớp & Dặn dò), lưu chỉnh sửa tự động.'}
             </p>
           </div>
 
@@ -561,7 +686,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
               className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/25 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
             >
               <Printer className="w-4 h-4" />
-              <span>{isEn ? 'Print' : 'In Slide'}</span>
+              <span>{isEn ? 'Print All Slides' : 'In Toàn Bộ Slide'}</span>
             </button>
           </div>
         </div>
@@ -578,7 +703,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                 const nextId = e.target.value;
                 setSelectedPlanId(nextId);
                 const found = savedPlans.find((p) => p.id === nextId);
-                if (found) handleGenerateSlides(found, slideLang);
+                if (found) handleSelectPlan(found, slideLang);
               }}
               className="w-full px-3.5 py-2.5 bg-slate-900/90 border border-indigo-400/30 rounded-xl text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-amber-400"
             >
@@ -601,7 +726,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                   type="button"
                   onClick={() => {
                     setSlideLang(langOpt);
-                    handleGenerateSlides(currentPlan, langOpt);
+                    handleSelectPlan(currentPlan, langOpt);
                   }}
                   className={`py-1.5 rounded-lg text-xs font-extrabold transition-colors cursor-pointer ${
                     slideLang === langOpt ? 'bg-indigo-600 text-white' : 'text-indigo-200 hover:text-white'
@@ -638,8 +763,9 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
           <div className="md:col-span-2">
             <button
               type="button"
-              onClick={() => handleGenerateSlides()}
+              onClick={() => handleRegenerateSlides()}
               className="w-full py-2.5 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+              title={isEn ? 'Reset to fresh deck from Lesson Plan' : 'Tạo mới lại bộ slide gốc từ Giáo án'}
             >
               <Sparkles className="w-4 h-4" />
               <span>{isEn ? 'Regenerate Deck' : 'Tạo Lại Slide'}</span>
@@ -649,22 +775,36 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
       </div>
 
       {/* Main Workspace: Slide Thumbnails (Left) + Interactive 16:9 Stage (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start no-print">
         {/* Left: Slide Filmstrip */}
-        <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3 no-print">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <span className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <Presentation className="w-4 h-4 text-indigo-600" />
-              {isEn ? `Slides (${slides.length})` : `Danh Sách Slide (${slides.length})`}
+        <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm space-y-3">
+          <div className="flex items-center justify-between gap-1 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <span className="text-xs font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+              <Presentation className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              {isEn ? `Slides (${slides.length})` : `Slide (${slides.length})`}
             </span>
-            <button
-              type="button"
-              onClick={handleAddBlankSlide}
-              className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>{isEn ? 'Add' : 'Thêm'}</span>
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  soundManager.playClick();
+                  setShowQuestionPicker((p) => !p);
+                }}
+                className="px-2 py-1 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                title={isEn ? 'Insert quiz slide from Question Bank' : 'Chèn Slide Quiz từ Ngân hàng câu hỏi'}
+              >
+                <BookPlus className="w-3.5 h-3.5" />
+                <span>Quiz</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleAddBlankSlide}
+                className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{isEn ? 'Add' : 'Thêm'}</span>
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2 max-h-[540px] overflow-y-auto pr-1">
@@ -680,8 +820,8 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                   }}
                   className={`p-3 rounded-xl border text-left transition-all cursor-pointer group ${
                     isSelected
-                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/15'
-                      : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200'
+                      ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500 ring-2 ring-indigo-500/15'
+                      : 'bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
@@ -696,7 +836,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                           handleMoveSlide(idx, -1);
                         }}
                         disabled={idx === 0}
-                        className="p-1 text-slate-500 hover:text-indigo-600 disabled:opacity-30"
+                        className="p-1 text-slate-500 dark:text-slate-400 hover:text-indigo-600 disabled:opacity-30"
                         title={isEn ? 'Move up' : 'Lên'}
                       >
                         <ArrowUp className="w-3 h-3" />
@@ -708,7 +848,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                           handleMoveSlide(idx, 1);
                         }}
                         disabled={idx === slides.length - 1}
-                        className="p-1 text-slate-500 hover:text-indigo-600 disabled:opacity-30"
+                        className="p-1 text-slate-500 dark:text-slate-400 hover:text-indigo-600 disabled:opacity-30"
                         title={isEn ? 'Move down' : 'Xuống'}
                       >
                         <ArrowDown className="w-3 h-3" />
@@ -728,8 +868,8 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                       )}
                     </div>
                   </div>
-                  <div className="text-[10px] font-bold text-indigo-600 truncate">{s.tag}</div>
-                  <div className="text-xs font-extrabold text-slate-900 line-clamp-2 mt-0.5">{s.title}</div>
+                  <div className="text-[10px] font-bold text-indigo-600 dark:text-indigo-300 truncate">{s.tag}</div>
+                  <div className="text-xs font-extrabold text-slate-900 dark:text-white line-clamp-2 mt-0.5">{s.title}</div>
                 </div>
               );
             })}
@@ -739,7 +879,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
         {/* Right: 16:9 Stage + Quick Editor */}
         <div className="lg:col-span-9 space-y-4">
           {/* Action Toolbar above Stage */}
-          <div className="flex flex-wrap items-center justify-between gap-2 bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-xs no-print">
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -749,11 +889,11 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                   setActiveSlideIdx((i) => Math.max(0, i - 1));
                 }}
                 disabled={activeSlideIdx === 0}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 cursor-pointer"
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 text-slate-700 dark:text-slate-200 cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-xs font-mono font-bold text-slate-700 px-2">
+              <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200 px-2">
                 Slide {activeSlideIdx + 1} / {slides.length}
               </span>
               <button
@@ -764,7 +904,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                   setActiveSlideIdx((i) => Math.min(slides.length - 1, i + 1));
                 }}
                 disabled={activeSlideIdx === slides.length - 1}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 cursor-pointer"
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 text-slate-700 dark:text-slate-200 cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -780,7 +920,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-colors cursor-pointer ${
                   isEditing
                     ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                    : 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
                 }`}
               >
                 <Edit3 className="w-3.5 h-3.5" />
@@ -790,7 +930,7 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
               <button
                 type="button"
                 onClick={handleDuplicateSlide}
-                className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
                 <Copy className="w-3.5 h-3.5" />
                 <span>{isEn ? 'Duplicate' : 'Nhân Bản'}</span>
@@ -799,13 +939,61 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
               <button
                 type="button"
                 onClick={toggleFullscreen}
-                className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
                 {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
                 <span>{isFullscreen ? (isEn ? 'Exit' : 'Thu Nhỏ') : (isEn ? 'Projector' : 'Chiếu Lớn')}</span>
               </button>
             </div>
           </div>
+
+          {/* Question Bank Picker Drawer */}
+          {showQuestionPicker && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-amber-200 dark:border-amber-700/60 p-4 shadow-md space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-extrabold text-amber-800 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <BookPlus className="w-4 h-4" />
+                  <span>
+                    {isEn
+                      ? `Pick a Question (Grade ${currentPlan.grade}) to Insert as Quiz Slide`
+                      : `Chọn Câu Hỏi (Khối ${currentPlan.grade}) Chèn Thành Slide Quiz`}
+                  </span>
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setShowQuestionPicker(false)}
+                  className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="max-h-52 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                {pickerPool.slice(0, 12).map((q) => {
+                  const loc = getLocalizedQuestion(q, slideLang);
+                  return (
+                    <button
+                      key={q.id}
+                      type="button"
+                      onClick={() => handleInsertQuestionSlide(q)}
+                      className="w-full py-2 px-2.5 text-left hover:bg-amber-50 dark:hover:bg-slate-800 rounded-lg flex items-center justify-between gap-3 cursor-pointer"
+                    >
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-300 uppercase">
+                          {loc.topicName}
+                        </span>
+                        <div className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">
+                          {loc.questionText}
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 bg-amber-400 text-slate-950 rounded-lg text-[11px] font-extrabold shrink-0">
+                        + {isEn ? 'Insert' : 'Chèn'}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* 16:9 Projection Slide Stage */}
           {currentSlide && (
@@ -963,10 +1151,10 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
 
           {/* Speaker Notes Strip */}
           {currentSlide && !isEditing && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 text-xs text-amber-950 no-print">
-              <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 flex items-start gap-3 text-xs text-amber-950 dark:text-amber-100">
+              <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <span className="font-extrabold uppercase tracking-wider text-[11px] text-amber-800 block mb-0.5">
+                <span className="font-extrabold uppercase tracking-wider text-[11px] text-amber-800 dark:text-amber-300 block mb-0.5">
                   {isEn ? 'Teacher Speaker Notes' : 'Ghi Chú Giảng Dạy Của Giáo Viên'}
                 </span>
                 <p>{currentSlide.speakerNotes || (isEn ? 'No notes yet. Click "Edit Slide" to customize.' : 'Chưa có ghi chú. Bấm "Chỉnh Sửa Slide" để thêm.')}</p>
@@ -976,16 +1164,16 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
 
           {/* In-place Slide Editor Panel */}
           {isEditing && currentSlide && (
-            <div className="bg-white rounded-2xl border border-indigo-200 p-5 shadow-sm space-y-4 no-print">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h4 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                  <Edit3 className="w-4 h-4 text-indigo-600" />
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-indigo-200 dark:border-indigo-800 p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h4 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   {isEn ? `Editing Slide #${activeSlideIdx + 1}` : `Đang Chỉnh Sửa Slide #${activeSlideIdx + 1}`}
                 </h4>
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-bold cursor-pointer"
+                  className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold cursor-pointer"
                 >
                   {isEn ? 'Done' : 'Xong'}
                 </button>
@@ -993,74 +1181,175 @@ export const SlideStudio: React.FC<SlideStudioProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">{isEn ? 'Tag / Badge:' : 'Nhãn đầu slide:'}</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">{isEn ? 'Tag / Badge:' : 'Nhãn đầu slide:'}</label>
                   <input
                     type="text"
                     value={currentSlide.tag}
                     onChange={(e) => handleUpdateCurrentSlide({ tag: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">{isEn ? 'KaTeX Formula (Optional):' : 'Công thức KaTeX (Tùy chọn):'}</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">{isEn ? 'KaTeX Formula (Optional):' : 'Công thức KaTeX (Tùy chọn):'}</label>
                   <input
                     type="text"
                     value={currentSlide.formula || ''}
                     onChange={(e) => handleUpdateCurrentSlide({ formula: e.target.value })}
                     placeholder="a^2 + b^2 = c^2"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900"
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
                   />
+                  {currentSlide.formula && (
+                    <div className="mt-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-700 text-indigo-700 dark:text-amber-300 text-xs">
+                      <MathView math={currentSlide.formula} />
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">{isEn ? 'Slide Title:' : 'Tiêu đề Slide:'}</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">{isEn ? 'Slide Title:' : 'Tiêu đề Slide:'}</label>
                 <input
                   type="text"
                   value={currentSlide.title}
                   onChange={(e) => handleUpdateCurrentSlide({ title: e.target.value })}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">{isEn ? 'Subtitle:' : 'Phụ đề / Mô tả ngắn:'}</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">{isEn ? 'Subtitle:' : 'Phụ đề / Mô tả ngắn:'}</label>
                 <input
                   type="text"
                   value={currentSlide.subtitle || ''}
                   onChange={(e) => handleUpdateCurrentSlide({ subtitle: e.target.value })}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100"
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  {isEn ? 'Bullet Points (one per line):' : 'Các gạch đầu dòng (mỗi dòng 1 ý):'}
-                </label>
-                <textarea
-                  rows={4}
-                  value={currentSlide.bullets.join('\n')}
-                  onChange={(e) =>
-                    handleUpdateCurrentSlide({
-                      bullets: e.target.value.split('\n'),
-                    })
-                  }
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
-                />
-              </div>
+              {currentSlide.quizOptions && currentSlide.quizOptions.length > 0 ? (
+                <div className="space-y-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                  <div className="text-xs font-extrabold text-indigo-700 dark:text-indigo-300">
+                    {isEn ? 'Quiz Options & Correct Answer:' : 'Các đáp án Quiz & Đáp án đúng:'}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {currentSlide.quizOptions.map((opt, oIdx) => (
+                      <div key={oIdx} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name={`quiz-correct-${currentSlide.id}`}
+                          checked={currentSlide.correctOptionIndex === oIdx}
+                          onChange={() => handleUpdateCurrentSlide({ correctOptionIndex: oIdx })}
+                          title={isEn ? 'Mark as correct answer' : 'Chọn làm đáp án đúng'}
+                        />
+                        <span className="text-xs font-mono font-bold text-slate-500">
+                          {String.fromCharCode(65 + oIdx)}.
+                        </span>
+                        <input
+                          type="text"
+                          value={opt}
+                          onChange={(e) => {
+                            const updated = [...(currentSlide.quizOptions || [])];
+                            updated[oIdx] = e.target.value;
+                            handleUpdateCurrentSlide({ quizOptions: updated });
+                          }}
+                          className="flex-1 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
+                      {isEn ? 'Answer Explanation:' : 'Giải thích đáp án:'}
+                    </label>
+                    <input
+                      type="text"
+                      value={currentSlide.quizExplanation || ''}
+                      onChange={(e) => handleUpdateCurrentSlide({ quizExplanation: e.target.value })}
+                      className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-100"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
+                    {isEn ? 'Bullet Points (one per line):' : 'Các gạch đầu dòng (mỗi dòng 1 ý):'}
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={currentSlide.bullets.join('\n')}
+                    onChange={(e) =>
+                      handleUpdateCurrentSlide({
+                        bullets: e.target.value.split('\n'),
+                      })
+                    }
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100"
+                  />
+                </div>
+              )}
 
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">{isEn ? 'Speaker Notes:' : 'Ghi chú giảng dạy:'}</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">{isEn ? 'Speaker Notes:' : 'Ghi chú giảng dạy:'}</label>
                 <input
                   type="text"
                   value={currentSlide.speakerNotes}
                   onChange={(e) => handleUpdateCurrentSlide({ speakerNotes: e.target.value })}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100"
                 />
               </div>
             </div>
           )}
         </div>
+      </div>
+
+      {/* Print-Only View: Renders ALL slides cleanly for PDF / A4 Printing */}
+      <div className="hidden print:block space-y-6">
+        {slides.map((s, idx) => (
+          <div
+            key={`print-${s.id}`}
+            className="border border-slate-300 rounded-2xl p-6 break-inside-avoid space-y-3 bg-white text-slate-900"
+          >
+            <div className="flex items-center justify-between text-xs font-bold text-indigo-700 border-b border-slate-200 pb-2">
+              <span>{s.tag}</span>
+              <span className="font-mono">Slide {idx + 1}/{slides.length} · {currentPlan.title}</span>
+            </div>
+            <h2 className="text-xl font-black text-slate-900">
+              <MathView math={s.title} />
+            </h2>
+            {s.subtitle && (
+              <p className="text-sm text-slate-600">
+                <MathView math={s.subtitle} />
+              </p>
+            )}
+            {s.formula && (
+              <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-center text-indigo-900 font-bold">
+                <MathView math={s.formula} displayMode={true} />
+              </div>
+            )}
+            {s.bullets.length > 0 && (
+              <ul className="space-y-1.5 list-decimal pl-5 text-sm text-slate-800">
+                {s.bullets.map((b, bIdx) => (
+                  <li key={bIdx}>
+                    <MathView math={b} />
+                  </li>
+                ))}
+              </ul>
+            )}
+            {s.quizOptions && s.quizOptions.length > 0 && (
+              <div className="grid grid-cols-2 gap-2 text-sm pt-2">
+                {s.quizOptions.map((opt, oIdx) => (
+                  <div key={oIdx} className="p-2 border border-slate-300 rounded-lg">
+                    <b>{String.fromCharCode(65 + oIdx)}.</b> <MathView math={opt} />
+                  </div>
+                ))}
+              </div>
+            )}
+            {s.speakerNotes && (
+              <p className="text-xs italic text-slate-500 pt-2 border-t border-slate-100">
+                Ghi chú GV: {s.speakerNotes}
+              </p>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
