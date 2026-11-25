@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Classroom, Student, HomeworkSubmission } from '../../types/math';
 import { Language } from '../../i18n/translations';
+import { getStudentCredentials } from '../../utils/auth';
 import { soundManager } from '../../utils/sound';
 import { ComprehensiveClassReportModal } from '../reports/ComprehensiveClassReportModal';
 import { WeeklyParticipationReport } from '../analytics/WeeklyParticipationReport';
@@ -688,7 +689,14 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                         </div>
                         <div>
                           <span className="font-bold text-slate-900 block">{s.name}</span>
-                          <span className="text-[11px] text-slate-400 font-mono">ID: {s.id}</span>
+                          {(() => {
+                            const creds = getStudentCredentials(s, index);
+                            return (
+                              <span className="text-[11px] text-slate-400 font-mono block">
+                                TK: {creds.phone} · {creds.code} · MK: {creds.password}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                     </td>

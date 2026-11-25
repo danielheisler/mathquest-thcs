@@ -14,14 +14,24 @@ import {
   Moon,
   Sun,
   User,
+  UserPlus,
+  ChevronDown,
 } from 'lucide-react';
-import { authenticateWithPhone, AuthUser, UserRole } from '../../utils/auth';
+import {
+  authenticateWithPhone,
+  AuthUser,
+  createRegisteredStudent,
+  getStudentAccountsList,
+  normalizePhone,
+  UserRole,
+} from '../../utils/auth';
 import { soundManager } from '../../utils/sound';
 import { Language, translations } from '../../i18n/translations';
 import { Classroom, Student } from '../../types/math';
 
 interface LoginPageProps {
   onLoginSuccess: (user: AuthUser) => void;
+  onRegisterStudent?: (student: Student) => void;
   students?: Student[];
   classrooms?: Classroom[];
   language?: Language;
@@ -98,6 +108,7 @@ const FLOATING_CARDS = [
 
 export const LoginPage: React.FC<LoginPageProps> = ({
   onLoginSuccess,
+  onRegisterStudent,
   students = [],
   classrooms = [],
   language = 'vi',
@@ -106,15 +117,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   onToggleTheme,
 }) => {
   const [selectedRole, setSelectedRole] = useState<UserRole>('student');
+  const [studentAuthMode, setStudentAuthMode] = useState<'login' | 'register'>('login');
   const [phone, setPhone] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [selectedStudentId, setSelectedStudentId] = useState<string>(students[0]?.id || 'custom');
-  const [customStudentName, setCustomStudentName] = useState<string>('');
+  const [regName, setRegName] = useState<string>('');
+  const [regClassId, setRegClassId] = useState<string>(classrooms[0]?.id || 'class-6a1');
+  const [showAccountsList, setShowAccountsList] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const t = translations[language];
   const activeRoleStyle = ROLE_STYLES[selectedRole];
+  const studentAccounts = getStudentAccountsList(students, classrooms);
 
   const roleList: { id: UserRole; label: string; desc: string }[] = [
     { id: 'student', label: t.roleStudent, desc: t.roleStudentDesc },
@@ -126,7 +140,70 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const result = authenticateWithPhone(phone, password, selectedRole, language);
+
+    if (selectedRole === 'student' && studentAuthMode === 'register') {
+      const cleanName = regName.trim();
+      const cleanPhone = normalizePhone(phone);
+      const cleanPass = password.trim();
+
+      if (!cleanName) {
+        soundManager.playWrong();
+        setError(t.errNameRequired);
+        return;
+      }
+      if (!cleanPhone) {
+        soundManager.playWrong();
+        setError(t.errPhoneRequired);
+        return;
+      }
+      if (!cleanPass) {
+        soundManager.playWrong();
+        setError(t.errPassRequired);
+        return;
+      }
+      const duplicate = studentAccounts.some(
+        (acc) =>
+          normalizePhone(acc.phone).toLowerCase() === cleanPhone.toLowerCase() ||
+          acc.code.toLowerCase() === cleanPhone.toLowerCase()
+      );
+      if (duplicate) {
+        soundManager.playWrong();
+        setError(t.errAccountExists);
+        return;
+      }
+
+      const newStudent = createRegisteredStudent({
+        name: cleanName,
+        classId: regClassId,
+        accountPhone: cleanPhone,
+        password: cleanPass,
+        existingStudentsCount: students.length,
+      });
+      onRegisterStudent?.(newStudent);
+
+      const matchedClass = classrooms.find((c) => c.id === regClassId)?.name || 'Lớp 6A1';
+      soundManager.playCorrect();
+      setError(null);
+      onLoginSuccess({
+        id: `acc-${newStudent.id}`,
+        role: 'student',
+        phone: cleanPhone,
+        name: newStudent.name,
+        roleLabel: 'Học sinh',
+        studentId: newStudent.id,
+        className: matchedClass,
+      });
+      return;
+    }
+
+    const result = authenticateWithPhone(
+      phone,
+      password,
+      selectedRole,
+      language,
+      students,
+      classrooms
+    );
 
     if (!result.ok) {
       soundManager.playWrong();
@@ -134,35 +211,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       return;
     }
 
-    let finalUser = result.user;
-    if (finalUser.role === 'student') {
-      if (selectedStudentId === 'custom') {
-        const trimmed = customStudentName.trim();
-        if (trimmed) {
-          finalUser = {
-            ...finalUser,
-            name: trimmed,
-            studentId: undefined,
-            className: classrooms[0]?.name || finalUser.className,
-          };
-        }
-      } else {
-        const matchedStudent = students.find((s) => s.id === selectedStudentId);
-        if (matchedStudent) {
-          const matchedClass = classrooms.find((c) => c.id === matchedStudent.classId)?.name;
-          finalUser = {
-            ...finalUser,
-            name: matchedStudent.name,
-            studentId: matchedStudent.id,
-            className: matchedClass || finalUser.className,
-          };
-        }
-      }
-    }
-
     soundManager.playCorrect();
     setError(null);
-    onLoginSuccess(finalUser);
+    onLoginSuccess(result.user);
   };
 
   return (
@@ -348,54 +399,100 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {selectedRole === 'student' && (
-              <div className="space-y-2 p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-800/70 border border-indigo-100 dark:border-slate-700">
-                <label
-                  htmlFor="login-student-identity"
-                  className="flex items-center gap-1.5 text-xs font-bold text-indigo-900 dark:text-indigo-200"
+            {selectedRole === 'student' && onRegisterStudent && (
+              <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundManager.playClick();
+                    setStudentAuthMode('login');
+                    setError(null);
+                  }}
+                  className={`py-1.5 rounded-lg transition-colors cursor-pointer ${
+                    studentAuthMode === 'login'
+                      ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`}
                 >
-                  <User className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                  <span>{t.studentIdentityLabel}</span>
-                </label>
-                {students.length > 0 && (
-                  <select
-                    id="login-student-identity"
-                    value={selectedStudentId}
-                    onChange={(e) => setSelectedStudentId(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  {t.studentLoginTab}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundManager.playClick();
+                    setStudentAuthMode('register');
+                    setError(null);
+                  }}
+                  className={`py-1.5 rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer ${
+                    studentAuthMode === 'register'
+                      ? 'bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`}
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{t.studentRegisterTab}</span>
+                </button>
+              </div>
+            )}
+
+            {selectedRole === 'student' && studentAuthMode === 'register' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label
+                    htmlFor="reg-student-name"
+                    className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5"
                   >
-                    {students.map((s) => {
-                      const cls = classrooms.find((c) => c.id === s.classId)?.name;
-                      return (
-                        <option key={s.id} value={s.id}>
-                          {s.name}{cls ? ` (${cls})` : ''}
-                        </option>
-                      );
-                    })}
-                    <option value="custom">{t.studentIdentityCustomOption}</option>
+                    {t.studentFullNameLabel}
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="reg-student-name"
+                      type="text"
+                      value={regName}
+                      onChange={(e) => {
+                        setRegName(e.target.value);
+                        if (error) setError(null);
+                      }}
+                      placeholder={t.studentFullNamePlaceholder}
+                      className={`w-full pl-9 pr-3 py-2.5 bg-slate-50/90 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 transition-all ${activeRoleStyle.ringClass}`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="reg-student-class"
+                    className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5"
+                  >
+                    {t.studentClassLabel}
+                  </label>
+                  <select
+                    id="reg-student-class"
+                    value={regClassId}
+                    onChange={(e) => setRegClassId(e.target.value)}
+                    className={`w-full px-3 py-2.5 bg-slate-50/90 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-4 transition-all ${activeRoleStyle.ringClass}`}
+                  >
+                    {classrooms.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
-                )}
-                {(selectedStudentId === 'custom' || students.length === 0) && (
-                  <input
-                    type="text"
-                    value={customStudentName}
-                    onChange={(e) => setCustomStudentName(e.target.value)}
-                    placeholder={t.studentIdentityPlaceholder}
-                    className="w-full px-3 py-2.5 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-                  />
-                )}
-                <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80">
-                  {t.studentIdentityHint}
-                </p>
+                </div>
               </div>
             )}
 
             <div>
               <label
                 htmlFor="login-phone"
-                className="block text-xs font-bold text-slate-700 mb-1.5"
+                className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5"
               >
-                {t.phoneLabelPrefix} ({activeRoleText.label})
+                {selectedRole === 'student'
+                  ? t.studentPhoneOrCodeLabel
+                  : `${t.phoneLabelPrefix} (${activeRoleText.label})`}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -403,15 +500,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 </div>
                 <input
                   id="login-phone"
-                  type="tel"
+                  type="text"
                   value={phone}
                   onChange={(e) => {
                     setPhone(e.target.value);
                     if (error) setError(null);
                   }}
                   autoFocus
-                  autoComplete="tel"
-                  placeholder={t.phonePlaceholder}
+                  autoComplete="username"
+                  placeholder={
+                    selectedRole === 'student'
+                      ? t.studentPhoneOrCodePlaceholder
+                      : t.phonePlaceholder
+                  }
                   className={`w-full pl-10 pr-4 py-3 bg-slate-50/90 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 transition-all ${activeRoleStyle.ringClass}`}
                 />
               </div>
@@ -420,7 +521,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <div>
               <label
                 htmlFor="login-password"
-                className="block text-xs font-bold text-slate-700 mb-1.5"
+                className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5"
               >
                 {t.passwordLabel}
               </label>
@@ -462,11 +563,59 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               type="submit"
               className={`w-full py-3.5 bg-gradient-to-r ${activeRoleStyle.buttonClass} text-white rounded-2xl text-sm font-extrabold shadow-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5 active:translate-y-0`}
             >
-              <LogIn className="w-4 h-4" />
-              <span>
-                {t.signInRolePrefix} {activeRoleText.label}
-              </span>
+              {selectedRole === 'student' && studentAuthMode === 'register' ? (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  <span>{t.studentRegisterBtn}</span>
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4" />
+                  <span>
+                    {t.signInRolePrefix} {activeRoleText.label}
+                  </span>
+                </>
+              )}
             </button>
+
+            {selectedRole === 'student' && studentAuthMode === 'login' && studentAccounts.length > 0 && (
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowAccountsList((prev) => !prev)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/70 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-indigo-700 dark:text-indigo-300 cursor-pointer"
+                >
+                  <span>{t.studentQuickAccountsToggle}</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${showAccountsList ? 'rotate-180' : ''}`}
+                  />
+                </button>
+                {showAccountsList && (
+                  <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/60 divide-y divide-slate-200/70 dark:divide-slate-700/70">
+                    {studentAccounts.map((acc) => (
+                      <button
+                        key={acc.studentId}
+                        type="button"
+                        onClick={() => {
+                          soundManager.playClick();
+                          setPhone(acc.phone);
+                          setPassword(acc.password);
+                          setError(null);
+                        }}
+                        className="w-full px-3 py-1.5 text-left hover:bg-indigo-50 dark:hover:bg-indigo-900/40 flex items-center justify-between gap-2 text-[11px] cursor-pointer"
+                      >
+                        <span className="font-bold text-slate-800 dark:text-slate-100 truncate">
+                          {acc.name} <span className="text-slate-400 font-normal">({acc.className})</span>
+                        </span>
+                        <span className="font-mono text-indigo-600 dark:text-indigo-300 shrink-0">
+                          {acc.code} · {acc.phone}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </form>
 
           <div className="pt-2 border-t border-slate-100 text-center text-[11px] text-slate-400 font-medium">

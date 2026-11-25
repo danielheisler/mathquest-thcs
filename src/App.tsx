@@ -583,24 +583,6 @@ export default function App() {
     soundManager.playClick();
   };
 
-  const handleUpdateStudentIdentity = (identity: {
-    name: string;
-    studentId?: string;
-    className?: string;
-  }) => {
-    setAuthUser((prev) => {
-      if (!prev || prev.role !== 'student') return prev;
-      const updated: AuthUser = {
-        ...prev,
-        name: identity.name.trim() || prev.name,
-        studentId: identity.studentId,
-        className: identity.className || prev.className,
-      };
-      saveAuthUser(updated);
-      return updated;
-    });
-  };
-
   const handlePortalChange = (portal: MainPortal) => {
     if (authUser && portal !== authUser.role) return;
     setMainPortal(portal);
@@ -688,10 +670,18 @@ export default function App() {
 
   // State mutation callbacks
   const handleAddStudent = (newStudent: Student) => {
-    setStudents(prev => [newStudent, ...prev]);
+    const seq = students.length + 1;
+    const enrichedStudent: Student = {
+      ...newStudent,
+      accountPhone:
+        newStudent.accountPhone || `09876543${String(20 + seq).padStart(2, '0')}`,
+      accountCode: newStudent.accountCode || `HS${String(seq).padStart(2, '0')}`,
+      accountPassword: newStudent.accountPassword || 'HS201102',
+    };
+    setStudents(prev => [enrichedStudent, ...prev]);
     setClassrooms(prev => prev.map(c => {
-      if (c.id === newStudent.classId) {
-        return { ...c, studentIds: [...c.studentIds, newStudent.id] };
+      if (c.id === enrichedStudent.classId) {
+        return { ...c, studentIds: [...c.studentIds, enrichedStudent.id] };
       }
       return c;
     }));
@@ -769,6 +759,7 @@ export default function App() {
     return (
       <LoginPage
         onLoginSuccess={handleLoginSuccess}
+        onRegisterStudent={handleAddStudent}
         students={students}
         classrooms={classrooms}
         language={language}
@@ -823,9 +814,6 @@ export default function App() {
         onLockParent={handleLockParent}
         onOpenPinSettings={() => setIsPinSettingsOpen(true)}
         ongoingTestType={ongoingExamInfo ? ongoingExamInfo.type : null}
-        students={students}
-        classrooms={classrooms}
-        onUpdateStudentIdentity={handleUpdateStudentIdentity}
       />
 
       {/* Main Content Area */}

@@ -59,6 +59,9 @@ export interface Student {
   parentPhone: string;
   parentName?: string;
   teacherNotes?: string;
+  accountPhone?: string;
+  accountCode?: string;
+  accountPassword?: string;
 }
 
 export interface Classroom {
