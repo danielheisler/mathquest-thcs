@@ -302,6 +302,7 @@ const TEACHER_TABS = new Set([
   'reports',
   'seating_chart',
   'vnedu_gradebook',
+  'class_life',
 ]);
 
 export function getInitialFromName(name: string): string {

@@ -5,10 +5,11 @@ import { MathGradebookBoard } from '../common/MathGradebookBoard';
 import { calculateStudentAverage, createEmptyScoreRecord, StudentScoreRecord } from '../../utils/gradebook';
 import { Language } from '../../i18n/translations';
 import { soundManager } from '../../utils/sound';
+import { ParentExtrasPanels, ParentExtraTab } from './ParentExtrasPanels';
 import { 
   Search, Phone, MessageSquare, Award, AlertTriangle, CheckCircle2, Clock, 
   BookOpen, Star, Sparkles, User, Calendar, ExternalLink, Send, ShieldCheck, 
-  HelpCircle, ChevronRight, Share2, Copy, Check, HeartHandshake, Lock, FileSpreadsheet
+  HelpCircle, ChevronRight, Share2, Copy, Check, HeartHandshake, Lock, FileSpreadsheet, Heart
 } from 'lucide-react';
 
 interface ParentPortalProps {
@@ -46,7 +47,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
     }
     return students[0]?.id || 's1';
   });
-  const [activeTab, setActiveTab] = useState<'gradebook' | 'homework' | 'exams' | 'certificates' | 'contact'>('gradebook');
+  const [activeTab, setActiveTab] = useState<'gradebook' | 'homework' | 'exams' | 'certificates' | 'contact' | ParentExtraTab>('gradebook');
   const [showCertificate, setShowCertificate] = useState<boolean>(false);
   const [parentNote, setParentNote] = useState<string>('');
   const [noteSent, setNoteSent] = useState<boolean>(false);
@@ -320,6 +321,66 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             >
               <Phone className="w-4 h-4" />
               <span>{isEn ? 'Contact Ms. Diễm Quỳnh' : 'Liên Hệ Cô Diễm Quỳnh'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                setActiveTab('schedule_feedback');
+              }}
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+                activeTab === 'schedule_feedback'
+                  ? 'border-emerald-600 text-emerald-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>{isEn ? 'Weekly Schedule & Feedback' : 'Lịch Trình Tuần & Góp Ý'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                setActiveTab('family_fun');
+              }}
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+                activeTab === 'family_fun'
+                  ? 'border-emerald-600 text-emerald-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Heart className="w-4 h-4" />
+              <span>{isEn ? 'Parent & Teen Games' : 'Hiểu Con & Thử Thách Tuần'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                setActiveTab('wellbeing_survey');
+              }}
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+                activeTab === 'wellbeing_survey'
+                  ? 'border-emerald-600 text-emerald-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{isEn ? 'Wellbeing Survey' : 'Góc Thấu Hiểu Con Trẻ'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundManager.playClick();
+                setActiveTab('parent_library');
+              }}
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+                activeTab === 'parent_library'
+                  ? 'border-emerald-600 text-emerald-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>{isEn ? 'Parenting & Career Library' : 'Cẩm Nang & Hướng Nghiệp'}</span>
             </button>
           </div>
 
@@ -619,6 +680,18 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </form>
               </div>
             </div>
+          )}
+
+          {(activeTab === 'schedule_feedback' ||
+            activeTab === 'family_fun' ||
+            activeTab === 'wellbeing_survey' ||
+            activeTab === 'parent_library') && (
+            <ParentExtrasPanels
+              activeTab={activeTab}
+              studentName={currentStudent.name}
+              className={currentClass?.name || 'Lớp 6A1'}
+              language={language}
+            />
           )}
         </div>
       )}

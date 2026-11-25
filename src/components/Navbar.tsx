@@ -39,7 +39,8 @@ export type NavTab =
   | 'questions'
   | 'reports'
   | 'seating_chart'
-  | 'vnedu_gradebook';
+  | 'vnedu_gradebook'
+  | 'class_life';
 
 interface NavbarProps {
   mainPortal: MainPortal;
@@ -124,6 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'gradebook', label: t.navGradebook, badge: t.navGradebookBadge },
     { id: 'lesson_plans', label: t.navLessonPlans, badge: t.navLessonPlansBadge },
     { id: 'slide_studio', label: t.navSlideStudio, badge: t.navSlideStudioBadge },
+    { id: 'class_life', label: t.navClassLife, badge: t.navClassLifeBadge },
     { id: 'ai_exam_studio', label: t.navAiExamStudio, badge: t.navAiExamStudioBadge },
     { id: 'custom_game', label: t.navCustomGame, badge: t.navCustomGameBadge },
     { id: 'anti_cheat_monitor', label: t.navAntiCheat, badge: t.navAntiCheatBadge },
@@ -139,6 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'gradebook', label: t.navGradebook, badge: t.navGradebookBadge },
     { id: 'lesson_plans', label: t.navLessonPlans, badge: t.navLessonPlansBadge },
     { id: 'slide_studio', label: t.navSlideStudio, badge: t.navSlideStudioBadge },
+    { id: 'class_life', label: t.navClassLife, badge: t.navClassLifeBadge },
     { id: 'vnedu_gradebook', label: t.navVnEdu, badge: t.navVnEduBadge },
     { id: 'reports', label: t.navHomeroomReports },
   ];

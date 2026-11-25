@@ -97,7 +97,7 @@ export const translations = {
 
     // Nav Tabs
     navSolo: 'Trò Chơi Toán Học',
-    navSoloBadge: '5 Game',
+    navSoloBadge: '7 Game',
     navBodyGames: 'Vận Động Cơ Thể Camera',
     navBodyGamesBadge: 'Mới ⭐',
     navExams: 'Luyện Đề Giữa/Cuối Kỳ',
@@ -132,6 +132,8 @@ export const translations = {
     navSeatingChartBadge: '4 Dãy/Tổ 🪑',
     navVnEdu: 'Sổ Điểm Điện Tử VnEdu (Các Môn)',
     navVnEduBadge: 'VnEdu 📊',
+    navClassLife: 'Sinh Hoạt Lớp & Kết Nối',
+    navClassLifeBadge: 'Mới 🌟',
     navHomeroomReports: 'Báo Cáo Toàn Diện Lớp & Xuất PDF',
 
     // App shell
@@ -240,7 +242,7 @@ export const translations = {
 
     // Nav Tabs
     navSolo: 'Math Games',
-    navSoloBadge: '5 Games',
+    navSoloBadge: '7 Games',
     navBodyGames: 'Body Camera Games',
     navBodyGamesBadge: 'New ⭐',
     navExams: 'Midterm & Final Practice',
@@ -275,6 +277,8 @@ export const translations = {
     navSeatingChartBadge: '4 Rows 🪑',
     navVnEdu: 'VnEdu E-Gradebook',
     navVnEduBadge: 'VnEdu 📊',
+    navClassLife: 'Class Life & Culture',
+    navClassLifeBadge: 'New 🌟',
     navHomeroomReports: 'Class Reports & PDF Export',
 
     // App shell

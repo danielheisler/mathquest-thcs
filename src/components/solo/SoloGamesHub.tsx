@@ -3,12 +3,13 @@ import { Question, LeaderboardEntry } from '../../types/math';
 import { SpeedMathGame } from './SpeedMathGame';
 import { MathEscapeRoom } from './MathEscapeRoom';
 import { FormulaMemoryGame } from './FormulaMemoryGame';
+import { FormulaWheelGame } from './FormulaWheelGame';
 import { BattleshipOxy } from '../games/BattleshipOxy';
 import { PrimeDefense } from '../games/PrimeDefense';
 import { BodyCameraGamesHub } from '../camera_games/BodyCameraGamesHub';
 import { Language } from '../../i18n/translations';
 import { soundManager } from '../../utils/sound';
-import { Zap, KeyRound, Brain, Compass, Flame, Camera } from 'lucide-react';
+import { Zap, KeyRound, Brain, Compass, Flame, Camera, Disc } from 'lucide-react';
 
 interface SoloGamesHubProps {
   questions: Question[];
@@ -26,7 +27,7 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
   language = 'vi'
 }) => {
   const isEn = language === 'en';
-  const [activeGame, setActiveGame] = useState<'camera_motion' | 'speed' | 'escape' | 'memory' | 'battleship' | 'prime'>('camera_motion');
+  const [activeGame, setActiveGame] = useState<'camera_motion' | 'wheel' | 'speed' | 'escape' | 'memory' | 'battleship' | 'prime'>('camera_motion');
 
   const games = [
     {
@@ -36,6 +37,14 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
       icon: Camera,
       badge: isEn ? 'Class Cam ⭐' : 'Camera Lớp Học ⭐',
       color: 'bg-indigo-600 text-white'
+    },
+    {
+      id: 'wheel',
+      title: isEn ? 'Formula Spin Wheel' : 'Vòng Quay Công Thức',
+      subtitle: isEn ? 'Spin the wheel to review theorems & solve' : 'Vòng quay may mắn ôn tập định lý & giải nhanh',
+      icon: Disc,
+      badge: isEn ? 'Roulette 🎡' : 'Vòng Quay 🎡',
+      color: 'bg-fuchsia-600 text-white'
     },
     {
       id: 'speed',
@@ -82,7 +91,7 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
   return (
     <div className="space-y-6">
       {/* Game Selector Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
         {games.map((g) => {
           const Icon = g.icon;
           const isSelected = activeGame === g.id;
@@ -119,6 +128,15 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
           <BodyCameraGamesHub
             activeStudentName={activeStudentName}
             activeClassName={activeClassName}
+            language={language}
+          />
+        )}
+        {activeGame === 'wheel' && (
+          <FormulaWheelGame
+            questions={questions}
+            onSaveScore={onSaveScore}
+            studentName={activeStudentName}
+            className={activeClassName}
             language={language}
           />
         )}

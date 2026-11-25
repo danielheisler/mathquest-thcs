@@ -15,6 +15,7 @@ import { ClassroomSeatingChart } from './components/classroom/ClassroomSeatingCh
 import { VnEduGradebook } from './components/classroom/VnEduGradebook';
 import { LessonPlanManager } from './components/classroom/LessonPlanManager';
 import { SlideStudio } from './components/classroom/SlideStudio';
+import { ClassLifeHub } from './components/classroom/ClassLifeHub';
 import { LessonPlan } from './data/lessonPlansData';
 import { CustomGameStudio } from './components/games/CustomGameStudio';
 import { initialVnEduRecords } from './data/vneduData';
@@ -1038,6 +1039,14 @@ export default function App() {
                 <SlideStudio
                   lessonPlan={selectedLessonPlanForSlides}
                   questions={questions}
+                  language={language}
+                />
+              )}
+
+              {/* Tab: Sinh Hoạt Lớp, Gương Sáng, Thói Quen 21 Ngày & Rung Chuông Vàng */}
+              {activeTab === 'class_life' && (
+                <ClassLifeHub
+                  students={students}
                   language={language}
                 />
               )}

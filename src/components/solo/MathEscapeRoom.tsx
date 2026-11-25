@@ -216,9 +216,21 @@ export const MathEscapeRoom: React.FC<{ language?: Language }> = ({ language = '
               ? 'You unlocked all 4 mathematical seals and opened the Middle School Treasure Vault!'
               : 'Bạn đã xuất sắc vượt qua toàn bộ 4 ải mật mã toán học, mở khóa thành công Hòm Kho Báu Tri Thức của vương quốc Toán THCS!'}
           </p>
-          <div className="my-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl max-w-md mx-auto text-amber-800 text-xs">
-            🏆 {isEn ? 'Title Unlocked:' : 'Danh hiệu trao tặng:'} <b>{isEn ? 'Math Codebreaker Master' : 'Chuyên Gia Giải Mã Toán Học THCS'}</b><br />
-            {isEn ? 'Bonus EXP:' : 'Điểm thưởng tích lũy:'} <b>+1000 EXP</b>
+          <div className="my-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl max-w-md mx-auto text-amber-800 text-xs space-y-2">
+            <div>
+              🏆 {isEn ? 'Title Unlocked:' : 'Danh hiệu trao tặng:'} <b>{isEn ? 'Math Codebreaker Master' : 'Chuyên Gia Giải Mã Toán Học THCS'}</b><br />
+              {isEn ? 'Bonus EXP:' : 'Điểm thưởng tích lũy:'} <b>+1000 EXP</b> · 🎖️ {isEn ? 'Exclusive Sticker: Golden Compass' : 'Sticker Độc Quyền: La Bàn Vàng Tri Thức'}
+            </div>
+            <div className="pt-2 border-t border-amber-200/80 text-left bg-white/70 p-3 rounded-xl text-slate-700">
+              <div className="font-bold text-indigo-700 mb-1">
+                🔓 {isEn ? 'Unlocked Bonus Study Sheet:' : 'Mở Khóa Tài Liệu Tóm Tắt Bài Giảng:'}
+              </div>
+              <ul className="list-disc pl-4 space-y-0.5 text-[11px]">
+                <li>{isEn ? 'Integer Sign Rules: (−) × (−) = (+)' : 'Số nguyên: Nhân hai số cùng dấu cho kết quả dương'}</li>
+                <li>{isEn ? 'Identity: A² − B² = (A − B)(A + B)' : 'Hằng đẳng thức: A² − B² = (A − B)(A + B)'}</li>
+                <li>{isEn ? 'Pythagoras: c = √(a² + b²)' : 'Pythagore: c = √(a² + b²) trong tam giác vuông'}</li>
+              </ul>
+            </div>
           </div>
           <button
             onClick={resetQuest}
