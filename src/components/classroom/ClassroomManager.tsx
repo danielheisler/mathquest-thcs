@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Classroom, Student, HomeworkSubmission } from '../../types/math';
 import { Language } from '../../i18n/translations';
-import { getStudentCredentials } from '../../utils/auth';
+import { generateRandomPassword, getParentCredentials, getStudentCredentials } from '../../utils/auth';
 import { soundManager } from '../../utils/sound';
 import { ComprehensiveClassReportModal } from '../reports/ComprehensiveClassReportModal';
 import { WeeklyParticipationReport } from '../analytics/WeeklyParticipationReport';
+import { StudentParentDirectoryPanel } from './StudentParentDirectoryPanel';
 import {
   Users, UserPlus, GraduationCap, CheckCircle, Clock, XCircle, Award,
   Trash2, FileText, Search, Phone, MessageSquare, Send, Copy, Check,
   FileSpreadsheet, Edit3, Sparkles, ExternalLink, X, AlertCircle, Printer, RefreshCw,
-  Settings, Calendar, BarChart3, ShieldCheck, CheckCircle2, Upload, Download
+  Settings, Calendar, BarChart3, ShieldCheck, CheckCircle2, Upload, Download,
+  SlidersHorizontal, Shuffle
 } from 'lucide-react';
 
 interface ClassroomManagerProps {
@@ -40,7 +42,7 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
   const isEn = language === 'en';
   const [selectedClassId, setSelectedClassId] = useState<string>(classrooms[0]?.id || '');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [classroomTab, setClassroomTab] = useState<'roster' | 'weekly_report'>('roster');
+  const [classroomTab, setClassroomTab] = useState<'roster' | 'profiles' | 'weekly_report'>('roster');
 
   // Real-time 5s auto-update ticker
   const [autoRefreshSec, setAutoRefreshSec] = useState<number>(5);
@@ -83,8 +85,14 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
   const [newName, setNewName] = useState<string>('');
   const [newGender, setNewGender] = useState<'male' | 'female'>('male');
   const [newBadge, setNewBadge] = useState<string>('Chiến Binh Toán Học');
+  const [newDateOfBirth, setNewDateOfBirth] = useState<string>('');
+  const [newAddress, setNewAddress] = useState<string>('');
+  const [newAccountPhone, setNewAccountPhone] = useState<string>('');
+  const [newAccountPassword, setNewAccountPassword] = useState<string>(() => generateRandomPassword(8));
   const [newParentPhone, setNewParentPhone] = useState<string>('');
   const [newParentName, setNewParentName] = useState<string>('');
+  const [newParentRelation, setNewParentRelation] = useState<string>('Bố');
+  const [newParentPassword, setNewParentPassword] = useState<string>(() => generateRandomPassword(8));
   const [newTeacherNotes, setNewTeacherNotes] = useState<string>('');
 
   // Batch import text state & Excel upload state
@@ -142,15 +150,28 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
       },
       recentHistory: [],
       attendance: 'present',
+      dateOfBirth: newDateOfBirth.trim() || undefined,
+      address: newAddress.trim() || undefined,
+      accountPhone: newAccountPhone.trim() || undefined,
+      accountCode: `HS${String(students.length + 1).padStart(2, '0')}`,
+      accountPassword: newAccountPassword.trim() || generateRandomPassword(8),
       parentPhone: newParentPhone.trim() || '0900000000',
       parentName: newParentName.trim() || `Phụ huynh em ${newName.trim()}`,
+      parentRelation: newParentRelation.trim() || 'Phụ huynh',
+      parentPassword: newParentPassword.trim() || generateRandomPassword(8),
       teacherNotes: newTeacherNotes || 'Học sinh mới gia nhập lớp do Cô Diễm Quỳnh quản lý.'
     };
 
     onAddStudent(newStud);
     setNewName('');
+    setNewDateOfBirth('');
+    setNewAddress('');
+    setNewAccountPhone('');
+    setNewAccountPassword(generateRandomPassword(8));
     setNewParentPhone('');
     setNewParentName('');
+    setNewParentRelation('Bố');
+    setNewParentPassword(generateRandomPassword(8));
     setNewTeacherNotes('');
     setShowAddModal(false);
   };
@@ -567,8 +588,8 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
           </div>
         )}
 
-        {/* View Switcher: Sổ Điểm Thứ Hạng vs Thống Kê Tham Gia Tuần & Giờ Vào/Ra */}
-        <div className="flex items-center gap-2 mb-6 border-b border-slate-200 pb-3">
+        {/* View Switcher: Sổ Điểm Thứ Hạng vs Tùy Chọn Thông Tin HS-PH vs Thống Kê Tham Gia Tuần */}
+        <div className="flex flex-wrap items-center gap-2 mb-6 border-b border-slate-200 pb-3">
           <button
             type="button"
             onClick={() => {
@@ -582,6 +603,24 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
           >
             <Users className="w-4 h-4" />
             <span>Sổ Quản Lý & Thứ Hạng Lớp</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundManager.playClick();
+              setClassroomTab('profiles');
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${classroomTab === 'profiles'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Tùy Chọn Thông Tin & Tài Khoản HS – PH</span>
+            <span className="px-1.5 py-0.2 bg-amber-500 text-white text-[10px] font-black rounded-full">
+              Đầy đủ 📋
+            </span>
           </button>
 
           <button
@@ -602,6 +641,18 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
             </span>
           </button>
         </div>
+
+        {/* Tab 1.5: Full Student & Parent Information & Account Options */}
+        {classroomTab === 'profiles' && (
+          <StudentParentDirectoryPanel
+            classrooms={classrooms}
+            students={students}
+            initialClassId={currentClass?.id || 'all'}
+            onUpdateStudent={onUpdateStudent}
+            onOpenAddModal={() => setShowAddModal(true)}
+            language={language}
+          />
+        )}
 
         {/* Tab 2: Weekly Participation Report */}
         {classroomTab === 'weekly_report' && (
@@ -893,11 +944,71 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                 </div>
               </div>
 
-              {/* Parent Phone & Name Inputs */}
+              {/* Student DOB, Address & Account Credentials */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-indigo-700 block mb-1">
-                    Số Điện Thoại Phụ Huynh *:
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Ngày sinh:</label>
+                  <input
+                    type="text"
+                    placeholder="VD: 15/08/2013"
+                    value={newDateOfBirth}
+                    onChange={(e) => setNewDateOfBirth(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Địa chỉ:</label>
+                  <input
+                    type="text"
+                    placeholder="VD: Hải Châu, Đà Nẵng"
+                    value={newAddress}
+                    onChange={(e) => setNewAddress(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-blue-700 block mb-1">
+                    TK Học Sinh (SĐT):
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="VD: 0987654399"
+                    value={newAccountPhone}
+                    onChange={(e) => setNewAccountPhone(e.target.value)}
+                    className="w-full px-3 py-2 bg-blue-50/50 border border-blue-300 rounded-xl text-xs text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-blue-700 block mb-1">
+                    Mật Khẩu Học Sinh:
+                  </label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={newAccountPassword}
+                      onChange={(e) => setNewAccountPassword(e.target.value)}
+                      className="w-full px-2.5 py-2 bg-blue-50/50 border border-blue-300 rounded-xl text-xs text-slate-900 font-mono font-bold"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setNewAccountPassword(generateRandomPassword(8))}
+                      className="px-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl text-xs font-bold cursor-pointer"
+                      title="Tạo mật khẩu ngẫu nhiên"
+                    >
+                      <Shuffle className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Parent Phone, Name, Relation & Password Inputs */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-emerald-700 block mb-1">
+                    TK Phụ Huynh (SĐT) *:
                   </label>
                   <input
                     type="tel"
@@ -905,9 +1016,33 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                     placeholder="Ví dụ: 0912345678"
                     value={newParentPhone}
                     onChange={(e) => setNewParentPhone(e.target.value)}
-                    className="w-full px-3 py-2 bg-indigo-50/50 border border-indigo-300 rounded-xl text-xs text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-emerald-50/50 border border-emerald-300 rounded-xl text-xs text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
+                <div>
+                  <label className="text-xs font-semibold text-emerald-700 block mb-1">
+                    Mật Khẩu Phụ Huynh:
+                  </label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={newParentPassword}
+                      onChange={(e) => setNewParentPassword(e.target.value)}
+                      className="w-full px-2.5 py-2 bg-emerald-50/50 border border-emerald-300 rounded-xl text-xs text-slate-900 font-mono font-bold"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setNewParentPassword(generateRandomPassword(8))}
+                      className="px-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-xl text-xs font-bold cursor-pointer"
+                      title="Tạo mật khẩu ngẫu nhiên"
+                    >
+                      <Shuffle className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1">
                     Tên Phụ Huynh:
@@ -919,6 +1054,22 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                     onChange={(e) => setNewParentName(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">
+                    Quan hệ với HS:
+                  </label>
+                  <select
+                    value={newParentRelation}
+                    onChange={(e) => setNewParentRelation(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900"
+                  >
+                    <option value="Bố">Bố</option>
+                    <option value="Mẹ">Mẹ</option>
+                    <option value="Ông">Ông</option>
+                    <option value="Bà">Bà</option>
+                    <option value="Người giám hộ">Người giám hộ</option>
+                  </select>
                 </div>
               </div>
 
@@ -1258,17 +1409,99 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-indigo-700 block mb-1">
-                    SĐT Phụ Huynh:
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Ngày sinh:</label>
+                  <input
+                    type="text"
+                    placeholder="VD: 15/08/2013"
+                    value={editingStudent.dateOfBirth || ''}
+                    onChange={(e) => setEditingStudent({ ...editingStudent, dateOfBirth: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Địa chỉ:</label>
+                  <input
+                    type="text"
+                    placeholder="Quận / Phường..."
+                    value={editingStudent.address || ''}
+                    onChange={(e) => setEditingStudent({ ...editingStudent, address: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-blue-700 block mb-1">
+                    TK Học Sinh (SĐT):
+                  </label>
+                  <input
+                    type="tel"
+                    value={editingStudent.accountPhone ?? getStudentCredentials(editingStudent).phone}
+                    onChange={(e) => setEditingStudent({ ...editingStudent, accountPhone: e.target.value })}
+                    className="w-full px-3 py-2 bg-blue-50/50 border border-blue-300 rounded-xl text-xs font-mono font-bold text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-blue-700 block mb-1">
+                    Mật Khẩu Học Sinh:
+                  </label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={editingStudent.accountPassword ?? getStudentCredentials(editingStudent).password}
+                      onChange={(e) => setEditingStudent({ ...editingStudent, accountPassword: e.target.value })}
+                      className="w-full px-2.5 py-2 bg-blue-50/50 border border-blue-300 rounded-xl text-xs font-mono font-bold text-slate-900"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setEditingStudent({ ...editingStudent, accountPassword: generateRandomPassword(8) })}
+                      className="px-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl text-xs font-bold cursor-pointer"
+                      title="Random MK Học sinh"
+                    >
+                      <Shuffle className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-emerald-700 block mb-1">
+                    TK Phụ Huynh (SĐT):
                   </label>
                   <input
                     type="tel"
                     required
                     value={editingStudent.parentPhone || ''}
                     onChange={(e) => setEditingStudent({ ...editingStudent, parentPhone: e.target.value })}
-                    className="w-full px-3 py-2 bg-indigo-50/50 border border-indigo-300 rounded-xl text-xs font-mono font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-emerald-50/50 border border-emerald-300 rounded-xl text-xs font-mono font-bold text-slate-900"
                   />
                 </div>
+                <div>
+                  <label className="text-xs font-semibold text-emerald-700 block mb-1">
+                    Mật Khẩu Phụ Huynh:
+                  </label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={editingStudent.parentPassword ?? getParentCredentials(editingStudent).password}
+                      onChange={(e) => setEditingStudent({ ...editingStudent, parentPassword: e.target.value })}
+                      className="w-full px-2.5 py-2 bg-emerald-50/50 border border-emerald-300 rounded-xl text-xs font-mono font-bold text-slate-900"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setEditingStudent({ ...editingStudent, parentPassword: generateRandomPassword(8) })}
+                      className="px-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-xl text-xs font-bold cursor-pointer"
+                      title="Random MK Phụ huynh"
+                    >
+                      <Shuffle className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1">
                     Tên Phụ Huynh:
@@ -1279,6 +1512,22 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
                     onChange={(e) => setEditingStudent({ ...editingStudent, parentName: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900"
                   />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">
+                    Quan hệ với HS:
+                  </label>
+                  <select
+                    value={editingStudent.parentRelation || 'Bố'}
+                    onChange={(e) => setEditingStudent({ ...editingStudent, parentRelation: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900"
+                  >
+                    <option value="Bố">Bố</option>
+                    <option value="Mẹ">Mẹ</option>
+                    <option value="Ông">Ông</option>
+                    <option value="Bà">Bà</option>
+                    <option value="Người giám hộ">Người giám hộ</option>
+                  </select>
                 </div>
               </div>
 

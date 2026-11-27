@@ -49,6 +49,28 @@ const FALLBACK_STUDENT_ACCOUNT: AccountRecord = {
 
 export const AUTH_STORAGE_KEY = 'mathquest_auth_user';
 export const DEFAULT_STUDENT_PASSWORD = 'HS201102';
+export const DEFAULT_PARENT_PASSWORD = 'PH201102';
+
+const PASS_UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const PASS_LOWER = 'abcdefghjkmnpqrstuvwxyz';
+const PASS_DIGITS = '23456789';
+const PASS_ALL = PASS_UPPER + PASS_LOWER + PASS_DIGITS;
+
+export function generateRandomPassword(length = 8): string {
+  const chars = [
+    PASS_UPPER[Math.floor(Math.random() * PASS_UPPER.length)],
+    PASS_LOWER[Math.floor(Math.random() * PASS_LOWER.length)],
+    PASS_DIGITS[Math.floor(Math.random() * PASS_DIGITS.length)],
+  ];
+  while (chars.length < Math.max(6, length)) {
+    chars.push(PASS_ALL[Math.floor(Math.random() * PASS_ALL.length)]);
+  }
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join('');
+}
 
 export function normalizePhone(phone: string): string {
   return phone.trim().replace(/[\s.\-]/g, '');
@@ -71,6 +93,16 @@ export function getStudentCredentials(
     phone: student.accountPhone?.trim() || defaultPhone,
     code: student.accountCode?.trim() || defaultCode,
     password: student.accountPassword?.trim() || DEFAULT_STUDENT_PASSWORD,
+  };
+}
+
+export function getParentCredentials(
+  student: Student
+): { phone: string; name: string; password: string } {
+  return {
+    phone: student.parentPhone?.trim() || '',
+    name: student.parentName?.trim() || `Phụ huynh em ${student.name}`,
+    password: student.parentPassword?.trim() || DEFAULT_PARENT_PASSWORD,
   };
 }
 
@@ -180,7 +212,48 @@ export function authenticateWithPhone(
     return { ok: true, user };
   }
 
-  // 2. Check individual Student accounts (by phone or Student Code e.g. HS01)
+  // 2. Helper to check individual Parent accounts (student.parentPhone + parentPassword)
+  const checkIndividualParent = (): { ok: true; user: AuthUser } | { ok: false; error: string } | null => {
+    const matchedParentStudent = students.find(
+      (s) => s.parentPhone && normalizePhone(s.parentPhone).toLowerCase() === cleanInputLower
+    );
+    if (!matchedParentStudent) return null;
+
+    const parentCreds = getParentCredentials(matchedParentStudent);
+    if (parentCreds.password !== cleanPassword) {
+      return { ok: false, error: t.errInvalidCredentials };
+    }
+    if (expectedRole && expectedRole !== 'parent') {
+      return {
+        ok: false,
+        error:
+          language === 'en'
+            ? `This account belongs to ${t.roleParent}. Please select the ${t.roleParent} tab to sign in.`
+            : `Tài khoản này thuộc phần ${t.roleParent}. Vui lòng chọn đúng mục ${t.roleParent} để đăng nhập.`,
+      };
+    }
+    const clsName =
+      classrooms.find((c) => c.id === matchedParentStudent.classId)?.name || 'Lớp 6A1';
+    return {
+      ok: true,
+      user: {
+        id: `acc-parent-${matchedParentStudent.id}`,
+        role: 'parent',
+        phone: parentCreds.phone,
+        name: parentCreds.name,
+        roleLabel: 'Phụ huynh',
+        studentId: matchedParentStudent.id,
+        className: clsName,
+      },
+    };
+  };
+
+  if (expectedRole === 'parent') {
+    const parentResult = checkIndividualParent();
+    if (parentResult) return parentResult;
+  }
+
+  // 3. Check individual Student accounts (by phone or Student Code e.g. HS01)
   const studentAccounts = getStudentAccountsList(students, classrooms);
   const matchedStudent = studentAccounts.find(
     (acc) =>
@@ -215,7 +288,12 @@ export function authenticateWithPhone(
     };
   }
 
-  // 3. Fallback default student account if roster wasn't supplied
+  if (expectedRole !== 'parent') {
+    const parentResult = checkIndividualParent();
+    if (parentResult) return parentResult;
+  }
+
+  // 4. Fallback default student account if roster wasn't supplied
   if (students.length === 0 && cleanInput === FALLBACK_STUDENT_ACCOUNT.phone) {
     if (FALLBACK_STUDENT_ACCOUNT.password !== cleanPassword) {
       return { ok: false, error: t.errInvalidCredentials };

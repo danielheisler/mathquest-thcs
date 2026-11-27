@@ -58,6 +58,10 @@ export interface Student {
   attendance: 'present' | 'absent' | 'late';
   parentPhone: string;
   parentName?: string;
+  parentPassword?: string;
+  parentRelation?: string;
+  dateOfBirth?: string;
+  address?: string;
   teacherNotes?: string;
   accountPhone?: string;
   accountCode?: string;
