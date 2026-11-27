@@ -290,7 +290,7 @@ export const ReportCardGenerator: React.FC<ReportCardGeneratorProps> = ({
                   <td className="py-2 px-3 text-slate-600">Thành thạo phương pháp chuyển vế đổi dấu và giải hệ phương trình.</td>
                 </tr>
                 <tr>
-                  <td className="py-2 px-3 font-semibold text-slate-900">4. Hình học phẳng & Định lý Pythagoras</td>
+                  <td className="py-2 px-3 font-semibold text-slate-900">4. Hình học phẳng, Định lí Pythagore &amp; Thalès</td>
                   <td className="py-2 px-3 text-center font-mono font-bold text-indigo-600">
                     {student?.topicsMastery.geometry}%
                   </td>

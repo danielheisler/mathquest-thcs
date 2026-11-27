@@ -49,7 +49,7 @@ export const LinearFunctionLab: React.FC = () => {
     } else if (a1 === a2 && b1 !== b2) {
       relativeStatus = 'Hai đường thẳng SONG SONG (a₁ = a₂, b₁ ≠ b₂)';
     } else if (a1 * a2 === -1) {
-      relativeStatus = 'Hai đường thẳng VUÔNG GÓC VỚI NHAU (a₁ · a₂ = -1)';
+      relativeStatus = 'Hai đường thẳng CẮT NHAU (mở rộng: vuông góc vì a₁ · a₂ = -1)';
     } else {
       relativeStatus = 'Hai đường thẳng CẮT NHAU (a₁ ≠ a₂)';
     }
@@ -59,10 +59,10 @@ export const LinearFunctionLab: React.FC = () => {
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
-          <span className="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Mô phỏng Đại số THCS · Khối 9</span>
-          <h3 className="text-2xl font-bold text-slate-900 mt-1">Đồ Thị & Tính Chất Hàm Số Bậc Nhất y = ax + b</h3>
+          <span className="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Mô phỏng Đại số THCS · Toán 8 (CT GDPT 2018)</span>
+          <h3 className="text-2xl font-bold text-slate-900 mt-1">Đồ Thị & Hệ Số Góc Hàm Số Bậc Nhất y = ax + b (a ≠ 0)</h3>
           <p className="text-sm text-slate-600 mt-0.5">
-            Khám phá trực quan hệ số góc <span className="font-mono font-bold text-blue-600">a</span>, tung độ gốc <span className="font-mono font-bold text-emerald-600">b</span> và vị trí tương đối giữa hai đường thẳng.
+            Khám phá trực quan hệ số góc <span className="font-mono font-bold text-blue-600">a</span>, tung độ gốc <span className="font-mono font-bold text-emerald-600">b</span>, góc tạo với trục Ox và vị trí tương đối giữa hai đường thẳng (Chương VII – Toán 8).
           </p>
         </div>
         <button

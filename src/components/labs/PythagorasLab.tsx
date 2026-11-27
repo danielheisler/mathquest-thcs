@@ -22,7 +22,7 @@ export const PythagorasLab: React.FC = () => {
     const val = parseFloat(quizInput);
     if (Math.abs(val - c) < 0.05) {
       soundManager.playCorrect();
-      setQuizFeedback('Chính xác! Bạn đã vận dụng hoàn hảo định lý Pythagoras!');
+      setQuizFeedback('Chính xác! Bạn đã vận dụng hoàn hảo định lí Pythagore!');
     } else {
       soundManager.playWrong();
       setQuizFeedback(`Chưa chính xác. Áp dụng c = √(a² + b²) = √(${a*a} + ${b*b}) = ${c.toFixed(2)}.`);
@@ -41,14 +41,14 @@ export const PythagorasLab: React.FC = () => {
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
-          <span className="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Mô phỏng Hình học THCS · Khối 7 & 8</span>
-          <h3 className="text-2xl font-bold text-slate-900 mt-1">Khám Phá Trực Quan Định Lý Pythagoras</h3>
+          <span className="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Mô phỏng Hình học THCS · Toán 8 (CT GDPT 2018)</span>
+          <h3 className="text-2xl font-bold text-slate-900 mt-1">Khám Phá Trực Quan Định Lí Pythagore</h3>
           <p className="text-sm text-slate-600 mt-0.5">
             Trong một tam giác vuông, bình phương của cạnh huyền bằng tổng các bình phương của hai cạnh góc vuông: <span className="font-bold text-indigo-600"><MathView math="a^2 + b^2 = c^2" /></span>
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 font-medium">Bộ ba Pytago chuẩn:</span>
+          <span className="text-xs text-slate-500 font-medium">Bộ ba Pythagore chuẩn:</span>
           <button onClick={() => setPreset(3, 4)} className="px-2.5 py-1 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-md transition-colors">3 - 4 - 5</button>
           <button onClick={() => setPreset(6, 8)} className="px-2.5 py-1 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-md transition-colors">6 - 8 - 10</button>
           <button onClick={() => setPreset(5, 12)} className="px-2.5 py-1 text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-md transition-colors">5 - 12 - 13</button>

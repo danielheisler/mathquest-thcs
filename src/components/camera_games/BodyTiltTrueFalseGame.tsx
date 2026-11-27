@@ -49,7 +49,7 @@ const trueFalseQuestions: TrueFalseQuestion[] = [
     statement: 'Hai góc đối đỉnh thì luôn có số đo bằng nhau.',
     statementEn: 'Vertical (opposite) angles always have equal measures.',
     isTrue: true,
-    explanation: 'Đây là định lý cơ bản hình học lớp 7: Hai góc đối đỉnh thì bằng nhau.',
+    explanation: 'Đây là tính chất / định lí cơ bản hình học lớp 7: Hai góc đối đỉnh thì bằng nhau.',
     explanationEn: 'Basic Grade 7 geometry theorem: vertical angles are congruent.'
   },
   {
@@ -68,8 +68,8 @@ const trueFalseQuestions: TrueFalseQuestion[] = [
     statement: 'Tam giác có ba cạnh là 3cm, 4cm, 5cm là tam giác vuông.',
     statementEn: 'A triangle with side lengths 3 cm, 4 cm, and 5 cm is a right triangle.',
     isTrue: true,
-    explanation: 'Theo định lý Pythagoras đảo: 3² + 4² = 9 + 16 = 25 = 5².',
-    explanationEn: 'By the converse of the Pythagorean theorem: 3² + 4² = 9 + 16 = 25 = 5².'
+    explanation: 'Theo định lí Pythagore đảo (Toán 8 – CT GDPT 2018): 3² + 4² = 9 + 16 = 25 = 5².',
+    explanationEn: 'By the converse of the Pythagorean theorem (Grade 8): 3² + 4² = 9 + 16 = 25 = 5².'
   },
   {
     id: 'tf-6',
@@ -84,11 +84,11 @@ const trueFalseQuestions: TrueFalseQuestion[] = [
   {
     id: 'tf-7',
     grade: 9,
-    statement: 'Đường kính là dây cung dài nhất của đường tròn.',
+    statement: 'Đường kính là dây lớn nhất của đường tròn.',
     statementEn: 'The diameter is the longest chord of a circle.',
     isTrue: true,
-    explanation: 'Định lý đường kính và dây: Trong các dây của một đường tròn, đường kính là dây có độ dài lớn nhất.',
-    explanationEn: 'Theorem on diameters and chords: the diameter is the longest chord in any circle.'
+    explanation: 'Định lí độ dài của dây và đường kính (Toán 9 – CT 2018): Trong một đường tròn, độ dài một dây bất kì không lớn hơn đường kính.',
+    explanationEn: 'Chord & diameter theorem (Grade 9): the diameter is the longest chord in any circle.'
   },
   {
     id: 'tf-8',
@@ -105,7 +105,7 @@ const trueFalseQuestions: TrueFalseQuestion[] = [
     statement: 'Tổng ba góc trong một tam giác bất kỳ luôn bằng 180°.',
     statementEn: 'The sum of interior angles of any triangle is always 180°.',
     isTrue: true,
-    explanation: 'Định lý tổng ba góc của một tam giác: luôn bằng 180°.',
+    explanation: 'Định lí tổng ba góc của một tam giác (Toán 7): luôn bằng 180°.',
     explanationEn: 'Triangle Angle Sum Theorem: the interior angles always add up to 180°.'
   },
   {

@@ -21,20 +21,25 @@ export const GradeVisualLessonsHub: React.FC = () => {
   const [g6Numerator, setG6Numerator] = useState<number>(3);
   const [g6Denominator, setG6Denominator] = useState<number>(8);
 
-  // Grade 7 Interactive States
-  const [g7SideA, setG7SideA] = useState<number>(3);
-  const [g7SideB, setG7SideB] = useState<number>(4);
-  const g7SideC = Math.sqrt(g7SideA * g7SideA + g7SideB * g7SideB);
+  // Grade 7 Interactive States (Bất đẳng thức tam giác & Tổng 3 góc — Chuẩn Toán 7 CT GDPT 2018)
+  const [g7TriA, setG7TriA] = useState<number>(6);
+  const [g7TriB, setG7TriB] = useState<number>(5);
+  const [g7TriC, setG7TriC] = useState<number>(7);
+  const isG7ValidTriangle = g7TriA + g7TriB > g7TriC && g7TriA + g7TriC > g7TriB && g7TriB + g7TriC > g7TriA;
 
-  // Grade 8 Interactive States (7 Hằng Đẳng Thức Hình Học)
+  // Grade 8 Interactive States (7 Hằng Đẳng Thức & Định lí Pythagore — Chuẩn Toán 8 CT GDPT 2018)
   const [g8A, setG8A] = useState<number>(5);
   const [g8B, setG8B] = useState<number>(3);
-  const [g8Identity, setG8Identity] = useState<'sum_sq' | 'diff_sq' | 'diff_two_sq'>('sum_sq');
+  const [g8Module, setG8Module] = useState<'identity' | 'pythagore'>('identity');
+  const [g8PyA, setG8PyA] = useState<number>(3);
+  const [g8PyB, setG8PyB] = useState<number>(4);
+  const g8PyC = Math.sqrt(g8PyA * g8PyA + g8PyB * g8PyB);
 
-  // Grade 9 Interactive States (Parabol & Đường Thẳng)
+  // Grade 9 Interactive States (Parabol y = ax² & Phương trình bậc hai / Định lí Viète — Chuẩn Toán 9 CT GDPT 2018)
   const [g9A, setG9A] = useState<number>(0.5);
   const [g9M, setG9M] = useState<number>(1);
   const [g9N, setG9N] = useState<number>(2);
+  const g9Delta = g9M * g9M + 4 * g9A * g9N;
 
   return (
     <div className="space-y-6">
@@ -346,205 +351,318 @@ export const GradeVisualLessonsHub: React.FC = () => {
       )}
 
       {/* ========================================================
-          3. TOÁN LỚP 7: ĐỊNH LÝ PYTHAGORAS & TAM GIÁC
+          3. TOÁN LỚP 7 (CT GDPT 2018): BẤT ĐẲNG THỨC & TỔNG 3 GÓC TAM GIÁC
           ======================================================== */}
-      {activeGrade === 7 && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                <Compass className="w-5 h-5" />
+      {activeGrade === 7 && (() => {
+        const angleA = isG7ValidTriangle
+          ? (Math.acos((g7TriB * g7TriB + g7TriC * g7TriC - g7TriA * g7TriA) / (2 * g7TriB * g7TriC)) * 180) / Math.PI
+          : 0;
+        const angleB = isG7ValidTriangle
+          ? (Math.acos((g7TriA * g7TriA + g7TriC * g7TriC - g7TriB * g7TriB) / (2 * g7TriA * g7TriC)) * 180) / Math.PI
+          : 0;
+        const angleC = isG7ValidTriangle ? Math.max(0, 180 - angleA - angleB) : 0;
+
+        // Compute SVG triangle vertices when valid (base = g7TriC along horizontal)
+        const scale = 22;
+        const bx = 60;
+        const by = 215;
+        const cx = bx + g7TriC * scale;
+        const cy = by;
+        const cosB = isG7ValidTriangle
+          ? (g7TriC * g7TriC + g7TriA * g7TriA - g7TriB * g7TriB) / (2 * g7TriC * g7TriA)
+          : 0.5;
+        const sinB = Math.sqrt(Math.max(0, 1 - cosB * cosB));
+        const ax = bx + g7TriA * scale * cosB;
+        const ay = by - g7TriA * scale * sinB;
+
+        const triType = !isG7ValidTriangle
+          ? 'Không lập thành tam giác'
+          : g7TriA === g7TriB && g7TriB === g7TriC
+            ? 'Tam giác đều (3 cạnh bằng nhau, mỗi góc 60°)'
+            : Math.abs(angleA - 90) < 0.6 || Math.abs(angleB - 90) < 0.6 || Math.abs(angleC - 90) < 0.6
+              ? 'Tam giác vuông'
+              : g7TriA === g7TriB || g7TriB === g7TriC || g7TriA === g7TriC
+                ? 'Tam giác cân'
+                : Math.max(angleA, angleB, angleC) > 90
+                  ? 'Tam giác tù'
+                  : 'Tam giác nhọn';
+
+        return (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                  <Compass className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-slate-900">
+                    Bất Đẳng Thức Tam Giác & Định Lí Tổng Ba Góc (∠A + ∠B + ∠C = 180°)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Khối 7 · Hình học tam giác (Chuẩn CT GDPT 2018 — Định lí Pythagore chuyển lên Toán 8)
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-extrabold text-slate-900">
-                  Định Lý Pythagoras Trực Quan: a² + b² = c²
-                </h3>
-                <p className="text-xs text-slate-500">Khối 7 · Hình học tam giác vuông</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              {/* Visual Canvas */}
+              <div className="lg:col-span-7 bg-slate-900 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[320px]">
+                <svg viewBox="0 0 340 260" className="w-full max-w-sm h-64">
+                  {isG7ValidTriangle ? (
+                    <g>
+                      <polygon
+                        points={`${bx},${by} ${cx},${cy} ${ax.toFixed(1)},${ay.toFixed(1)}`}
+                        fill="rgba(99, 102, 241, 0.35)"
+                        stroke="#818CF8"
+                        strokeWidth="3"
+                      />
+                      <circle cx={ax} cy={ay} r="4" fill="#FDE047" />
+                      <circle cx={bx} cy={by} r="4" fill="#34D399" />
+                      <circle cx={cx} cy={cy} r="4" fill="#F472B6" />
+                      <text x={ax} y={Math.max(18, ay - 10)} fill="#FDE047" fontSize="11" fontWeight="bold" textAnchor="middle">
+                        A ({angleA.toFixed(1)}°)
+                      </text>
+                      <text x={bx - 8} y={by + 18} fill="#34D399" fontSize="11" fontWeight="bold" textAnchor="middle">
+                        B ({angleB.toFixed(1)}°)
+                      </text>
+                      <text x={cx + 8} y={cy + 18} fill="#F472B6" fontSize="11" fontWeight="bold" textAnchor="middle">
+                        C ({angleC.toFixed(1)}°)
+                      </text>
+                      <text x={(bx + cx) / 2} y={by + 20} fill="#CBD5E1" fontSize="11" textAnchor="middle">
+                        c = {g7TriC} cm
+                      </text>
+                      <text x={(bx + ax) / 2 - 14} y={(by + ay) / 2} fill="#93C5FD" fontSize="11" textAnchor="middle">
+                        a = {g7TriA}
+                      </text>
+                      <text x={(cx + ax) / 2 + 16} y={(cy + ay) / 2} fill="#FCA5A5" fontSize="11" textAnchor="middle">
+                        b = {g7TriB}
+                      </text>
+                    </g>
+                  ) : (
+                    <g>
+                      <line x1="40" y1="150" x2="300" y2="150" stroke="#F43F5E" strokeWidth="4" strokeDasharray="6 4" />
+                      <text x="170" y="110" fill="#FCA5A5" fontSize="14" fontWeight="bold" textAnchor="middle">
+                        Không tạo thành tam giác!
+                      </text>
+                      <text x="170" y="135" fill="#CBD5E1" fontSize="11" textAnchor="middle">
+                        Vi phạm bất đẳng thức tam giác: |b - c| &lt; a &lt; b + c
+                      </text>
+                    </g>
+                  )}
+                </svg>
+                <div className="text-xs font-bold text-amber-300 mt-1">
+                  Phân loại: {triType}
+                </div>
+              </div>
+
+              {/* Interactive sliders */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 text-xs">
+                  <div>
+                    <div className="flex justify-between font-bold text-slate-700 mb-1">
+                      <span>Cạnh a (đối diện đỉnh A):</span>
+                      <span className="font-mono text-sky-600 font-bold">{g7TriA} cm</span>
+                    </div>
+                    <input type="range" min="2" max="10" value={g7TriA} onChange={(e) => setG7TriA(Number(e.target.value))} className="w-full accent-sky-600" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between font-bold text-slate-700 mb-1">
+                      <span>Cạnh b (đối diện đỉnh B):</span>
+                      <span className="font-mono text-rose-600 font-bold">{g7TriB} cm</span>
+                    </div>
+                    <input type="range" min="2" max="10" value={g7TriB} onChange={(e) => setG7TriB(Number(e.target.value))} className="w-full accent-rose-600" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between font-bold text-slate-700 mb-1">
+                      <span>Cạnh c (cạnh đáy BC):</span>
+                      <span className="font-mono text-emerald-600 font-bold">{g7TriC} cm</span>
+                    </div>
+                    <input type="range" min="2" max="10" value={g7TriC} onChange={(e) => setG7TriC(Number(e.target.value))} className="w-full accent-emerald-600" />
+                  </div>
+                </div>
+
+                {/* Formula & Verification Box */}
+                <div className={`p-4 rounded-2xl border space-y-2 text-xs ${isG7ValidTriangle ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'}`}>
+                  <span className="font-bold text-slate-900 block">
+                    Kiểm tra Bất đẳng thức tam giác:
+                  </span>
+                  <div className="font-mono text-xs font-bold text-indigo-800">
+                    |{g7TriB} - {g7TriC}| &lt; {g7TriA} &lt; {g7TriB} + {g7TriC} ⇔ {Math.abs(g7TriB - g7TriC)} &lt; {g7TriA} &lt; {g7TriB + g7TriC}
+                  </div>
+                  {isG7ValidTriangle ? (
+                    <p className="text-[11px] text-emerald-800 font-semibold">
+                      ✅ Hợp lệ! Tổng 3 góc: {angleA.toFixed(1)}° + {angleB.toFixed(1)}° + {angleC.toFixed(1)}° = 180°.
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-rose-700 font-semibold">
+                      ❌ Không thỏa mãn! Tổng hai cạnh phải luôn lớn hơn cạnh còn lại.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            {/* Visual Canvas */}
-            <div className="lg:col-span-7 bg-slate-900 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[320px]">
-              <svg viewBox="0 0 340 280" className="w-full max-w-sm h-64">
-                {/* Right triangle in center */}
-                <polygon
-                  points="120,200 240,200 120,110"
-                  fill="rgba(99, 102, 241, 0.4)"
-                  stroke="#818CF8"
-                  strokeWidth="3"
-                />
-                {/* Square on side a (vertical 90px) */}
-                <rect x="30" y="110" width="90" height="90" fill="rgba(239, 68, 68, 0.3)" stroke="#EF4444" strokeWidth="2" />
-                <text x="75" y="160" fill="#FCA5A5" fontSize="12" textAnchor="middle">a² = {g7SideA * g7SideA}</text>
-
-                {/* Square on side b (horizontal 120px) */}
-                <rect x="120" y="200" width="120" height="60" fill="rgba(16, 185, 129, 0.3)" stroke="#10B981" strokeWidth="2" />
-                <text x="180" y="235" fill="#6EE7B7" fontSize="12" textAnchor="middle">b² = {g7SideB * g7SideB}</text>
-
-                {/* Hypotenuse text */}
-                <text x="195" y="145" fill="#FDE047" fontSize="12" fontWeight="bold">c² = a² + b² = {g7SideA * g7SideA + g7SideB * g7SideB}</text>
-              </svg>
-            </div>
-
-            {/* Interactive sliders */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 text-xs">
-                <div>
-                  <div className="flex justify-between font-bold text-slate-700 mb-1">
-                    <span>Cạnh góc vuông a:</span>
-                    <span className="font-mono text-rose-600 font-bold">{g7SideA} cm</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1"
-                    max="8"
-                    value={g7SideA}
-                    onChange={(e) => setG7SideA(Number(e.target.value))}
-                    className="w-full accent-rose-600"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between font-bold text-slate-700 mb-1">
-                    <span>Cạnh góc vuông b:</span>
-                    <span className="font-mono text-emerald-600 font-bold">{g7SideB} cm</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1"
-                    max="8"
-                    value={g7SideB}
-                    onChange={(e) => setG7SideB(Number(e.target.value))}
-                    className="w-full accent-emerald-600"
-                  />
-                </div>
-              </div>
-
-              {/* Formula & Calculation Box */}
-              <div className="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 space-y-2 text-xs">
-                <span className="font-bold text-indigo-900 block">Công thức tính cạnh huyền c:</span>
-                <div className="text-sm font-mono text-indigo-700 font-bold">
-                  c = √(a² + b²) = √({g7SideA}² + {g7SideB}²) = √{g7SideA * g7SideA + g7SideB * g7SideB} ≈ {g7SideC.toFixed(2)} cm
-                </div>
-                <p className="text-[11px] text-slate-600">
-                  Diện tích hình vuông dựng trên cạnh huyền luôn bằng tổng diện tích hai hình vuông dựng trên hai cạnh góc vuông!
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ========================================================
-          4. TOÁN LỚP 8: 7 HẰNG ĐẲNG THỨC ĐÁNG NHỚ TRỰC QUAN
+          4. TOÁN LỚP 8 (CT GDPT 2018): 7 HẰNG ĐẲNG THỨC & ĐỊNH LÍ PYTHAGORE
           ======================================================== */}
       {activeGrade === 8 && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                 <Layers className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900">
-                  Hình Học Hóa Hằng Đẳng Thức: (a + b)² = a² + 2ab + b²
+                  {g8Module === 'identity'
+                    ? 'Hình Học Hóa Hằng Đẳng Thức: (a + b)² = a² + 2ab + b²'
+                    : 'Định Lí Pythagore Trực Quan: a² + b² = c² (Toán 8 – CT 2018)'}
                 </h3>
-                <p className="text-xs text-slate-500">Khối 8 · 7 Hằng đẳng thức đáng nhớ</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            {/* Visual Big Square cut into 4 parts */}
-            <div className="lg:col-span-7 bg-slate-900 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[320px]">
-              <div className="relative border-4 border-white/20 rounded-xl overflow-hidden shadow-2xl" style={{ width: 220, height: 220 }}>
-                {/* Box a^2 */}
-                <div 
-                  className="absolute top-0 left-0 bg-blue-600/80 border border-white/40 flex items-center justify-center font-bold text-white text-xs"
-                  style={{ width: `${(g8A / (g8A + g8B)) * 100}%`, height: `${(g8A / (g8A + g8B)) * 100}%` }}
-                >
-                  a² ({g8A * g8A})
-                </div>
-                {/* Box ab top-right */}
-                <div 
-                  className="absolute top-0 right-0 bg-amber-500/80 border border-white/40 flex items-center justify-center font-bold text-white text-xs"
-                  style={{ width: `${(g8B / (g8A + g8B)) * 100}%`, height: `${(g8A / (g8A + g8B)) * 100}%` }}
-                >
-                  ab ({g8A * g8B})
-                </div>
-                {/* Box ab bottom-left */}
-                <div 
-                  className="absolute bottom-0 left-0 bg-amber-500/80 border border-white/40 flex items-center justify-center font-bold text-white text-xs"
-                  style={{ width: `${(g8A / (g8A + g8B)) * 100}%`, height: `${(g8B / (g8A + g8B)) * 100}%` }}
-                >
-                  ab ({g8A * g8B})
-                </div>
-                {/* Box b^2 bottom-right */}
-                <div 
-                  className="absolute bottom-0 right-0 bg-emerald-600/80 border border-white/40 flex items-center justify-center font-bold text-white text-xs"
-                  style={{ width: `${(g8B / (g8A + g8B)) * 100}%`, height: `${(g8B / (g8A + g8B)) * 100}%` }}
-                >
-                  b² ({g8B * g8B})
-                </div>
-              </div>
-            </div>
-
-            {/* Sliders and Identity details */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 text-xs">
-                <div>
-                  <div className="flex justify-between font-bold text-slate-700 mb-1">
-                    <span>Độ dài đoạn a:</span>
-                    <span className="font-mono text-blue-600 font-bold">{g8A} cm</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="2"
-                    max="8"
-                    value={g8A}
-                    onChange={(e) => setG8A(Number(e.target.value))}
-                    className="w-full accent-blue-600"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between font-bold text-slate-700 mb-1">
-                    <span>Độ dài đoạn b:</span>
-                    <span className="font-mono text-emerald-600 font-bold">{g8B} cm</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1"
-                    max="6"
-                    value={g8B}
-                    onChange={(e) => setG8B(Number(e.target.value))}
-                    className="w-full accent-emerald-600"
-                  />
-                </div>
-              </div>
-
-              {/* Expansion Result */}
-              <div className="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 space-y-2 text-xs">
-                <span className="font-bold text-indigo-900 block">Khai triển diện tích hình vuông lớn (a + b)²:</span>
-                <div className="font-mono text-sm font-bold text-indigo-700">
-                  ({g8A} + {g8B})² = {g8A}² + 2×({g8A}×{g8B}) + {g8B}²
-                </div>
-                <div className="font-mono text-sm font-bold text-emerald-700">
-                  = {g8A * g8A} + {2 * g8A * g8B} + {g8B * g8B} = {(g8A + g8B) * (g8A + g8B)} cm²
-                </div>
-                <p className="text-[11px] text-slate-600 mt-1">
-                  Hình vuông lớn có cạnh (a + b) được chia thành 1 hình vuông xanh a², 1 hình vuông lục b² và 2 hình chữ nhật vàng diện tích ab!
+                <p className="text-xs text-slate-500">
+                  Khối 8 · Chương II (Hằng đẳng thức) & Chương IX (Định lí Pythagore — CT GDPT 2018)
                 </p>
               </div>
             </div>
+
+            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => {
+                  soundManager.playClick();
+                  setG8Module('identity');
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${g8Module === 'identity' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Hằng Đẳng Thức
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  soundManager.playClick();
+                  setG8Module('pythagore');
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${g8Module === 'pythagore' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Định Lí Pythagore ⭐
+              </button>
+            </div>
           </div>
+
+          {g8Module === 'identity' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              {/* Visual Big Square cut into 4 parts */}
+              <div className="lg:col-span-7 bg-slate-900 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[320px]">
+                <div className="relative border-4 border-white/20 rounded-xl overflow-hidden shadow-2xl" style={{ width: 220, height: 220 }}>
+                  <div
+                    className="absolute top-0 left-0 bg-blue-600/80 border border-white/40 flex items-center justify-center font-bold text-white text-xs"
+                    style={{ width: `${(g8A / (g8A + g8B)) * 100}%`, height: `${(g8A / (g8A + g8B)) * 100}%` }}
+                  >
+                    a² ({g8A * g8A})
+                  </div>
+                  <div
+                    className="absolute top-0 right-0 bg-amber-500/80 border border-white/40 flex items-center justify-center font-bold text-white text-xs"
+                    style={{ width: `${(g8B / (g8A + g8B)) * 100}%`, height: `${(g8A / (g8A + g8B)) * 100}%` }}
+                  >
+                    ab ({g8A * g8B})
+                  </div>
+                  <div
+                    className="absolute bottom-0 left-0 bg-amber-500/80 border border-white/40 flex items-center justify-center font-bold text-white text-xs"
+                    style={{ width: `${(g8A / (g8A + g8B)) * 100}%`, height: `${(g8B / (g8A + g8B)) * 100}%` }}
+                  >
+                    ab ({g8A * g8B})
+                  </div>
+                  <div
+                    className="absolute bottom-0 right-0 bg-emerald-600/80 border border-white/40 flex items-center justify-center font-bold text-white text-xs"
+                    style={{ width: `${(g8B / (g8A + g8B)) * 100}%`, height: `${(g8B / (g8A + g8B)) * 100}%` }}
+                  >
+                    b² ({g8B * g8B})
+                  </div>
+                </div>
+              </div>
+
+              {/* Sliders and Identity details */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 text-xs">
+                  <div>
+                    <div className="flex justify-between font-bold text-slate-700 mb-1">
+                      <span>Độ dài đoạn a:</span>
+                      <span className="font-mono text-blue-600 font-bold">{g8A} cm</span>
+                    </div>
+                    <input type="range" min="2" max="8" value={g8A} onChange={(e) => setG8A(Number(e.target.value))} className="w-full accent-blue-600" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between font-bold text-slate-700 mb-1">
+                      <span>Độ dài đoạn b:</span>
+                      <span className="font-mono text-emerald-600 font-bold">{g8B} cm</span>
+                    </div>
+                    <input type="range" min="1" max="6" value={g8B} onChange={(e) => setG8B(Number(e.target.value))} className="w-full accent-emerald-600" />
+                  </div>
+                </div>
+
+                <div className="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 space-y-2 text-xs">
+                  <span className="font-bold text-indigo-900 block">Khai triển diện tích hình vuông lớn (a + b)²:</span>
+                  <div className="font-mono text-sm font-bold text-indigo-700">
+                    ({g8A} + {g8B})² = {g8A}² + 2×({g8A}×{g8B}) + {g8B}²
+                  </div>
+                  <div className="font-mono text-sm font-bold text-emerald-700">
+                    = {g8A * g8A} + {2 * g8A * g8B} + {g8B * g8B} = {(g8A + g8B) * (g8A + g8B)} cm²
+                  </div>
+                  <p className="text-[11px] text-slate-600 mt-1">
+                    Hình vuông lớn có cạnh (a + b) được chia thành 1 hình vuông xanh a², 1 hình vuông lục b² và 2 hình chữ nhật vàng diện tích ab!
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <div className="lg:col-span-7 bg-slate-900 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[320px]">
+                <svg viewBox="0 0 340 280" className="w-full max-w-sm h-64">
+                  <polygon points="120,200 240,200 120,110" fill="rgba(99, 102, 241, 0.4)" stroke="#818CF8" strokeWidth="3" />
+                  <rect x="30" y="110" width="90" height="90" fill="rgba(239, 68, 68, 0.3)" stroke="#EF4444" strokeWidth="2" />
+                  <text x="75" y="160" fill="#FCA5A5" fontSize="12" textAnchor="middle">a² = {g8PyA * g8PyA}</text>
+                  <rect x="120" y="200" width="120" height="60" fill="rgba(16, 185, 129, 0.3)" stroke="#10B981" strokeWidth="2" />
+                  <text x="180" y="235" fill="#6EE7B7" fontSize="12" textAnchor="middle">b² = {g8PyB * g8PyB}</text>
+                  <text x="195" y="145" fill="#FDE047" fontSize="12" fontWeight="bold">c² = a² + b² = {g8PyA * g8PyA + g8PyB * g8PyB}</text>
+                </svg>
+              </div>
+              <div className="lg:col-span-5 space-y-4">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 text-xs">
+                  <div>
+                    <div className="flex justify-between font-bold text-slate-700 mb-1">
+                      <span>Cạnh góc vuông a:</span>
+                      <span className="font-mono text-rose-600 font-bold">{g8PyA} cm</span>
+                    </div>
+                    <input type="range" min="1" max="12" value={g8PyA} onChange={(e) => setG8PyA(Number(e.target.value))} className="w-full accent-rose-600" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between font-bold text-slate-700 mb-1">
+                      <span>Cạnh góc vuông b:</span>
+                      <span className="font-mono text-emerald-600 font-bold">{g8PyB} cm</span>
+                    </div>
+                    <input type="range" min="1" max="12" value={g8PyB} onChange={(e) => setG8PyB(Number(e.target.value))} className="w-full accent-emerald-600" />
+                  </div>
+                </div>
+                <div className="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 space-y-2 text-xs">
+                  <span className="font-bold text-indigo-900 block">Công thức Định lí Pythagore (Toán 8):</span>
+                  <div className="text-sm font-mono text-indigo-700 font-bold">
+                    c = √(a² + b²) = √({g8PyA}² + {g8PyB}²) = √{g8PyA * g8PyA + g8PyB * g8PyB} ≈ {g8PyC.toFixed(2)} cm
+                  </div>
+                  <p className="text-[11px] text-slate-600">
+                    Trong tam giác vuông, bình phương cạnh huyền bằng tổng bình phương hai cạnh góc vuông (Chương IX – Toán 8 GDPT 2018).
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* ========================================================
-          5. TOÁN LỚP 9: PARABOL y = ax² & HÀM SỐ BẬC NHẤT
+          5. TOÁN LỚP 9 (CT GDPT 2018): HÀM SỐ y = ax² (a ≠ 0) & ĐỊNH LÍ VIÈTE
           ======================================================== */}
       {activeGrade === 9 && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
@@ -555,9 +673,9 @@ export const GradeVisualLessonsHub: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900">
-                  Tương Giao Đồ Thị Parabol (P): y = ax² & Đường Thẳng (d): y = mx + n
+                  Đồ Thị Hàm Số (P): y = ax² (a ≠ 0) & Tương Giao Với Đường Thẳng (d): y = mx + n
                 </h3>
-                <p className="text-xs text-slate-500">Khối 9 · Hàm số bậc nhất và bậc hai</p>
+                <p className="text-xs text-slate-500">Khối 9 · Hàm số y = ax², Phương trình bậc hai & Định lí Viète (CT GDPT 2018)</p>
               </div>
             </div>
           </div>
@@ -656,12 +774,21 @@ export const GradeVisualLessonsHub: React.FC = () => {
 
               {/* Analysis Box */}
               <div className="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 space-y-1.5 text-xs">
-                <span className="font-bold text-indigo-900 block">Phương trình hoành độ giao điểm:</span>
+                <span className="font-bold text-indigo-900 block">Phương trình hoành độ giao điểm (Toán 9 – CT 2018):</span>
                 <div className="font-mono text-sm font-bold text-indigo-700">
                   {g9A}x² - ({g9M})x - ({g9N}) = 0
                 </div>
+                <div className="font-mono text-xs font-bold text-emerald-700">
+                  Δ = (-{g9M})² - 4·({g9A})·(-{g9N}) = {g9Delta.toFixed(2)}{' '}
+                  {g9Delta > 0 ? '> 0 (2 giao điểm)' : g9Delta === 0 ? '= 0 (tiếp xúc)' : '< 0 (không cắt)'}
+                </div>
+                {g9Delta >= 0 && (
+                  <div className="font-mono text-[11px] font-bold text-slate-700">
+                    Định lí Viète: x₁ + x₂ = {(g9M / g9A).toFixed(2)} ; x₁ · x₂ = {(-g9N / g9A).toFixed(2)}
+                  </div>
+                )}
                 <div className="text-[11px] text-slate-600 mt-1">
-                  Biệt thức Δ = b² - 4ac quyết định số lượng giao điểm giữa đường thẳng và Parabol (Cắt nhau tại 2 điểm, tiếp xúc tại 1 điểm, hoặc không cắt nhau).
+                  Đồ thị (P): y = ax² (a ≠ 0) nhận trục tung Oy làm trục đối xứng; biệt thức Δ quyết định số giao điểm với đường thẳng (d).
                 </div>
               </div>
             </div>

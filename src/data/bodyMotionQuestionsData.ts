@@ -314,7 +314,7 @@ export const initialBodyMotionQuestions: BodyMotionQuestion[] = [
     id: 'bm-g8-2',
     grade: 8,
     topic: 'geometry',
-    topicName: 'Định Lý Pythagoras',
+    topicName: 'Định Lí Pythagore',
     topicNameEn: 'Pythagorean Theorem',
     questionText: 'Tam giác vuông có hai cạnh góc vuông là 6 cm và 8 cm. Độ dài cạnh huyền là:',
     questionTextEn: 'A right triangle has legs of 6 cm and 8 cm. What is the length of its hypotenuse?',
@@ -342,7 +342,7 @@ export const initialBodyMotionQuestions: BodyMotionQuestion[] = [
       }
     ],
     correctIndex: 1,
-    explanation: 'Theo định lý Pythagoras: c² = 6² + 8² = 36 + 64 = 100 => c = 10 cm (Bộ 3 số Pitago 3-4-5 nhân đôi).',
+    explanation: 'Theo định lí Pythagore (Toán 8 – CT GDPT 2018): c² = 6² + 8² = 36 + 64 = 100 => c = 10 cm (Bộ ba Pythagore 3-4-5 nhân đôi).',
     explanationEn: 'By the Pythagorean theorem: c² = 6² + 8² = 36 + 64 = 100 -> c = 10 cm.',
     hint: 'Căn bậc hai của (36 + 64).',
     hintEn: 'Take the square root of (36 + 64).'

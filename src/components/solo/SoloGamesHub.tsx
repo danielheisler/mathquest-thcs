@@ -81,7 +81,7 @@ export const SoloGamesHub: React.FC<SoloGamesHubProps> = ({
     {
       id: 'memory',
       title: isEn ? 'Formula Memory Match' : 'Lật Thẻ Ghép Đôi Công Thức',
-      subtitle: isEn ? 'Master Pythagoras & Algebraic Identities' : 'Ghi nhớ định lý Pythagoras & Hằng đẳng thức',
+      subtitle: isEn ? 'Master Pythagore, Viète & Algebraic Identities' : 'Ghi nhớ định lí Pythagore, Viète & Hằng đẳng thức',
       icon: Brain,
       badge: isEn ? 'Theory Recall' : 'Khắc sâu lý thuyết',
       color: 'bg-emerald-600 text-white'

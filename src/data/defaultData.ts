@@ -303,7 +303,7 @@ export const initialStudents: Student[] = [
     gamesPlayed: 26,
     accuracyRate: 89,
     averageTimeSec: 10.8,
-    badge: 'Bậc Thầy Pythagoras',
+    badge: 'Bậc Thầy Pythagore',
     topicsMastery: {
       arithmetic: 88,
       rational: 86,
@@ -427,7 +427,7 @@ export const initialStudents: Student[] = [
     attendance: 'present',
     parentPhone: '0981223344',
     parentName: 'Cô Trần Ánh Tuyết (Mẹ)',
-    teacherNotes: 'Hiểu sâu về góc tạo bởi đường thẳng và trục Ox, vị trí tương đối.'
+    teacherNotes: 'Hiểu sâu về đồ thị hàm số y = ax², phương trình bậc hai và định lí Viète.'
   },
   {
     id: 's15',
@@ -640,7 +640,7 @@ export const initialQuestions: Question[] = [
     id: 'q8-2',
     grade: 8,
     topic: 'geometry',
-    topicName: 'Định lý Pythagoras',
+    topicName: 'Định lí Pythagore',
     topicNameEn: 'Pythagorean Theorem',
     difficulty: 'medium',
     questionText: 'Tam giác vuông có hai cạnh góc vuông $a = 6\\text{ cm}$ và $b = 8\\text{ cm}$. Độ dài cạnh huyền $c$ là:',
@@ -648,8 +648,8 @@ export const initialQuestions: Question[] = [
     formula: 'c = \\sqrt{a^2 + b^2} = \\sqrt{6^2 + 8^2} = \\sqrt{100} = 10\\text{ cm}',
     options: ['10\\text{ cm}', '14\\text{ cm}', '12\\text{ cm}', '100\\text{ cm}'],
     correctAnswerIndex: 0,
-    explanation: 'Theo định lý Pythagoras: $c^2 = a^2 + b^2 = 6^2 + 8^2 = 36 + 64 = 100 \\implies c = 10\\text{ cm}$.',
-    explanationEn: 'By the Pythagorean theorem: $c^2 = 6^2 + 8^2 = 36 + 64 = 100 \\implies c = 10\\text{ cm}$.'
+    explanation: 'Theo định lí Pythagore (Toán 8): $c^2 = a^2 + b^2 = 6^2 + 8^2 = 36 + 64 = 100 \\implies c = 10\\text{ cm}$.',
+    explanationEn: 'By the Pythagorean theorem (Grade 8): $c^2 = 6^2 + 8^2 = 36 + 64 = 100 \\implies c = 10\\text{ cm}$.'
   },
   {
     id: 'q8-3',
@@ -701,17 +701,17 @@ export const initialQuestions: Question[] = [
   {
     id: 'q9-2',
     grade: 9,
-    topic: 'algebra',
-    topicName: 'Hàm số bậc nhất',
-    topicNameEn: 'Linear Functions',
+    topic: 'geometry',
+    topicName: 'Hệ thức cạnh & góc trong tam giác vuông',
+    topicNameEn: 'Side-Angle Relations in Right Triangles',
     difficulty: 'medium',
-    questionText: 'Cho hàm số $y = (m - 2)x + 3$. Hàm số đồng biến trên $\\mathbb{R}$ khi và chỉ khi:',
-    questionTextEn: 'Given $y = (m - 2)x + 3$, the function is strictly increasing on $\\mathbb{R}$ if and only if:',
-    formula: 'a = m - 2 > 0 \\iff m > 2',
-    options: ['m > 2', 'm < 2', 'm \\ge 2', 'm = 2'],
+    questionText: 'Cho tam giác $ABC$ vuông tại $A$ có cạnh huyền $BC = 10\\text{ cm}$ và $\\widehat{B} = 30^\\circ$. Độ dài cạnh $AC$ bằng:',
+    questionTextEn: 'In right triangle $ABC$ ($\\angle A = 90^\\circ$) with hypotenuse $BC = 10\\text{ cm}$ and $\\widehat{B} = 30^\\circ$, find side $AC$:',
+    formula: 'AC = BC \\cdot \\sin 30^\\circ = 10 \\cdot \\frac{1}{2} = 5\\text{ cm}',
+    options: ['5\\text{ cm}', '5\\sqrt{3}\\text{ cm}', '10\\text{ cm}', '20\\text{ cm}'],
     correctAnswerIndex: 0,
-    explanation: 'Hàm số bậc nhất $y = ax + b$ đồng biến trên $\\mathbb{R}$ khi hệ số góc $a > 0$. Ở đây $a = m - 2 > 0 \\iff m > 2$.',
-    explanationEn: 'A linear function $y = ax + b$ increases when its slope $a > 0$, i.e. $m - 2 > 0 \\iff m > 2$.'
+    explanation: 'Theo hệ thức giữa cạnh và góc trong tam giác vuông (Toán 9 – CT GDPT 2018): $AC = BC \\cdot \\sin B = 10 \\cdot \\sin 30^\\circ = 10 \\cdot \\frac{1}{2} = 5\\text{ cm}$.',
+    explanationEn: 'By right-triangle trigonometry (Grade 9): $AC = BC \\cdot \\sin 30^\\circ = 10 \\cdot \\frac{1}{2} = 5\\text{ cm}$.'
   },
   {
     id: 'q9-3',
@@ -741,7 +741,7 @@ export const initialQuestions: Question[] = [
     options: ['90^\\circ \\text{ (Góc vuông)}', '45^\\circ \\text{ (Góc nhọn)}', '180^\\circ \\text{ (Góc bẹt)}', '60^\\circ'],
     optionsEn: ['90^\\circ \\text{ (Right angle)}', '45^\\circ \\text{ (Acute angle)}', '180^\\circ \\text{ (Straight angle)}', '60^\\circ'],
     correctAnswerIndex: 0,
-    explanation: 'Định lý: Góc nội tiếp chắn nửa đường tròn có số đo bằng nửa góc ở tâm chắn nửa đường tròn: $\\frac{180^\\circ}{2} = 90^\\circ$ (góc vuông).',
+    explanation: 'Định lí góc nội tiếp (Toán 9): Góc nội tiếp chắn nửa đường tròn có số đo bằng nửa góc ở tâm chắn nửa đường tròn: $\\frac{180^\\circ}{2} = 90^\\circ$ (góc vuông).',
     explanationEn: 'By Thales theorem, an inscribed angle subtending a diameter is half of $180^\\circ$, which is $90^\\circ$ (right angle).'
   },
   ...extraBilingualQuestions

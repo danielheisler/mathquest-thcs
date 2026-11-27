@@ -37,24 +37,24 @@ export const InteractiveLabsHub: React.FC<InteractiveLabsHubProps> = ({ language
     },
     {
       id: 'pythagoras',
-      title: isEn ? 'Pythagorean Theorem Lab' : 'Định Lý Pythagoras',
-      grade: isEn ? 'Grades 7 & 8' : 'Khối 7 & 8',
-      desc: isEn ? 'Visualize a² + b² = c² via squares on triangle sides' : 'Trực quan hóa a² + b² = c² qua diện tích hình vuông trên ba cạnh',
+      title: isEn ? 'Pythagorean Theorem Lab' : 'Định Lí Pythagore',
+      grade: isEn ? 'Grade 8 · GDPT 2018' : 'Khối 8 · CT GDPT 2018',
+      desc: isEn ? 'Visualize a² + b² = c² via squares on triangle sides' : 'Trực quan hóa a² + b² = c² qua diện tích hình vuông trên ba cạnh (Toán 8)',
       icon: Compass,
       color: 'text-rose-600 bg-rose-50 border-rose-200'
     },
     {
       id: 'linear',
       title: isEn ? 'Linear Function y = ax + b' : 'Hàm Số Bậc Nhất y = ax + b',
-      grade: isEn ? 'Grade 9' : 'Khối 9',
-      desc: isEn ? 'Slope, y-intercept, and line intersections on the Oxy plane' : 'Hệ số góc, tung độ gốc và vị trí tương đối giữa hai đường thẳng trên hệ Oxy',
+      grade: isEn ? 'Grade 8 · GDPT 2018' : 'Khối 8 · CT GDPT 2018',
+      desc: isEn ? 'Slope, y-intercept, and line intersections on the Oxy plane' : 'Hệ số góc, tung độ gốc và vị trí tương đối giữa hai đường thẳng trên mặt phẳng Oxy (Toán 8)',
       icon: TrendingUp,
       color: 'text-blue-600 bg-blue-50 border-blue-200'
     },
     {
       id: 'balance',
       title: isEn ? 'Equation Balance Scale' : 'Cân Thăng Bằng Phương Trình',
-      grade: isEn ? 'Grades 6, 7 & 8' : 'Khối 6, 7 & 8',
+      grade: isEn ? 'Grades 6, 7 & 8 · GDPT 2018' : 'Khối 6, 7 & 8 · CT GDPT 2018',
       desc: isEn ? 'Interactive scale explaining equation balancing rules' : 'Mô phỏng đĩa cân thực tế giải thích quy tắc chuyển vế đổi dấu',
       icon: Scale,
       color: 'text-emerald-600 bg-emerald-50 border-emerald-200'

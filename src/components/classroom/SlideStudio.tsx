@@ -50,7 +50,7 @@ export interface LectureSlide {
 
 type SlideThemeKey = 'indigo' | 'emerald' | 'midnight' | 'amber';
 
-const SLIDE_DECKS_STORAGE_KEY = 'mathquest_slide_decks_v1';
+const SLIDE_DECKS_STORAGE_KEY = 'mathquest_slide_decks_v2_gdpt2018';
 
 const SLIDE_THEMES: Record<
   SlideThemeKey,
@@ -104,10 +104,42 @@ const SLIDE_THEMES: Record<
 
 const GRADE_DEFAULT_FORMULAS: Record<GradeLevel, string> = {
   6: 'a^m \\cdot a^n = a^{m+n} \\quad ; \\quad S_{\\text{thoi}} = \\frac{1}{2} d_1 d_2',
-  7: '\\widehat{A} + \\widehat{B} + \\widehat{C} = 180^\\circ \\quad ; \\quad \\frac{a}{b} = \\frac{c}{d} \\Rightarrow a\\cdot d = b\\cdot c',
-  8: '(A \\pm B)^2 = A^2 \\pm 2AB + B^2 \\quad ; \\quad a^2 + b^2 = c^2',
-  9: '\\Delta = b^2 - 4ac \\quad ; \\quad x_{1,2} = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}',
+  7: '\\widehat{A} + \\widehat{B} + \\widehat{C} = 180^\\circ \\quad ; \\quad |b - c| < a < b + c',
+  8: '(A \\pm B)^2 = A^2 \\pm 2AB + B^2 \\quad ; \\quad a^2 + b^2 = c^2 \\quad ; \\quad y = ax + b',
+  9: '\\sin\\alpha = \\frac{\\text{đối}}{\\text{huyền}} \\quad ; \\quad \\Delta = b^2 - 4ac \\quad ; \\quad x_1 + x_2 = -\\frac{b}{a}',
 };
+
+function getLessonKeyFormula(plan: LessonPlan): string {
+  const hay = `${plan.title} ${plan.chapterName}`.toLowerCase();
+  if (hay.includes('pythagore') || hay.includes('pythagoras')) {
+    return 'BC^2 = AB^2 + AC^2 \\iff a^2 + b^2 = c^2';
+  }
+  if (hay.includes('hàm số bậc nhất') || hay.includes('hệ số góc')) {
+    return 'y = ax + b \\;(a \\neq 0) \\quad ; \\quad d \\parallel d\' \\iff a = a\',\\; b \\neq b\'';
+  }
+  if (hay.includes('hằng đẳng thức') || hay.includes('bình phương')) {
+    return '(A \\pm B)^2 = A^2 \\pm 2AB + B^2 \\quad ; \\quad A^2 - B^2 = (A - B)(A + B)';
+  }
+  if (hay.includes('tỉ số lượng giác') || hay.includes('hệ thức lượng')) {
+    return '\\sin\\alpha = \\frac{\\text{đối}}{\\text{huyền}},\\; \\cos\\alpha = \\frac{\\text{kề}}{\\text{huyền}},\\; b = a\\sin B = a\\cos C';
+  }
+  if (hay.includes('viète') || hay.includes('vi-ét') || hay.includes('tứ giác nội tiếp')) {
+    return '\\Delta = b^2 - 4ac \\ge 0 \\Rightarrow x_1 + x_2 = -\\frac{b}{a},\\; x_1 x_2 = \\frac{c}{a} \\quad ; \\quad \\widehat{A} + \\widehat{C} = 180^\\circ';
+  }
+  if (hay.includes('bất đẳng thức tam giác') || hay.includes('ba cạnh')) {
+    return '|b - c| < a < b + c \\quad ; \\quad \\widehat{A} + \\widehat{B} + \\widehat{C} = 180^\\circ';
+  }
+  if (hay.includes('tam giác bằng nhau')) {
+    return '\\triangle ABC = \\triangle A\'B\'C\' \\;(\\text{c.c.c})';
+  }
+  if (hay.includes('chu vi') || hay.includes('diện tích') || hay.includes('tứ giác')) {
+    return 'S_{\\text{hbh}} = a \\cdot h \\quad ; \\quad S_{\\text{thoi}} = \\frac{1}{2} d_1 d_2 \\quad ; \\quad S_{\\text{thang}} = \\frac{(a+b)h}{2}';
+  }
+  if (hay.includes('nguyên tố')) {
+    return '60 = 2^2 \\cdot 3 \\cdot 5 \\quad ; \\quad p > 1,\\; \\text{Ư}(p) = \\{1; p\\}';
+  }
+  return GRADE_DEFAULT_FORMULAS[plan.grade];
+}
 
 function pickRelevantQuestions(plan: LessonPlan, questions: Question[]): Question[] {
   const gradePool = questions.filter((q) => q.grade === plan.grade);
@@ -166,10 +198,10 @@ function buildSlidesFromLessonPlan(
           ? `Curriculum Standard: GDPT 2018 (Circular 5512)`
           : `Chuẩn Chương trình GDPT 2018 (Công văn 5512)`,
       ],
-      formula: GRADE_DEFAULT_FORMULAS[plan.grade],
+      formula: getLessonKeyFormula(plan),
       speakerNotes: isEn
         ? 'Welcome students to today’s lesson. Introduce the topic and warm up with real-world motivation.'
-        : 'Chào mừng các em đến với tiết học hôm nay. Giới thiệu tên bài, chương và mục tiêu trọng tâm.',
+        : 'Chào mừng các em đến với tiết học hôm nay. Giới thiệu tên bài, chương và mục tiêu trọng tâm chuẩn CT GDPT 2018.',
     },
     {
       id: `sl-2-${stamp}`,
@@ -214,10 +246,10 @@ function buildSlidesFromLessonPlan(
         act2?.content || (isEn ? 'Explore definitions, rules, and core properties.' : 'Khám phá định nghĩa, tính chất và quy tắc trọng tâm.'),
         act2?.boardNotes
           ? (isEn ? `Board Notes: ${act2.boardNotes}` : `Ghi bảng: ${act2.boardNotes}`)
-          : (act2?.implementationSteps?.teacherConclusion || (isEn ? 'Summarize theorem formally on the board' : 'Chốt định lý và công thức tổng quát trên bảng')),
-        act2?.expectedProduct || (isEn ? 'Accurate notebook summary & formula mastery' : 'Nắm vững định lý và công thức trọng tâm bài học'),
+          : (act2?.implementationSteps?.teacherConclusion || (isEn ? 'Summarize theorem formally on the board' : 'Chốt định lí và công thức tổng quát trên bảng')),
+        act2?.expectedProduct || (isEn ? 'Accurate notebook summary & formula mastery' : 'Nắm vững định lí và công thức trọng tâm bài học'),
       ],
-      formula: exampleRaw?.formula || GRADE_DEFAULT_FORMULAS[plan.grade],
+      formula: getLessonKeyFormula(plan),
       speakerNotes: isEn
         ? 'Emphasize the boxed formula. Ask 2 students to restate the theorem in their own words.'
         : 'Nhấn mạnh phần ghi bảng đóng khung. Mời 1–2 học sinh phát biểu lại định nghĩa bằng lời.',

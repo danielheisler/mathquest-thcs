@@ -42,8 +42,8 @@ function getExamStructurePrompt(
         : 'Chuẩn Chương trình GDPT 2018 (Nhận biết 30%, Thông hiểu 30%, Vận dụng 30%, Vận dụng cao 10%)';
 
   const topicInstruction = topicPrompt?.trim()
-    ? `Trọng tâm kiến thức / yêu cầu cụ thể của giáo viên: "${topicPrompt.trim()}".`
-    : `Tổng hợp kiến thức trọng tâm Toán lớp ${grade} ${semester === 'HK1' ? 'Học kỳ 1' : 'Học kỳ 2'} theo chương trình GDPT 2018 (Kết nối tri thức / Chân trời sáng tạo / Cánh diều).`;
+    ? `Trọng tâm kiến thức / yêu cầu cụ thể của giáo viên: "${topicPrompt.trim()}". (LƯU Ý BẮT BUỘC CHUẨN CT GDPT 2018: Định lí Pythagore, Mặt phẳng tọa độ Oxy và Hàm số bậc nhất y = ax + b thuộc Toán 8; Toán 9 KHÔNG kiểm tra hệ thức đường cao cũ h² = b'c' hay b² = ab', chỉ dùng tỉ số lượng giác sin/cos/tan/cot và hệ thức cạnh–góc; chuẩn chính tả: Định lí Pythagore, Định lí Thalès, Định lí Viète).`
+    : `Tổng hợp kiến thức trọng tâm Toán lớp ${grade} ${semester === 'HK1' ? 'Học kỳ 1' : 'Học kỳ 2'} theo chương trình GDPT 2018 (Kết nối tri thức / Chân trời sáng tạo / Cánh diều). BẮT BUỘC đúng phân phối CT 2018: Toán 7 học Tam giác bằng nhau & BĐT tam giác (không học Pythagore); Toán 8 học Hằng đẳng thức, Định lí Thalès, Định lí Pythagore, Hàm số bậc nhất y = ax + b và mặt phẳng Oxy; Toán 9 học Hệ PT, Bất PT, Căn thức, Tỉ số lượng giác & hệ thức cạnh–góc (không dùng hệ thức đường cao cũ h² = b'c'), Hàm số y = ax², PT bậc hai & Định lí Viète, Đường tròn, Tứ giác nội tiếp, Hình trụ–nón–cầu.`;
 
   if (examType === 'quiz_15m') {
     return {

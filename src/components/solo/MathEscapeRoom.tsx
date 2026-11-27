@@ -44,8 +44,8 @@ export const MathEscapeRoom: React.FC<{ language?: Language }> = ({ language = '
     },
     {
       id: 3,
-      title: 'Stage 3: Pythagoras Labyrinth',
-      grade: 'Math 7 & 8',
+      title: 'Stage 3: Pythagore Labyrinth',
+      grade: 'Math 8 (GDPT 2018)',
       lore: 'The labyrinth wall forms a right triangle with legs 9 m and 12 m. The hypotenuse unlocks the door!',
       riddle: 'Find hypotenuse c of a right triangle with legs a = 9 and b = 12:',
       formula: 'c = \\sqrt{9^2 + 12^2}',
@@ -89,8 +89,8 @@ export const MathEscapeRoom: React.FC<{ language?: Language }> = ({ language = '
     },
     {
       id: 3,
-      title: 'Ải 3: Mê Cung Pythagoras',
-      grade: 'Toán 7 & 8',
+      title: 'Ải 3: Mê Cung Định Lí Pythagore',
+      grade: 'Toán 8 (CT 2018)',
       lore: 'Bức tường mê cung chia thành tam giác vuông có 2 cạnh góc vuông dài 9 mét và 12 mét. Độ dài cạnh huyền là mã mở cửa!',
       riddle: 'Tìm cạnh huyền c của tam giác vuông có hai cạnh góc vuông a = 9 và b = 12:',
       formula: 'c = \\sqrt{9^2 + 12^2}',
@@ -135,7 +135,7 @@ export const MathEscapeRoom: React.FC<{ language?: Language }> = ({ language = '
         soundManager.playVictory();
         try {
           confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
-        } catch {}
+        } catch { }
       }
     } else {
       soundManager.playWrong();
@@ -188,13 +188,12 @@ export const MathEscapeRoom: React.FC<{ language?: Language }> = ({ language = '
             return (
               <div
                 key={s.id}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center font-mono text-xs font-bold transition-all border ${
-                  isDone
+                className={`w-9 h-9 rounded-xl flex items-center justify-center font-mono text-xs font-bold transition-all border ${isDone
                     ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm'
                     : isCurrent
-                    ? 'bg-purple-600 text-white border-purple-600 ring-2 ring-purple-300'
-                    : 'bg-slate-100 text-slate-400 border-slate-200'
-                }`}
+                      ? 'bg-purple-600 text-white border-purple-600 ring-2 ring-purple-300'
+                      : 'bg-slate-100 text-slate-400 border-slate-200'
+                  }`}
               >
                 {isDone ? <Check className="w-4 h-4" /> : s.id}
               </div>
@@ -247,7 +246,7 @@ export const MathEscapeRoom: React.FC<{ language?: Language }> = ({ language = '
               <span className="font-bold text-purple-700 uppercase tracking-wider">{stage.title}</span>
               <span className="px-2 py-0.5 rounded bg-purple-200 text-purple-800 font-semibold text-[11px]">{stage.grade}</span>
             </div>
-            
+
             <p className="text-sm text-slate-700 italic mb-4 leading-relaxed">
               "{stage.lore}"
             </p>
@@ -307,11 +306,10 @@ export const MathEscapeRoom: React.FC<{ language?: Language }> = ({ language = '
 
             {/* Feedback message */}
             {feedback && (
-              <div className={`mt-3 p-3 rounded-lg border text-xs font-medium ${
-                feedback.isCorrect
+              <div className={`mt-3 p-3 rounded-lg border text-xs font-medium ${feedback.isCorrect
                   ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                   : 'bg-rose-50 border-rose-300 text-rose-800'
-              }`}>
+                }`}>
                 {feedback.text}
               </div>
             )}

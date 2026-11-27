@@ -15,14 +15,14 @@ interface CardItem {
 }
 
 const pairsData = [
-  { pairId: 1, formula: 'a^2 + b^2 = c^2', title: 'Định lý Pythagoras (Tam giác vuông)', titleEn: 'Pythagorean Theorem (Right triangle)' },
-  { pairId: 2, formula: '(A + B)^2 = A^2 + 2AB + B^2', title: 'Bình phương của một tổng', titleEn: 'Square of a sum' },
-  { pairId: 3, formula: 'S = \\frac{1}{2} \\cdot a \\cdot h', title: 'Diện tích hình tam giác', titleEn: 'Area of a triangle' },
-  { pairId: 4, formula: 'C = 2 \\cdot \\pi \\cdot R', title: 'Chu vi hình tròn bán kính R', titleEn: 'Circumference of a circle (radius R)' },
-  { pairId: 5, formula: '\\widehat{A} + \\widehat{B} + \\widehat{C} = 180^\\circ', title: 'Tổng ba góc trong một tam giác', titleEn: 'Sum of interior angles in a triangle' },
-  { pairId: 6, formula: 'A^2 - B^2 = (A - B)(A + B)', title: 'Hiệu hai bình phương', titleEn: 'Difference of two squares' },
-  { pairId: 7, formula: '\\Delta = b^2 - 4ac', title: 'Biệt thức phương trình bậc hai', titleEn: 'Quadratic discriminant' },
-  { pairId: 8, formula: 'x_1 + x_2 = -\\frac{b}{a}', title: 'Định lý Vi-ét (Tổng 2 nghiệm)', titleEn: 'Vieta’s formula (Sum of roots)' }
+  { pairId: 1, formula: 'a^2 + b^2 = c^2', title: 'Định lí Pythagore (Toán 8)', titleEn: 'Pythagorean Theorem (Grade 8)' },
+  { pairId: 2, formula: '(A + B)^2 = A^2 + 2AB + B^2', title: 'Bình phương của một tổng (Toán 8)', titleEn: 'Square of a sum (Grade 8)' },
+  { pairId: 3, formula: 'S_{\\text{thoi}} = \\frac{1}{2} \\cdot d_1 \\cdot d_2', title: 'Diện tích hình thoi (Toán 6)', titleEn: 'Area of a rhombus (Grade 6)' },
+  { pairId: 4, formula: '\\frac{AM}{MB} = \\frac{AN}{NC}', title: 'Định lí Thalès (Toán 8)', titleEn: "Thalès' Theorem (Grade 8)" },
+  { pairId: 5, formula: '\\widehat{A} + \\widehat{B} + \\widehat{C} = 180^\\circ', title: 'Tổng ba góc trong tam giác (Toán 7)', titleEn: 'Sum of triangle angles (Grade 7)' },
+  { pairId: 6, formula: '\\sin\\alpha = \\frac{\\text{đối}}{\\text{huyền}}', title: 'Tỉ số lượng giác góc nhọn (Toán 9)', titleEn: 'Trigonometric ratio sin α (Grade 9)' },
+  { pairId: 7, formula: '\\Delta = b^2 - 4ac', title: 'Biệt thức PT bậc hai (Toán 9)', titleEn: 'Quadratic discriminant (Grade 9)' },
+  { pairId: 8, formula: 'x_1 + x_2 = -\\frac{b}{a}', title: 'Định lí Viète · Tổng 2 nghiệm (Toán 9)', titleEn: 'Viète’s formula · Sum of roots (Grade 9)' }
 ];
 
 export const FormulaMemoryGame: React.FC<{ language?: Language }> = ({ language = 'vi' }) => {

@@ -54,16 +54,16 @@ const GRADE_TOPIC_SUGGESTIONS: Record<GradeLevel, string[]> = {
   8: [
     'Đa thức nhiều biến và 7 hằng đẳng thức đáng nhớ',
     'Phân thức đại số và các phép biến đổi',
-    'Hàm số bậc nhất y = ax + b và đồ thị',
-    'Tứ giác, định lí Thalès và tam giác đồng dạng',
+    'Hàm số bậc nhất y = ax + b (a ≠ 0), mặt phẳng tọa độ Oxy và hệ số góc',
+    'Tứ giác, định lí Thalès, tam giác đồng dạng và định lí Pythagore',
     'Phương trình bậc nhất một ẩn và giải toán bằng lập phương trình',
   ],
   9: [
-    'Hệ phương trình bậc nhất hai ẩn và bài toán thực tế',
+    'Hệ phương trình bậc nhất hai ẩn và bất phương trình bậc nhất một ẩn',
     'Căn bậc hai, căn bậc ba và rút gọn biểu thức chứa căn',
-    'Phương trình bậc hai, định lí Vi-ét và hàm số y = ax²',
-    'Hệ thức lượng trong tam giác vuông và tỉ số lượng giác',
-    'Đường tròn, góc nội tiếp, tứ giác nội tiếp (Ôn thi vào 10)',
+    'Hàm số y = ax² (a ≠ 0), phương trình bậc hai một ẩn và định lí Viète',
+    'Tỉ số lượng giác của góc nhọn và hệ thức cạnh – góc trong tam giác vuông',
+    'Đường tròn, góc nội tiếp, tứ giác nội tiếp & Hình trụ – Nón – Cầu (Ôn thi vào 10)',
   ],
 };
 

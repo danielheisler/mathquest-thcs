@@ -29,10 +29,10 @@ const LECTURE_CHAPTERS: LectureChapter[] = [
   {
     id: 'ch-pythagoras',
     grade: 8,
-    title: 'Định Lý Pythagoras Trong Không Gian 3D',
-    topic: 'Hình Học & Đo Lường',
+    title: 'Định Lí Pythagore Trong Không Gian 3D (Toán 8)',
+    topic: 'Hình Học & Đo Lường · GDPT 2018',
     duration: 60,
-    description: 'Trực quan hóa khối lập phương $a^2$, $b^2$ và $c^2$ trên tam giác vuông trong không gian 3 chiều.',
+    description: 'Trực quan hóa diện tích các hình vuông $a^2$, $b^2$ và $c^2$ dựng trên ba cạnh tam giác vuông trong không gian 3 chiều.',
     level: 'intermediate',
     mathFormula: 'a^2 + b^2 = c^2 \\iff c = \\sqrt{a^2 + b^2}',
     modelType: 'pythagoras',
@@ -45,14 +45,14 @@ const LECTURE_CHAPTERS: LectureChapter[] = [
       },
       {
         time: 15,
-        title: 'Trung bình: Dựng các khối vuông trên 3 cạnh',
-        text: 'Khi dựng 3 khối lập phương vuông góc có cạnh lần lượt bằng a, b và c, ta nhận thấy tổng diện tích của hai hình vuông nhỏ bằng diện tích hình vuông cạnh huyền.',
+        title: 'Trung bình: Định lí Pythagore (Toán 8 – CT GDPT 2018)',
+        text: 'Khi dựng 3 khối vuông trên ba cạnh có kích thước a, b và c, tổng diện tích hai hình vuông cạnh góc vuông luôn bằng diện tích hình vuông cạnh huyền.',
         formula: 'S_a + S_b = S_c \\Rightarrow a^2 + b^2 = c^2'
       },
       {
         time: 35,
-        title: 'Nâng cao: Ứng dụng tính đường chéo hình hộp',
-        text: 'Định lý Pythagoras mở rộng cho không gian 3 chiều: độ dài đường chéo hình hộp chữ nhật d = √(a² + b² + c²).',
+        title: 'Nâng cao: Ứng dụng tính đường chéo hình hộp chữ nhật',
+        text: 'Vận dụng Định lí Pythagore hai lần liên tiếp cho hình hộp chữ nhật (a, b, h): độ dài đường chéo d = √(a² + b² + h²).',
         formula: 'd = \\sqrt{a^2 + b^2 + h^2}'
       }
     ]
@@ -60,18 +60,18 @@ const LECTURE_CHAPTERS: LectureChapter[] = [
   {
     id: 'ch-cylinder',
     grade: 9,
-    title: 'Hình Khối Không Gian: Hình Trụ & Hình Nón',
-    topic: 'Hình Học Không Gian',
+    title: 'Hình Khối Trong Thực Tiễn: Hình Trụ & Hình Nón (Toán 9)',
+    topic: 'Hình Học Trực Quan · GDPT 2018',
     duration: 60,
-    description: 'Mô phỏng 3D sự tạo thành hình trụ khi quay hình chữ nhật quanh một trục cố định.',
+    description: 'Mô phỏng 3D sự tạo thành hình trụ và hình nón (Chương X – Toán 9 GDPT 2018).',
     level: 'intermediate',
     mathFormula: 'S_{xq} = 2\\pi r h, \\quad V = \\pi r^2 h',
     modelType: 'cylinder_sphere',
     narrationSteps: [
       {
         time: 0,
-        title: 'Cơ bản: Sự hình thành hình trụ tròn xoay',
-        text: 'Khi quay một hình chữ nhật một vòng quanh một cạnh cố định, ta nhận được một hình trụ tròn xoay.',
+        title: 'Cơ bản: Sự hình thành hình trụ',
+        text: 'Khi quay một hình chữ nhật một vòng quanh một cạnh cố định, ta nhận được một hình trụ có bán kính đáy r và chiều cao h.',
         formula: 'r: \\text{bán kính đáy}, \\; h: \\text{chiều cao}'
       },
       {
@@ -82,70 +82,70 @@ const LECTURE_CHAPTERS: LectureChapter[] = [
       },
       {
         time: 40,
-        title: 'Nâng cao: Thể tích hình trụ & bài toán thực tế',
-        text: 'Thể tích hình trụ bằng diện tích đáy nhân chiều cao: V = πr²h. Áp dụng tính dung tích bình chứa nước và lon nước ngọt.',
-        formula: 'V = \\pi r^2 h'
+        title: 'Nâng cao: Thể tích hình trụ, hình nón & bài toán thực tế',
+        text: 'Thể tích hình trụ V = πr²h; thể tích hình nón V = ⅓πr²h. Áp dụng tính dung tích bể nước, lon đồ uống và phễu.',
+        formula: 'V_{\\text{trụ}} = \\pi r^2 h \\quad ; \\quad V_{\\text{nón}} = \\frac{1}{3}\\pi r^2 h'
       }
     ]
   },
   {
     id: 'ch-coordinates',
-    grade: 7,
-    title: 'Hệ Trục Tọa Độ Trực Quan & Véc-tơ Vị Trí',
-    topic: 'Đại Số & Hàm Số',
+    grade: 8,
+    title: 'Mặt Phẳng Tọa Độ Oxy & Mở Rộng Không Gian 3D (Toán 8)',
+    topic: 'Hàm Số & Tọa Độ · GDPT 2018',
     duration: 60,
-    description: 'Mô phỏng 3 chiều không gian tọa độ với các trục Ox, Oy, Oz và điểm M(x, y, z).',
+    description: 'Khám phá hệ trục tọa độ Đề-các (mặt phẳng Oxy Toán 8 GDPT 2018) mở rộng trực quan sang 3 chiều Oxyz.',
     level: 'basic',
-    mathFormula: 'M(x_0; y_0; z_0), \\quad OM = \\sqrt{x_0^2 + y_0^2 + z_0^2}',
+    mathFormula: 'M(x_0; y_0), \\quad OM = \\sqrt{x_0^2 + y_0^2}',
     modelType: 'coordinates_3d',
     narrationSteps: [
       {
         time: 0,
-        title: 'Cơ bản: Hệ trục tọa độ Đề-các',
-        text: 'Hệ trục tọa độ gồm các trục vuông góc từng đôi một tại gốc O. Mỗi điểm trong không gian được xác định duy nhất bởi bộ tọa độ.',
-        formula: 'Ox \\perp Oy \\perp Oz'
+        title: 'Cơ bản: Hệ trục tọa độ Oxy (Toán 8 – CT 2018)',
+        text: 'Hai trục số Ox (trục hoành) và Oy (trục tung) vuông góc với nhau tại gốc O(0; 0). Mở rộng trong không gian có thêm trục cao độ Oz.',
+        formula: 'Ox \\perp Oy \\; (\\text{mở rộng } Oz)'
       },
       {
         time: 20,
-        title: 'Trung bình: Hình chiếu vuông góc',
-        text: 'Từ điểm M hạ các đường vuông góc xuống các mặt phẳng tọa độ để xác định chính xác giá trị hoành độ, tung độ và cao độ.',
-        formula: 'M(x; y; z) \\rightarrow H(x; y; 0)'
+        title: 'Trung bình: Xác định tọa độ điểm M bằng hình chiếu',
+        text: 'Từ điểm M hạ các đường vuông góc xuống các trục tọa độ để đọc chính xác hoành độ x và tung độ y.',
+        formula: 'M(x_0; y_0) \\rightarrow \\text{hoành độ } x_0,\\; \\text{tung độ } y_0'
       },
       {
         time: 40,
-        title: 'Nâng cao: Khoảng cách từ gốc O đến điểm M',
-        text: 'Khoảng cách từ gốc tọa độ O(0,0,0) đến M(x,y,z) bằng căn bậc hai của tổng bình phương các tọa độ.',
-        formula: 'd(O, M) = \\sqrt{x^2 + y^2 + z^2}'
+        title: 'Nâng cao: Khoảng cách từ gốc O đến điểm M (ứng dụng Pythagore)',
+        text: 'Vận dụng Định lí Pythagore: khoảng cách từ gốc tọa độ O(0; 0) đến M(x; y) là OM = √(x² + y²), mở rộng 3D là √(x² + y² + z²).',
+        formula: 'OM = \\sqrt{x^2 + y^2 + z^2}'
       }
     ]
   },
   {
     id: 'ch-parabola',
     grade: 9,
-    title: 'Đồ Thị Hàm Số Parabol y = ax² Trong Không Gian',
-    topic: 'Hàm Số Bậc Hai',
+    title: 'Đồ Thị Hàm Số y = ax² (a ≠ 0) & Parabol 3D (Toán 9)',
+    topic: 'Hàm Số y = ax² · GDPT 2018',
     duration: 60,
-    description: 'Mặt Parabol tròn xoay và tính chất đối xứng qua trục tung của hàm số bậc hai.',
+    description: 'Tính chất đối xứng qua trục tung Oy của đồ thị hàm số y = ax² (a ≠ 0) và ứng dụng mặt chảo parabol.',
     level: 'advanced',
     mathFormula: 'y = ax^2 \\quad (a \\ne 0)',
     modelType: 'parabola',
     narrationSteps: [
       {
         time: 0,
-        title: 'Cơ bản: Hình dạng parabol',
-        text: 'Đồ thị hàm số y = ax² là một đường cong parabol đi qua gốc tọa độ O(0,0) và nhận trục tung Oy làm trục đối xứng.',
-        formula: 'a > 0: \\text{bề lõm quay lên}, \\; a < 0: \\text{bề lõm quay xuống}'
+        title: 'Cơ bản: Hình dạng đồ thị hàm số y = ax² (a ≠ 0)',
+        text: 'Đồ thị hàm số y = ax² (a ≠ 0) là đường cong parabol đi qua gốc tọa độ O(0; 0) và nhận trục tung Oy làm trục đối xứng.',
+        formula: 'a > 0: \\text{nằm phía trên } Ox, \\; a < 0: \\text{nằm phía dưới } Ox'
       },
       {
         time: 20,
-        title: 'Trung bình: Điểm cực trị và tính đồng biến nghịch biến',
-        text: 'Với a > 0, hàm số nghịch biến khi x < 0 và đồng biến khi x > 0. Điểm O(0,0) là điểm thấp nhất của đồ thị.',
-        formula: 'y_{\\min} = 0 \\iff x = 0'
+        title: 'Trung bình: Điểm cao nhất, điểm thấp nhất & đối xứng',
+        text: 'Với a > 0, O(0; 0) là điểm thấp nhất của đồ thị; với a < 0, O(0; 0) là điểm cao nhất. Hai điểm (x; y) và (-x; y) đối xứng qua Oy.',
+        formula: 'a > 0 \\Rightarrow y_{\\min} = 0 \\text{ tại } x = 0'
       },
       {
         time: 40,
-        title: 'Nâng cao: Ứng dụng mặt phản xạ parabol 3D',
-        text: 'Khi quay parabol quanh trục đối xứng ta được chảo parabol ứng dụng trong anten vệ tinh, đèn pha ô tô và kính thiên văn.',
+        title: 'Nâng cao: Ứng dụng chảo phản xạ parabol trong thực tiễn',
+        text: 'Khi quay parabol quanh trục đối xứng Oy ta được mặt parabol ứng dụng trong chảo vệ tinh, đèn pha ô tô, kính thiên văn và cầu vòm.',
         formula: 'z = a(x^2 + y^2)'
       }
     ]
@@ -425,7 +425,7 @@ export const Math3DAnimationTheater: React.FC = () => {
             Bài Giảng Hoạt Hình 3D Đa Chiều (Tỉ Lệ 16:9 HD)
           </h2>
           <p className="text-sm text-indigo-200 mt-2 leading-relaxed">
-            Mô phỏng hình học không gian, định lý Pythagoras và đồ thị hàm số theo thời gian thực. Được thiết kế tối ưu với tỉ lệ màn hình chuẩn 16:9, độ nét cao HD sẵn sàng để giáo viên trình chiếu trên máy chiếu và màn hình lớp học.
+            Mô phỏng hình học không gian, định lí Pythagore và đồ thị hàm số theo thời gian thực. Được thiết kế tối ưu với tỉ lệ màn hình chuẩn 16:9, độ nét cao HD sẵn sàng để giáo viên trình chiếu trên máy chiếu và màn hình lớp học.
           </p>
         </div>
       </div>
