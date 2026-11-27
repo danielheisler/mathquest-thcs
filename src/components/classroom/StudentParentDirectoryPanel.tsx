@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Classroom, Student } from '../../types/math';
 import { Language } from '../../i18n/translations';
 import {
+  DEFAULT_PARENT_PASSWORD,
+  DEFAULT_STUDENT_PASSWORD,
   generateRandomPassword,
   getParentCredentials,
   getStudentCredentials,
@@ -209,6 +211,35 @@ export const StudentParentDirectoryPanel: React.FC<StudentParentDirectoryPanelPr
     );
   };
 
+  const handleApplyStandardPasswords = () => {
+    if (filteredList.length === 0) return;
+    const ok = window.confirm(
+      isEn
+        ? `Apply standard passwords (Student: ${DEFAULT_STUDENT_PASSWORD}, Parent: ${DEFAULT_PARENT_PASSWORD}) to all ${filteredList.length} records?`
+        : `Áp dụng mật khẩu chung (Học sinh: ${DEFAULT_STUDENT_PASSWORD} · Phụ huynh: ${DEFAULT_PARENT_PASSWORD}) cho toàn bộ ${filteredList.length} hồ sơ đang hiển thị?`
+    );
+    if (!ok) return;
+    soundManager.playCorrect();
+    filteredList.forEach((student) => {
+      const idx = studentIndexMap.get(student.id) ?? 0;
+      const sCreds = getStudentCredentials(student, idx);
+      const pCreds = getParentCredentials(student);
+      onUpdateStudent({
+        ...student,
+        accountPhone: sCreds.phone,
+        accountCode: sCreds.code,
+        accountPassword: DEFAULT_STUDENT_PASSWORD,
+        parentPhone: pCreds.phone,
+        parentPassword: DEFAULT_PARENT_PASSWORD,
+      });
+    });
+    showToast(
+      isEn
+        ? `Applied ${DEFAULT_STUDENT_PASSWORD} / ${DEFAULT_PARENT_PASSWORD} to ${filteredList.length} accounts.`
+        : `Đã áp dụng mật khẩu chung HS (${DEFAULT_STUDENT_PASSWORD}) & PH (${DEFAULT_PARENT_PASSWORD}) cho ${filteredList.length} hồ sơ!`
+    );
+  };
+
   const handleBatchRandomizePasswords = () => {
     if (filteredList.length === 0) return;
     const ok = window.confirm(
@@ -351,6 +382,16 @@ export const StudentParentDirectoryPanel: React.FC<StudentParentDirectoryPanelPr
               <span>{isEn ? 'Add Student' : 'Thêm HS – PH'}</span>
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={handleApplyStandardPasswords}
+            className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            title="Áp dụng mật khẩu chung HS201102 cho Học sinh và PH201102 cho Phụ huynh"
+          >
+            <KeyRound className="w-3.5 h-3.5" />
+            <span>{isEn ? 'Standard MK (HS/PH201102)' : 'Đặt MK Chung (HS/PH201102)'}</span>
+          </button>
 
           <button
             type="button"

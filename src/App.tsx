@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Classroom, Student, Question, LeaderboardEntry, HomeworkSubmission, MainPortal, ExamResult, TeacherRole, SemesterExam } from './types/math';
 import { initialClassrooms, initialStudents, initialQuestions, initialLeaderboard } from './data/defaultData';
+import { ROSTER_DATA_VERSION } from './data/rosterAccountsData';
 import { Navbar, NavTab } from './components/Navbar';
 import { SoloGamesHub } from './components/solo/SoloGamesHub';
 import { TeamArenaHub } from './components/team/TeamArenaHub';
@@ -348,28 +349,49 @@ export default function App() {
     };
   }, []);
 
-  // Persistent or initial state
+  // Persistent or initial state (auto-upgrade localStorage once to synced 80 HS - 80 PH Excel roster)
+  const isRosterUpToDate =
+    typeof window !== 'undefined' &&
+    localStorage.getItem('mathquest_roster_version') === ROSTER_DATA_VERSION;
+
   const [classrooms, setClassrooms] = useState<Classroom[]>(() => {
-    const saved = localStorage.getItem('mathquest_classrooms');
-    if (saved) {
-      try {
-        const parsed: Classroom[] = JSON.parse(saved);
-        const updated = parsed.map((c: any) => ({
-          ...c,
-          homeroomTeacher: 'Cô Diễm Quỳnh (GV Chủ Nhiệm)',
-          subjectTeacher: 'Cô Diễm Quỳnh (GV Bộ Môn Toán)',
-          duties: c.duties || 'Chủ nhiệm lớp & Giảng dạy bộ môn Toán THCS'
-        }));
-        localStorage.setItem('mathquest_classrooms', JSON.stringify(updated));
-        return updated;
-      } catch { }
+    if (isRosterUpToDate) {
+      const saved = localStorage.getItem('mathquest_classrooms');
+      if (saved) {
+        try {
+          const parsed: Classroom[] = JSON.parse(saved);
+          const updated = parsed.map((c: any) => ({
+            ...c,
+            homeroomTeacher: 'Cô Diễm Quỳnh (GV Chủ Nhiệm)',
+            subjectTeacher: 'Cô Diễm Quỳnh (GV Bộ Môn Toán)',
+            duties: c.duties || 'Chủ nhiệm lớp & Giảng dạy bộ môn Toán THCS'
+          }));
+          localStorage.setItem('mathquest_classrooms', JSON.stringify(updated));
+          return updated;
+        } catch { }
+      }
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('mathquest_classrooms', JSON.stringify(initialClassrooms));
     }
     return initialClassrooms;
   });
 
   const [students, setStudents] = useState<Student[]>(() => {
-    const saved = localStorage.getItem('mathquest_students');
-    return saved ? JSON.parse(saved) : initialStudents;
+    if (isRosterUpToDate) {
+      const saved = localStorage.getItem('mathquest_students');
+      if (saved) {
+        try {
+          const parsed: Student[] = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch { }
+      }
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('mathquest_students', JSON.stringify(initialStudents));
+      localStorage.setItem('mathquest_roster_version', ROSTER_DATA_VERSION);
+    }
+    return initialStudents;
   });
 
   const [questions, setQuestions] = useState<Question[]>(() => {

@@ -37,7 +37,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   const CLASS_CODE = '20112002';
 
   const [searchPhone, setSearchPhone] = useState<string>(() => {
-    return initialPhone || '0912345678';
+    return initialPhone || students[0]?.parentPhone || '0907382642';
   });
   const [selectedStudentId, setSelectedStudentId] = useState<string>(() => {
     if (initialPhone) {

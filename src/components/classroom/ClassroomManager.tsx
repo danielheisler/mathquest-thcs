@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Classroom, Student, HomeworkSubmission } from '../../types/math';
 import { Language } from '../../i18n/translations';
-import { generateRandomPassword, getParentCredentials, getStudentCredentials } from '../../utils/auth';
+import { DEFAULT_PARENT_PASSWORD, DEFAULT_STUDENT_PASSWORD, generateRandomPassword, getParentCredentials, getStudentCredentials } from '../../utils/auth';
 import { soundManager } from '../../utils/sound';
 import { ComprehensiveClassReportModal } from '../reports/ComprehensiveClassReportModal';
 import { WeeklyParticipationReport } from '../analytics/WeeklyParticipationReport';
@@ -88,11 +88,11 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
   const [newDateOfBirth, setNewDateOfBirth] = useState<string>('');
   const [newAddress, setNewAddress] = useState<string>('');
   const [newAccountPhone, setNewAccountPhone] = useState<string>('');
-  const [newAccountPassword, setNewAccountPassword] = useState<string>(() => generateRandomPassword(8));
+  const [newAccountPassword, setNewAccountPassword] = useState<string>(DEFAULT_STUDENT_PASSWORD);
   const [newParentPhone, setNewParentPhone] = useState<string>('');
   const [newParentName, setNewParentName] = useState<string>('');
   const [newParentRelation, setNewParentRelation] = useState<string>('Bố');
-  const [newParentPassword, setNewParentPassword] = useState<string>(() => generateRandomPassword(8));
+  const [newParentPassword, setNewParentPassword] = useState<string>(DEFAULT_PARENT_PASSWORD);
   const [newTeacherNotes, setNewTeacherNotes] = useState<string>('');
 
   // Batch import text state & Excel upload state
@@ -154,11 +154,11 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
       address: newAddress.trim() || undefined,
       accountPhone: newAccountPhone.trim() || undefined,
       accountCode: `HS${String(students.length + 1).padStart(2, '0')}`,
-      accountPassword: newAccountPassword.trim() || generateRandomPassword(8),
+      accountPassword: newAccountPassword.trim() || DEFAULT_STUDENT_PASSWORD,
       parentPhone: newParentPhone.trim() || '0900000000',
       parentName: newParentName.trim() || `Phụ huynh em ${newName.trim()}`,
       parentRelation: newParentRelation.trim() || 'Phụ huynh',
-      parentPassword: newParentPassword.trim() || generateRandomPassword(8),
+      parentPassword: newParentPassword.trim() || DEFAULT_PARENT_PASSWORD,
       teacherNotes: newTeacherNotes || 'Học sinh mới gia nhập lớp do Cô Diễm Quỳnh quản lý.'
     };
 
@@ -167,11 +167,11 @@ export const ClassroomManager: React.FC<ClassroomManagerProps> = ({
     setNewDateOfBirth('');
     setNewAddress('');
     setNewAccountPhone('');
-    setNewAccountPassword(generateRandomPassword(8));
+    setNewAccountPassword(DEFAULT_STUDENT_PASSWORD);
     setNewParentPhone('');
     setNewParentName('');
     setNewParentRelation('Bố');
-    setNewParentPassword(generateRandomPassword(8));
+    setNewParentPassword(DEFAULT_PARENT_PASSWORD);
     setNewTeacherNotes('');
     setShowAddModal(false);
   };

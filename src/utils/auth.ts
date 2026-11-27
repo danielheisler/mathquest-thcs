@@ -39,9 +39,9 @@ const FIXED_STAFF_ACCOUNTS: AccountRecord[] = [
 const FALLBACK_STUDENT_ACCOUNT: AccountRecord = {
   id: 'acc-s1',
   role: 'student',
-  phone: '0987654321',
+  phone: '0792246341',
   password: 'HS201102',
-  name: 'Nguyễn Minh Quân',
+  name: 'Võ Phương Nhi',
   roleLabel: 'Học sinh',
   studentId: 's1',
   className: 'Lớp 6A1',
