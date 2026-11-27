@@ -28,6 +28,7 @@ export type NavTab =
   | 'homework'
   | 'ai_duel'
   | 'labs'
+  | 'sharing_box'
   | 'parent_portal'
   | 'classroom'
   | 'gradebook'
@@ -117,6 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     },
     { id: 'ai_duel', label: t.navAiDuel, badge: 'AI' },
     { id: 'labs', label: t.navLabs, badge: t.navLabsBadge },
+    { id: 'sharing_box', label: t.navSharingBox, badge: t.navSharingBoxBadge },
   ];
 
   // GV Bộ Môn Toán (Cô Diễm Quỳnh)
@@ -271,8 +273,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onToggleTheme();
               }}
               className={`p-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${theme === 'dark'
-                  ? 'bg-indigo-600 border-indigo-500 text-amber-300 hover:bg-indigo-500'
-                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                ? 'bg-indigo-600 border-indigo-500 text-amber-300 hover:bg-indigo-500'
+                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               title={theme === 'dark' ? t.lightMode : t.darkMode}
               aria-label={theme === 'dark' ? t.lightMode : t.darkMode}
@@ -287,8 +289,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onToggleLanguage();
               }}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${language === 'en'
-                  ? 'bg-indigo-600 border-indigo-500 text-white hover:bg-indigo-500'
-                  : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
+                ? 'bg-indigo-600 border-indigo-500 text-white hover:bg-indigo-500'
+                : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
                 }`}
               title={`${t.language}: ${language === 'vi' ? t.vietnamese : t.english}`}
             >
@@ -300,8 +302,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onToggleSound}
               className={`p-2 rounded-xl border text-xs font-medium transition-colors cursor-pointer ${isSoundEnabled
-                  ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                  : 'bg-rose-50 border-rose-200 text-rose-600'
+                ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                : 'bg-rose-50 border-rose-200 text-rose-600'
                 }`}
               title={isSoundEnabled ? t.soundOff : t.soundOn}
             >
@@ -347,8 +349,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                     onTabChange(item.id);
                   }}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${isActive
-                      ? 'bg-indigo-50 text-indigo-700 font-bold'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'bg-indigo-50 text-indigo-700 font-bold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                 >
                   <span>{item.label}</span>
@@ -378,8 +380,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onTabChange('classroom');
                 }}
                 className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${teacherRole === 'subject_teacher'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
                   }`}
               >
                 <span>{t.subjectTeacherBtn}</span>
@@ -393,8 +395,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onTabChange('seating_chart');
                 }}
                 className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${teacherRole === 'homeroom_teacher'
-                    ? 'bg-blue-700 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-blue-700 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
                   }`}
               >
                 <span>{t.homeroomTeacherBtn}</span>
@@ -413,8 +415,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onTabChange(item.id);
                     }}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${isActive
-                        ? 'bg-indigo-50 text-indigo-700 font-bold'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'bg-indigo-50 text-indigo-700 font-bold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                       }`}
                   >
                     <span>{item.label}</span>

@@ -17,6 +17,7 @@ import { VnEduGradebook } from './components/classroom/VnEduGradebook';
 import { LessonPlanManager } from './components/classroom/LessonPlanManager';
 import { SlideStudio } from './components/classroom/SlideStudio';
 import { ClassLifeHub } from './components/classroom/ClassLifeHub';
+import { StudentSharingBox } from './components/student/StudentSharingBox';
 import { LessonPlan } from './data/lessonPlansData';
 import { CustomGameStudio } from './components/games/CustomGameStudio';
 import { initialVnEduRecords } from './data/vneduData';
@@ -966,6 +967,14 @@ export default function App() {
             {/* Tab: Phòng Thực Hành Trực Quan */}
             {activeTab === 'labs' && (
               <InteractiveLabsHub language={language} />
+            )}
+
+            {/* Tab: Hộp Thư Ẩn Danh "Góc Sẻ Chia" */}
+            {activeTab === 'sharing_box' && (
+              <StudentSharingBox
+                language={language}
+                activeStudentName={activeStudentName}
+              />
             )}
           </div>
         )}

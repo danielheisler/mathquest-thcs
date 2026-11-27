@@ -108,6 +108,8 @@ export const translations = {
     navAiDuel: 'Đấu Trí AI MathBot',
     navLabs: 'Bài Giảng Trực Quan',
     navLabsBadge: 'Lớp 6-9',
+    navSharingBox: 'Góc Sẻ Chia',
+    navSharingBoxBadge: 'Ẩn danh 💌',
 
     navClassroom: 'Sổ Điểm Môn Toán & Thứ Hạng',
     navClassroomBadge: 'Cô Quỳnh',
@@ -253,6 +255,8 @@ export const translations = {
     navAiDuel: 'AI MathBot Duel',
     navLabs: 'Interactive Visual Labs',
     navLabsBadge: 'Grades 6-9',
+    navSharingBox: 'Sharing Box',
+    navSharingBoxBadge: 'Anonymous 💌',
 
     navClassroom: 'Math Roster & Rankings',
     navClassroomBadge: 'Ms. Quỳnh',

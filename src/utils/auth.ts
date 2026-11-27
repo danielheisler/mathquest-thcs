@@ -364,6 +364,7 @@ const STUDENT_TABS = new Set([
   'homework',
   'ai_duel',
   'labs',
+  'sharing_box',
 ]);
 
 const TEACHER_TABS = new Set([

@@ -23,7 +23,7 @@ import {
 
 type ClassLifeTab = 'wall' | 'psych_quiz' | 'habit_21' | 'trivia';
 
-interface PraisePost {
+export interface PraisePost {
   id: string;
   studentName: string;
   author: string;
@@ -33,7 +33,7 @@ interface PraisePost {
   date: string;
 }
 
-interface SecretNote {
+export interface SecretNote {
   id: string;
   topic: string;
   content: string;
@@ -42,11 +42,11 @@ interface SecretNote {
   teacherReply?: string;
 }
 
-const WALL_STORAGE_KEY = 'mathquest_wall_of_fame_v1';
-const SECRETS_STORAGE_KEY = 'mathquest_secret_box_v1';
+export const WALL_STORAGE_KEY = 'mathquest_wall_of_fame_v1';
+export const SECRETS_STORAGE_KEY = 'mathquest_secret_box_v1';
 const HABITS_STORAGE_KEY = 'mathquest_habits_21_v1';
 
-const INITIAL_PRAISE: PraisePost[] = [
+export const INITIAL_PRAISE: PraisePost[] = [
   {
     id: 'pf-1',
     studentName: 'Nguyễn Minh Quân (6A1)',
@@ -76,7 +76,7 @@ const INITIAL_PRAISE: PraisePost[] = [
   },
 ];
 
-const INITIAL_SECRETS: SecretNote[] = [
+export const INITIAL_SECRETS: SecretNote[] = [
   {
     id: 'sec-1',
     topic: 'Áp lực học tập',
@@ -350,6 +350,25 @@ export const ClassLifeHub: React.FC<ClassLifeHubProps> = ({
   useEffect(() => {
     localStorage.setItem(SECRETS_STORAGE_KEY, JSON.stringify(secrets));
   }, [secrets]);
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === SECRETS_STORAGE_KEY && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setSecrets(parsed);
+        } catch {}
+      }
+      if (e.key === WALL_STORAGE_KEY && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setPraises(parsed);
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   // 2. Psych Quick Quiz
   const [selectedQuizId, setSelectedQuizId] = useState<string>(PSYCH_QUIZZES[0].id);
